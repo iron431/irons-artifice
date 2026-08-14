@@ -12,10 +12,10 @@ import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.RenderPassInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.gun.HandOccupancy;
 import io.redspace.irons_artifice.item.AnimationAdjuster;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.MagazineContents;
-import io.redspace.irons_artifice.gun.HandOccupancy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
@@ -39,27 +39,50 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = DataTicket.create(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
 
 
+    private final AttachmentGeoRenderer spyglassRenderer;
+
     public GunInHandRenderer(GeoModel<GunItem> model) {
         super(model);
+        this.spyglassRenderer = new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
+                "test_scope",
+                "model/spyglass_model",
+                "empty"));
     }
 
     @Override
     public void preRenderPass(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
         super.preRenderPass(renderPassInfo, renderTasks);
+        handleAttachmentRendering(renderPassInfo, renderTasks);
+        handleFirstPersonHandRendering(renderPassInfo, renderTasks);
+    }
+
+    private void handleAttachmentRendering(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
+        var opticOpt = renderPassInfo.model().getBone("attachment_optic");
+        if (opticOpt.isEmpty()) {
+            return;
+        }
+        var opticPoint = opticOpt.get();
+        renderPassInfo.addPerBoneRender(opticPoint, (opticPass, bone, opticTasks) ->
+                this.spyglassRenderer.performRenderPass(opticPass, opticTasks)
+        );
+    }
+
+    private void handleFirstPersonHandRendering(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
         // Use Marker Bones "right_arm" and "left_arm" to render the player's hands in first person
         if (!isFirstPersonPerspective(renderPassInfo.renderState())) {
             return;
         }
+
+        final GeoRenderState renderState = renderPassInfo.renderState();
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
         }
-        final GeoRenderState renderState = renderPassInfo.renderState();
-        Identifier skinTexture = player.getSkin().body().texturePath();
-        final RenderType renderType = getRenderType(renderState, skinTexture);
         if (!(Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player) instanceof AvatarRenderer renderer)) {
             return;
         }
+        Identifier skinTexture = player.getSkin().body().texturePath();
+        final RenderType renderType = getRenderType(renderState, skinTexture);
         renderPassInfo.model().getBone("right_arm").ifPresent(bone ->
                 renderPassInfo.addPerBoneRender(bone, (renderPassInfo1, bone1, renderTasks1) -> {
                             var modelPart = ((PlayerModel) renderer.getModel()).rightArm;
@@ -107,7 +130,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
             last.pose().scale(-1f, 1f, 1f);
             // compensate for weird lighting
             Matrix3f normal = last.normal();
-            normal.scale(-1,-1,1);
+            normal.scale(-1, -1, 1);
         }
     }
 

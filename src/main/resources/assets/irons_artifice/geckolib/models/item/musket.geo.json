@@ -183,6 +183,11 @@
 							}
 						}
 					]
+				},
+				{
+					"name": "attachment_optic",
+					"parent": "gun",
+					"pivot": [0, 3, -6]
 				}
 			]
 		}

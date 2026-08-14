@@ -164,6 +164,8 @@ public final class ItemRegistry {
             "buffer_spring_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BufferSpringModifier()));
     public static final DeferredItem<ModifierItem> MECHANICAL_REPEATER = ITEMS.registerItem(
             "mechanical_repeater_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalRepeaterModifier()));
+    public static final DeferredItem<ModifierItem> SPYGLASS_ATTACHMENT_MODIFIER = ITEMS.registerItem(
+            "spyglass_modifier", properties -> new ModifierItem(properties.stacksTo(1), _->{}));
 
     //    public static final DeferredItem<ModifierItem> FAIRY_DUST = ITEMS.registerItem(
     //            "fairy_dust_modifier", properties -> new ModifierItem(properties.stacksTo(1), new FairyDustModifier()));
