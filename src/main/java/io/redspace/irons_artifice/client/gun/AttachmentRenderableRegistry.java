@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Optional;
 
 public class AttachmentRenderableRegistry {
-    private static final Map<Identifier, AttachmentRenderable> attachments = new HashMap<>();
+    private static final Map<Identifier, AttachmentGeoRenderer> attachments = new HashMap<>();
 
-    public static void register(Identifier identifier, AttachmentRenderable renderable) {
-        attachments.put(identifier, renderable);
+    public static void register(Identifier identifier, AttachmentGeoRenderer renderer) {
+        attachments.put(identifier, renderer);
     }
 
-    public static Optional<AttachmentRenderable> get(Identifier identifier) {
+    public static Optional<AttachmentGeoRenderer> get(Identifier identifier) {
         return Optional.ofNullable(attachments.get(identifier));
     }
 }

@@ -45,7 +45,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.Map;
-import java.util.Optional;
 
 public final class ItemRegistry {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(IronsArtifice.MODID);
@@ -168,12 +167,7 @@ public final class ItemRegistry {
     public static final DeferredItem<ModifierItem> MECHANICAL_REPEATER = ITEMS.registerItem(
             "mechanical_repeater_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalRepeaterModifier()));
     public static final DeferredItem<ModifierItem> SPYGLASS_ATTACHMENT_MODIFIER = ITEMS.registerItem(
-            "spyglass_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpyglassModifier()) {
-                @Override
-                public Optional<Identifier> attachmentRenderableId() {
-                    return Optional.of(IronsArtifice.id("spyglass_scope"));
-                }
-            });
+            "spyglass_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpyglassModifier()));
 
     //    public static final DeferredItem<ModifierItem> FAIRY_DUST = ITEMS.registerItem(
     //            "fairy_dust_modifier", properties -> new ModifierItem(properties.stacksTo(1), new FairyDustModifier()));

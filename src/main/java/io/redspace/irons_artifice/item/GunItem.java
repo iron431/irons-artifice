@@ -58,7 +58,7 @@ import java.util.function.Function;
 public class GunItem extends BaseGeoItem {
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = DataTicket.create(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
     public static final DataTicket<AnimationAdjuster> ANIMATION_ADJUSTER_TICKET = DataTicket.create(IronsArtifice.id("animation_adjuster").toString(), AnimationAdjuster.class);
-    public static final DataTicket<AttachmentRenderableSet> ATTACHMENT_RENDERABLES = DataTicket.create(IronsArtifice.id("attachment_renderables").toString(), AttachmentRenderableSet.class);
+    public static final DataTicket<AttachmentMap> ATTACHMENTS = DataTicket.create(IronsArtifice.id("attachments").toString(), AttachmentMap.class);
     public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = DataTicket.create(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
     public static final DataTicket<HandOccupancy> HAND_OCCUPANCY_TICKET = DataTicket.create(IronsArtifice.id("hand_occupancy").toString(), HandOccupancy.class);
     public static final String TRIGGERED_ANIMATION_CONTROLLER = "Actions";

@@ -1,13 +1,16 @@
 package io.redspace.irons_artifice.utils;
 
+import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +45,7 @@ public final class ModifierPatchHandler {
 
     public static DataComponentPatch combine(Container modifiers) {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
+        Map<String, Identifier> attachments = new LinkedHashMap<>();
         boolean empty = true;
         for (ItemStack stack : modifiers) {
             if (stack.isEmpty() || !(stack.getItem() instanceof ModifierItem modifierItem)) {
@@ -52,18 +56,30 @@ public final class ModifierPatchHandler {
                 continue;
             }
             empty = false;
-            applyPatchToBuilder(builder, patch.get());
+            applyPatchToBuilder(builder, patch.get(), attachments);
+        }
+        if (!attachments.isEmpty()) {
+            builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(attachments));
         }
         return empty ? DataComponentPatch.EMPTY : builder.build();
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> void applyPatchToBuilder(DataComponentPatch.Builder builder, DataComponentPatch patch) {
+    private static <T> void applyPatchToBuilder(
+            DataComponentPatch.Builder builder,
+            DataComponentPatch patch,
+            Map<String, Identifier> attachments
+    ) {
         Set<Map.Entry<DataComponentType<T>, Optional<T>>> entries = (Set) patch.entrySet();
         entries.forEach(entry -> {
-            if (entry.getValue().isPresent()) {
-                builder.set(entry.getKey(), entry.getValue().get());
+            if (entry.getValue().isEmpty()) {
+                return;
             }
+            if (entry.getKey() == DataComponentRegistry.ATTACHMENT.get()) {
+                attachments.putAll(((AttachmentMap) entry.getValue().get()).attachments());
+                return;
+            }
+            builder.set(entry.getKey(), entry.getValue().get());
         });
     }
 }

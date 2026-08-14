@@ -8,7 +8,6 @@ import io.redspace.irons_artifice.client.entity.IllificerRenderer;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
-import io.redspace.irons_artifice.client.gun.AttachmentRenderable;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
@@ -101,11 +100,11 @@ public class IronsArtificeClient {
             });
         }
         AttachmentRenderableRegistry.register(
-                IronsArtifice.id("spyglass_scope"), new AttachmentRenderable(new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
+                IronsArtifice.id("spyglass_scope"),
+                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
                         "test_scope",
                         "model/spyglass_model",
-                        "empty")),
-                        "attachment_optic")
+                        "empty"))
         );
     }
 

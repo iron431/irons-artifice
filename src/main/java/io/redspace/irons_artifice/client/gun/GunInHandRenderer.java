@@ -14,9 +14,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.HandOccupancy;
 import io.redspace.irons_artifice.item.AnimationAdjuster;
-import io.redspace.irons_artifice.item.AttachmentRenderableSet;
+import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
@@ -52,21 +53,21 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     private void handleAttachmentRendering(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo, @NonNull SubmitNodeCollector renderTasks) {
-        AttachmentRenderableSet renderables = renderPassInfo.getGeckolibData(GunItem.ATTACHMENT_RENDERABLES);
-        if (renderables == null || renderables.attachmentIds().isEmpty()) {
+        AttachmentMap attachments = renderPassInfo.getGeckolibData(GunItem.ATTACHMENTS);
+        if (attachments == null || attachments.isEmpty()) {
             return;
         }
-        for (Identifier id : renderables.attachmentIds()) {
-            Optional<AttachmentRenderable> renderable = AttachmentRenderableRegistry.get(id);
-            if (renderable.isEmpty()) {
+        for (var entry : attachments.attachments().entrySet()) {
+            Optional<AttachmentGeoRenderer> renderer = AttachmentRenderableRegistry.get(entry.getValue());
+            if (renderer.isEmpty()) {
                 continue;
             }
-            Optional<GeoBone> attachmentOpt = renderPassInfo.model().getBone(renderable.get().attachmentPoint());
+            Optional<GeoBone> attachmentOpt = renderPassInfo.model().getBone(entry.getKey());
             if (attachmentOpt.isEmpty()) {
                 continue;
             }
             renderPassInfo.addPerBoneRender(attachmentOpt.get(), (opticPass, bone, opticTasks) ->
-                    renderable.get().renderer().performRenderPass(opticPass, opticTasks)
+                    renderer.get().performRenderPass(opticPass, opticTasks)
             );
         }
     }
@@ -116,7 +117,10 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         var controller = animatable.getAnimatableInstanceCache().getManagerForId(GeoItem.getId(renderData.itemStack())).getAnimationControllers().get(GunItem.TRIGGERED_ANIMATION_CONTROLLER);
         renderState.addGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, controller.isTriggeredAnimation("reload") ? controller.getCurrentAnimationTime() : 0.0);
         renderState.addGeckolibData(GunItem.ANIMATION_ADJUSTER_TICKET, animatable.getAnimationAdjuster());
-        renderState.addGeckolibData(GunItem.ATTACHMENT_RENDERABLES, AttachmentRenderableSet.fromStack(renderData.itemStack()));
+        renderState.addGeckolibData(
+                GunItem.ATTACHMENTS,
+                renderData.itemStack().getOrDefault(DataComponentRegistry.ATTACHMENT, AttachmentMap.EMPTY)
+        );
         LivingEntity owner = renderData.itemOwner() instanceof LivingEntity living
                 ? living
                 : Minecraft.getInstance().player;

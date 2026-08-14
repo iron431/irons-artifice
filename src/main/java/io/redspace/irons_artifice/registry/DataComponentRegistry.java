@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.registry;
 
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
@@ -36,6 +37,10 @@ public final class DataComponentRegistry {
             COMPONENTS.registerComponentType("gun_spyglass", builder -> builder
                     .persistent(Unit.CODEC)
                     .networkSynchronized(Unit.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttachmentMap>> ATTACHMENT =
+            COMPONENTS.registerComponentType("attachment", builder -> builder
+                    .persistent(AttachmentMap.CODEC)
+                    .networkSynchronized(AttachmentMap.STREAM_CODEC));
 
     public static void register(IEventBus modEventBus) {
         COMPONENTS.register(modEventBus);
