@@ -32,15 +32,22 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -51,6 +58,7 @@ import java.util.function.Function;
 public class GunItem extends BaseGeoItem {
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = DataTicket.create(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
     public static final DataTicket<AnimationAdjuster> ANIMATION_ADJUSTER_TICKET = DataTicket.create(IronsArtifice.id("animation_adjuster").toString(), AnimationAdjuster.class);
+    public static final DataTicket<AttachmentRenderableSet> ATTACHMENT_RENDERABLES = DataTicket.create(IronsArtifice.id("attachment_renderables").toString(), AttachmentRenderableSet.class);
     public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = DataTicket.create(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
     public static final DataTicket<HandOccupancy> HAND_OCCUPANCY_TICKET = DataTicket.create(IronsArtifice.id("hand_occupancy").toString(), HandOccupancy.class);
     public static final String TRIGGERED_ANIMATION_CONTROLLER = "Actions";
@@ -83,6 +91,62 @@ public class GunItem extends BaseGeoItem {
         this.animationAdjuster = animationAdjuster;
         this.defaultOccupancy = armPoseKind == ArmPoseKind.RIFLE ? HandOccupancy.BOTH : HandOccupancy.MAINHAND;
         this.animationOccupancy = Map.copyOf(animationOccupancy);
+    }
+
+    public static boolean hasGunSpyglass(ItemInstance stack) {
+        return stack.has(DataComponentRegistry.GUN_SPYGLASS);
+    }
+
+    @Override
+    public boolean canPerformAction(@NonNull ItemInstance stack, @NonNull ItemAbility itemAbility) {
+        if (hasGunSpyglass(stack) && ItemAbilities.DEFAULT_SPYGLASS_ACTIONS.contains(itemAbility)) {
+            return true;
+        }
+        return super.canPerformAction(stack, itemAbility);
+    }
+
+    @Override
+    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!hasGunSpyglass(stack)) {
+            return super.use(level, player, hand);
+        }
+        player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
+        return ItemUtils.startUsingInstantly(level, player, hand);
+    }
+
+    @Override
+    public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity user) {
+        return hasGunSpyglass(stack) ? SpyglassItem.USE_DURATION : super.getUseDuration(stack, user);
+    }
+
+    @Override
+    public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
+        return hasGunSpyglass(stack) ? ItemUseAnimation.SPYGLASS : super.getUseAnimation(stack);
+    }
+
+    @Override
+    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
+        if (hasGunSpyglass(stack)) {
+            stopGunSpyglass(stack, entity);
+            return stack;
+        }
+        return super.finishUsingItem(stack, level, entity);
+    }
+
+    @Override
+    public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {
+        if (hasGunSpyglass(stack)) {
+            stopGunSpyglass(stack, entity);
+            return true;
+        }
+        return super.releaseUsing(stack, level, entity, remainingTime);
+    }
+
+    private static void stopGunSpyglass(ItemStack stack, LivingEntity entity) {
+        if (hasGunSpyglass(stack)) {
+            entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
+        }
     }
 
     public GunProfile getGun() {

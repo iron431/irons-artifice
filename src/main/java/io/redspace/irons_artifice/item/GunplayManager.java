@@ -6,6 +6,7 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.MuzzleFlashSettings;
@@ -206,6 +207,9 @@ public final class GunplayManager {
         }
         ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
         if (living != null) {
+            if (living instanceof Player player && player.isScoping()) {
+                profile.components().getOrCreate(ShotComponents.CAMERA_RECOIL_MULTIPLIER).addModifier(new ValueModifier(-0.75, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+            }
             NeoForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
         }
         return profile;

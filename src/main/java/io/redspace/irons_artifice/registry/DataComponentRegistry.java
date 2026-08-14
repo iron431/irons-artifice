@@ -7,6 +7,7 @@ import io.redspace.irons_artifice.item.ReloadState;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.Unit;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -31,6 +32,10 @@ public final class DataComponentRegistry {
             COMPONENTS.registerComponentType("modifier_patch", builder -> builder
                     .persistent(DataComponentPatch.CODEC)
                     .networkSynchronized(DataComponentPatch.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> GUN_SPYGLASS =
+            COMPONENTS.registerComponentType("gun_spyglass", builder -> builder
+                    .persistent(Unit.CODEC)
+                    .networkSynchronized(Unit.STREAM_CODEC));
 
     public static void register(IEventBus modEventBus) {
         COMPONENTS.register(modEventBus);

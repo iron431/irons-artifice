@@ -10,8 +10,8 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [
-    "AbstractSkeletonMixin",
-    "IllagerPatrolMixin"
-  ]
+    "mixins": [
+        "AbstractSkeletonMixin",
+        "IllagerPatrolMixin"
+    ]
 }
