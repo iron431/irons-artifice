@@ -33,6 +33,7 @@ public class GunModifierMenu extends AbstractContainerMenu {
         this.modifierSlots = new ArrayList<>();
         gunInventory.startOpen(playerInventory.player);
         this.size = gunInventory.getContainerSize();
+        // fixme: mainhand only
         this.gunstack = playerInventory.getSelectedItem();
 
         int maxPerRow = 8;

@@ -2,6 +2,7 @@ package io.redspace.irons_artifice.menu;
 
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.modifier.ModifierItem;
+import io.redspace.irons_artifice.utils.ModifierPatchHandler;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -33,12 +34,14 @@ public class GunContainer extends SimpleContainer {
     public void setChanged() {
         super.setChanged();
         this.stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.getItems()));
+        ModifierPatchHandler.rebuild(this.stack, this);
     }
 
     @Override
     public boolean stillValid(Player player) {
         return !player.isSpectator()
-                && (player.getMainHandItem() == this.stack || player.getOffhandItem() == this.stack);
+                // fixme: must become handed
+                && (player.getMainHandItem() == this.stack);
     }
 
     @Override
