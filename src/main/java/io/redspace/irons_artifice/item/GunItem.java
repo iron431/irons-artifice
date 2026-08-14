@@ -39,7 +39,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.item.TooltipFlag;
@@ -120,33 +119,18 @@ public class GunItem extends BaseGeoItem {
         return hasGunSpyglass(stack) ? SpyglassItem.USE_DURATION : super.getUseDuration(stack, user);
     }
 
-    @Override
-    public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
-        return hasGunSpyglass(stack) ? ItemUseAnimation.SPYGLASS : super.getUseAnimation(stack);
-    }
-
-    @Override
-    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
-        if (hasGunSpyglass(stack)) {
-            stopGunSpyglass(stack, entity);
-            return stack;
-        }
-        return super.finishUsingItem(stack, level, entity);
-    }
+//    @Override
+//    public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
+//        return hasGunSpyglass(stack) ? ItemUseAnimation.SPYGLASS : super.getUseAnimation(stack);
+//    }
 
     @Override
     public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {
         if (hasGunSpyglass(stack)) {
-            stopGunSpyglass(stack, entity);
+            entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             return true;
         }
         return super.releaseUsing(stack, level, entity, remainingTime);
-    }
-
-    private static void stopGunSpyglass(ItemStack stack, LivingEntity entity) {
-        if (hasGunSpyglass(stack)) {
-            entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-        }
     }
 
     public GunProfile getGun() {

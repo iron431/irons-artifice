@@ -208,7 +208,7 @@ public final class GunplayManager {
         ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
         if (living != null) {
             if (living instanceof Player player && player.isScoping()) {
-                profile.components().getOrCreate(ShotComponents.CAMERA_RECOIL_MULTIPLIER).addModifier(new ValueModifier(-0.75, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+                profile.components().getOrCreate(ShotComponents.CAMERA_RECOIL_MULTIPLIER).addModifier(new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
             }
             NeoForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
         }
