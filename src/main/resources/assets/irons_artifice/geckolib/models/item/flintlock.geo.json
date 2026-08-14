@@ -97,6 +97,11 @@
 					]
 				},
 				{
+					"name": "attachment_optic",
+					"parent": "gun",
+					"pivot": [0, 2.25, -5]
+				},
+				{
 					"name": "grip",
 					"parent": "gun",
 					"pivot": [0, 2.25, 0],

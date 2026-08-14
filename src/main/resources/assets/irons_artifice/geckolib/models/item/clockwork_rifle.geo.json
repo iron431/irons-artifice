@@ -77,6 +77,11 @@
 						{"origin": [-0.5, 4.5, -9], "size": [1, 1, 6], "uv": [0, 0]},
 						{"origin": [-0.5, 4.5, -10], "size": [1, 2, 9], "uv": [0, 7]}
 					]
+				},
+				{
+					"name": "attachment_optic",
+					"parent": "carryhandle",
+					"pivot": [0, 5.5, -5]
 				}
 			]
 		}

@@ -170,6 +170,11 @@
 					]
 				},
 				{
+					"name": "attachment_optic",
+					"parent": "gun",
+					"pivot": [0, 5, -1.25]
+				},
+				{
 					"name": "hammer",
 					"parent": "gun",
 					"pivot": [0, 1.75, 2.5],

@@ -221,6 +221,11 @@
 					]
 				},
 				{
+					"name": "attachment_optic",
+					"parent": "break_action",
+					"pivot": [0, 5.5, -5]
+				},
+				{
 					"name": "cylinder",
 					"parent": "break_action",
 					"pivot": [-0.14928, 2.7263, 0.82948]
