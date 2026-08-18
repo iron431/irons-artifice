@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.entity.ai;
 
 import io.redspace.irons_artifice.entity.IGunslingerMob;
-import io.redspace.irons_artifice.gun.FireMode;
+import io.redspace.irons_artifice.data.FireMode;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;

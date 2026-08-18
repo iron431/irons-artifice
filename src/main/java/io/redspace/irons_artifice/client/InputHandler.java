@@ -4,13 +4,14 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
-import io.redspace.irons_artifice.network.ServerboundFireGunPacket;
-import io.redspace.irons_artifice.network.ServerboundOpenModifierMenuPacket;
-import io.redspace.irons_artifice.network.ServerboundReloadGunPacket;
+import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
+import io.redspace.irons_artifice.network.packets.ServerboundOpenModifierMenuPacket;
+import io.redspace.irons_artifice.network.packets.ServerboundReloadGunPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -35,7 +36,9 @@ public final class InputHandler {
         event.setCanceled(true);
     }
 
-    @SubscribeEvent
+    // lowest priority means our screens open last and are on top
+    // looking at you, curios
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;

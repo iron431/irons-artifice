@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.gun;
 
 import io.redspace.irons_artifice.data.ComponentType;
+import io.redspace.irons_artifice.data.FireMode;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.Value;

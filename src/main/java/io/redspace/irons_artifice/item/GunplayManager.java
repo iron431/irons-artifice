@@ -2,27 +2,35 @@ package io.redspace.irons_artifice.item;
 
 import com.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
+import io.redspace.irons_artifice.api.ConsumeAmmoEvent;
+import io.redspace.irons_artifice.api.GunAboutToShootEvent;
+import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.client.ClientHelper;
+import io.redspace.irons_artifice.data.MuzzleFlashSettings;
+import io.redspace.irons_artifice.data.MuzzleFlashType;
+import io.redspace.irons_artifice.data.PlayableSound;
+import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
-import io.redspace.irons_artifice.gun.MuzzleFlashSettings;
-import io.redspace.irons_artifice.gun.MuzzleFlashType;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.network.ClientboundGunAnimationPacket;
-import io.redspace.irons_artifice.network.ClientboundMuzzleFlashPacket;
-import io.redspace.irons_artifice.network.ClientboundReloadCrosshairAnimationPacket;
-import io.redspace.irons_artifice.recoil.RecoilState;
+import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.SoundRegistry;
 import io.redspace.irons_artifice.utils.Utils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -57,6 +65,9 @@ public final class GunplayManager {
             }
             return false;
         }
+        if (NeoForge.EVENT_BUS.post(new GunAboutToShootEvent(shooter, profile)).isCanceled()) {
+            return false;
+        }
         beginFireDelay(shooter, stack, (int) Math.round(profile.fireDelayTicks()), pitchMultiplierForFire(profile));
         if (!(shooter.level() instanceof ServerLevel level)) {
             return true;
@@ -73,7 +84,15 @@ public final class GunplayManager {
         Vec2 rotation = direction.rotation();
         float pitch = rotation.x - offset.pitch();
         float yaw = rotation.y + offset.yaw();
-        GunItem.setMagazine(stack, magazine.deplete());
+        if (shouldConsumeAmmoForEnchantedBullet(shooter, profile)) {
+            int ammoToConsume = NeoForge.EVENT_BUS.post(new ConsumeAmmoEvent(shooter, profile)).getAmmoToConsume();
+            GunItem.setMagazine(stack, magazine.deplete(ammoToConsume));
+        } else {
+            PlayableSound.of(SoundRegistry.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
+            if (shooter instanceof Player player) {
+                player.sendOverlayMessage(Component.translatable("irons_artifice.tooltip.refunded_ammo", 1).withStyle(ChatFormatting.LIGHT_PURPLE));
+            }
+        }
         profile.get(ShotComponents.GUNSHOT_SOUND).playGunShotSound(level, shooter.position());
         RecoilState.addImpulse(shooter, now, profile);
         fireShot(level, shooter, shooter.getEyePosition(), Vec3.directionFromRotation(pitch, yaw), profile);
@@ -97,14 +116,19 @@ public final class GunplayManager {
         return true;
     }
 
+    private static boolean shouldConsumeAmmoForEnchantedBullet(LivingEntity shooter, ShotProfile profile) {
+        double consumeChance = profile.value(ShotComponents.AMMO_CONSUME_CHANCE);
+        if (consumeChance >= 1) {
+            return true;
+        }
+        return shooter.getRandom().nextDouble() <= consumeChance;
+    }
+
     private static float pitchMultiplierForFire(ShotProfile profile) {
         return (float) ((profile.value(ShotComponents.FIRE_RATE) + 2) / 3);
     }
 
     private static void beginFireDelay(LivingEntity shooter, ItemStack stack, int ticks, float pitchMultiplier) {
-        // item cooldowns seem to tick before inventory tick. new system uses latter
-        // advance one tick in order to maintain intended parity, and one-tick cooldowns meaning "can shoot next tick"
-        ticks -= 1;
         if (ticks > 0) {
             FireDelayState.start(stack, ticks, pitchMultiplier);
         }
@@ -128,23 +152,37 @@ public final class GunplayManager {
     private static void playFireAnimation(LivingEntity living, ItemStack stack, GunItem gunItem, ShotProfile profile) {
         double fireSpeedMultiplier = profile.get(ShotComponents.FIRE_DELAY).base() / profile.fireDelayTicks();
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(living.getId(), GeoItem.getOrAssignId(stack, (ServerLevel) living.level()), stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
-                "fire", (fireSpeedMultiplier + 2) / 3, 0);
+                "fire", (fireSpeedMultiplier + 1) / 2, 0);
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
     }
 
-    private static void playReloadAnimation(LivingEntity living, ItemStack stack, GunItem gunItem, ShotProfile profile) {
-        ReloadState existingState = ReloadState.get(stack);
-        double speed = profile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
-        double offsetSeconds = 0;
-        if (existingState != null) {
-            offsetSeconds = existingState.animationProgressSeconds(gunItem.getGunProfile());
+    public static void playReloadAnimation(LivingEntity living, ItemStack stack) {
+        ReloadState state = ReloadState.get(stack);
+        if (state == null) {
+            return;
         }
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(living.getId(), GeoItem.getOrAssignId(stack, (ServerLevel) living.level()), stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
-                "reload", speed, offsetSeconds);
+                "reload", state.speed(), state.progress(), state.skipAt(), state.skipTo());
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
+    }
+
+    public static void cancelGunAnimation(LivingEntity living, ItemStack stack) {
+        if (!(living.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        InteractionHand hand = stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        ClientboundCancelGunAnimationPacket packet = new ClientboundCancelGunAnimationPacket(
+                living.getId(),
+                GeoItem.getOrAssignId(stack, serverLevel),
+                hand
+        );
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
     }
 
     private static void fireShot(ServerLevel level, LivingEntity shooter, Vec3 origin, Vec3 direction, ShotProfile profile) {
+        var event = NeoForge.EVENT_BUS.post(new GunShootEvent.Pre(shooter, profile, origin, direction));
+        origin = event.getOrigin();
+        direction = event.getDirection();
         int projectileCount = Math.max(1, (int) Math.round(profile.value(ShotComponents.PROJECTILE_COUNT)));
         float speed = (float) profile.value(ShotComponents.BULLET_SPEED);
         float spread = getSpreadForEntity(profile, shooter);
@@ -157,6 +195,7 @@ public final class GunplayManager {
             level.addFreshEntity(bullet);
         }
         spawnMuzzleFlash(level, shooter, direction, profile);
+        NeoForge.EVENT_BUS.post(new GunShootEvent.Post(shooter, profile));
     }
 
     private static void spawnMuzzleFlash(ServerLevel level, LivingEntity shooter, Vec3 direction, ShotProfile profile) {
@@ -219,8 +258,7 @@ public final class GunplayManager {
         return living instanceof Player player && !player.hasInfiniteMaterials();
     }
 
-    public static ReloadResult attemptFinishReload(LivingEntity living, ItemStack gun) {
-        // fixme: lots of duplicated checks with attemptStartReload
+    public static ReloadResult attemptFinishReload(LivingEntity living, ItemStack gun, int roundsToLoad) {
         if (!(gun.getItem() instanceof GunItem gunItem)) {
             return ReloadResult.NO_AMMO;
         }
@@ -236,10 +274,11 @@ public final class GunplayManager {
             return ReloadResult.NO_AMMO;
         }
         int toLoad = Math.min(missing, available);
+        if (roundsToLoad > 0) {
+            toLoad = Math.min(toLoad, roundsToLoad);
+        }
         if (needsAmmo) {
             consumeBullets((Player) living, toLoad);
-        } else {
-            toLoad = missing;
         }
         GunItem.setMagazine(gun, magazine.with(magazine.count() + toLoad));
         return ReloadResult.FINISHED_RELOAD;
@@ -258,17 +297,20 @@ public final class GunplayManager {
         }
 
         boolean needsAmmo = requiresAmmo(living);
-        if (needsAmmo && countBullets((Player) living) <= 0) {
-            return ReloadResult.NO_AMMO;
+        if (needsAmmo) {
+            int available = countBullets((Player) living);
+            if (available <= 0) {
+                return ReloadResult.NO_AMMO;
+            }
+            missing = Math.min(missing, available);
         }
         if (!living.level().isClientSide()) {
-            ShotProfile shotProfile = compose(living, gunItem.getGunProfile(), gun);
-            int ticks = (int) (gunItem.getGunProfile().reloadTimeTicks() / shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER));
-            GunItem.startReload(gun, gunItem.getGunProfile().reloadTimeTicks(), shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER));
-            if (living instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new ClientboundReloadCrosshairAnimationPacket(ticks));
-            }
-            playReloadAnimation(living, gun, gunItem, shotProfile);
+            ShotProfile shotProfile = compose(living, gunItem.getGun(), gun);
+            double speed = shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
+            TopLoadConfig topLoad = gunItem.getGun().topLoadConfig();
+            boolean topOff = topLoad != null && missing < capacity;
+            ReloadState state = ReloadState.start(gun, gunItem.getGun().reloadTimeTicks(), speed, missing, topOff ? topLoad : null);
+            playReloadAnimation(living, gun);
         }
         return ReloadResult.STARTING_RELOAD;
     }

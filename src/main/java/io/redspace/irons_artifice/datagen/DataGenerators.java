@@ -15,11 +15,13 @@ public final class DataGenerators {
         event.createProvider(ItemModelDataGenerator::new);
         event.createProvider(RecipeDataGenerator.Runner::new);
         event.createProvider(ItemTagDataGenerator::new);
+        event.createProvider(EntityTypeTagDataGenerator::new);
         event.createProvider(LootTableDataGenerator::new);
     }
 
     @SubscribeEvent
     public static void gatherServerData(GatherDataEvent.Server event) {
+        event.createProvider(EntityTypeTagDataGenerator::new);
         event.createProvider(LootTableDataGenerator::new);
     }
 }

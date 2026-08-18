@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.modifier.on_hit_handlers;
 
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.PostHitEffect;
+import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;

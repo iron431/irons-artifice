@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.modifier.on_hit_handlers;
 import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleOption;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
-import io.redspace.irons_artifice.gun.OnHitEffect;
+import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.server.level.ServerLevel;

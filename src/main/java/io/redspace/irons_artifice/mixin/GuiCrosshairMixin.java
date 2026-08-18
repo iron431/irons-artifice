@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.mixin;
 
-import io.redspace.irons_artifice.client.hud.CrosshairRenderer;
+import io.redspace.irons_artifice.client.gui.CrosshairRenderer;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;

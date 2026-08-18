@@ -393,6 +393,22 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('B', ItemRegistry.BLACKPOWDER)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
+        // Seeking Powder
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SEEKING_POWDER.get())
+                .pattern("B*B")
+                .define('*', Items.AMETHYST_CLUSTER)
+                .define('B', ItemRegistry.BLACKPOWDER)
+                .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
+                .save(this.output);
+        // Accelerating
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MECHANICAL_ACCELERATOR_MODIFIER.get())
+                .pattern("#B#")
+                .pattern("***")
+                .define('#', Items.COPPER_CHAIN.unaffected())
+                .define('*', commonTag("ingots/copper"))
+                .define('B', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
+                .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
+                .save(this.output);
     }
 
     private static TagKey<Item> commonTag(String path) {

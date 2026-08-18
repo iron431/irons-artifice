@@ -23,7 +23,7 @@ public final class GunArmPoses {
         boolean holdingInRightArm = arm == HumanoidArm.RIGHT;
         ReloadState reloadState = ReloadState.get(renderState.getUseItemStackForArm(arm));
         if (reloadState != null && !reloadState.isFinished()) {
-            animateCrossbowCharge(model.rightArm, model.leftArm, reloadState.duration(), reloadState.progress(), holdingInRightArm);
+            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(renderState.partialTick), holdingInRightArm);
         } else {
             var head = model.head;
             ModelPart armModel = model.getArm(arm);
@@ -39,7 +39,7 @@ public final class GunArmPoses {
         ModelPart shootingArm = holdingInRightArm ? model.rightArm : model.leftArm;
         ModelPart supportArm = holdingInRightArm ? model.leftArm : model.rightArm;
         if (reloadState != null && !reloadState.isFinished()) {
-            animateCrossbowCharge(model.rightArm, model.leftArm, reloadState.duration(), reloadState.progress(), holdingInRightArm);
+            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(renderState.partialTick), holdingInRightArm);
         } else {
             var head = model.head;
             shootingArm.z += 1;

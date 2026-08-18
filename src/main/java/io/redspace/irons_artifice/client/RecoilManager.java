@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.client;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.recoil.RecoilHelper;
+import io.redspace.irons_artifice.utils.RecoilHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;

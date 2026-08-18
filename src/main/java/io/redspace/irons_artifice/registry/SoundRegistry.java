@@ -25,6 +25,7 @@ public class SoundRegistry {
     public static DeferredHolder<SoundEvent, SoundEvent> LIGHTNING_ACCENT_IMPACT = registerSoundEvent("modifier.chain_lightning.impact");
     public static DeferredHolder<SoundEvent, SoundEvent> LEATHER_ACCENT = registerSoundEvent("item.generic.leather_accent");
     public static DeferredHolder<SoundEvent, SoundEvent> INSTANT_RELOAD = registerSoundEvent("item.cowboy_hat.instant_reload");
+    public static DeferredHolder<SoundEvent, SoundEvent> INFINITY_BULLET = registerSoundEvent("modifier.enchanted_bullet.proc");
 
     public static DeferredHolder<SoundEvent, SoundEvent> FLINTLOCK_SHOOT = registerSoundEvent("item.flintlock.shoot");
     public static DeferredHolder<SoundEvent, SoundEvent> FLINTLOCK_EQUIP = registerSoundEvent("item.flintlock.equip");

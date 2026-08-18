@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:copper_chain",
+    "*": "#c:ingots/copper",
+    "B": "irons_artifice:simple_mechanical_components"
+  },
+  "pattern": [
+    "#B#",
+    "***"
+  ],
+  "result": {
+    "id": "irons_artifice:mechanical_accelerator_modifier"
+  }
+}

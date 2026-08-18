@@ -23,7 +23,7 @@ public class LoadoutLootProvider implements LootTableSubProvider {
         output.accept(LootTableRegistry.ILLIFICER_MAIN_MODIFIER, LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1))
-                        .add(LootItem.lootTableItem(ItemRegistry.ENCHANTED_BULLET_MODIFIER.get()))
+                        .add(LootItem.lootTableItem(ItemRegistry.SEEKING_POWDER.get()))
                         .add(LootItem.lootTableItem(ItemRegistry.INCENDIARY_TIP_MODIFIER.get()))
                         .add(LootItem.lootTableItem(ItemRegistry.FROZEN_JACKET.get()))
                         .add(LootItem.lootTableItem(ItemRegistry.CHAIN_LIGHTNING.get()))

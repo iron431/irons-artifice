@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_precursor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "irons_artifice:blackpowder"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "irons_artifice:seeking_powder_modifier"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_precursor"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "irons_artifice:seeking_powder_modifier"
+    ]
+  }
+}

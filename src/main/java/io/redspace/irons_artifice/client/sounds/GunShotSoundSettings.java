@@ -8,7 +8,19 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundEvent;
 
-public record GunShotSoundSettings(Holder<SoundEvent> soundEvent, float minPitch, float maxPitch, float start, float peak, float end) {
+public record GunShotSoundSettings(Holder<SoundEvent> soundEvent, float minPitch, float maxPitch, float start,
+                                   float peak, float end) {
+
+    public static GunShotSoundSettings standardShot(Holder<SoundEvent> soundEvent, float basePitch) {
+        return new GunShotSoundSettings(soundEvent, basePitch - 0.1f, basePitch + 0.1f,
+                -1, 0, 160f);
+    }
+
+    public static GunShotSoundSettings standardEcho(Holder<SoundEvent> soundEvent, float basePitch) {
+        return new GunShotSoundSettings(soundEvent, basePitch - 0.1f, basePitch + 0.1f,
+                32f, 80f, 192f);
+    }
+
 
     public static final StreamCodec<RegistryFriendlyByteBuf, GunShotSoundSettings> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.holderRegistry(Registries.SOUND_EVENT), GunShotSoundSettings::soundEvent,

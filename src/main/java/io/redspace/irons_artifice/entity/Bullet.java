@@ -3,14 +3,17 @@ package io.redspace.irons_artifice.entity;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
+import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.gun.BlockDamageManager;
+import io.redspace.irons_artifice.gun.Guns;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
-import io.redspace.irons_artifice.gun.OnHitEffect;
-import io.redspace.irons_artifice.gun.PostHitEffect;
+import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.modifier.OnHitEffect;
+import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.network.ClientboundBulletImpactPacket;
-import io.redspace.irons_artifice.network.ClientboundBulletTrailPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundBulletImpactPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundBulletTrailPacket;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,6 +33,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -61,8 +65,7 @@ public class Bullet extends Projectile {
     public static final double BASE_SPEED = 12;
     public static final double TRAIL_DENSITY = 3.0;
 
-    @Nullable
-    private ShotProfile profile;
+    private ShotProfile profile = new ShotProfile(ItemStack.EMPTY, Guns.MUSKET, MagazineContents.EMPTY, new ShotComponentMap());
     private int piercingRemaining = 0;
     private final Set<Integer> piercedEntities = new HashSet<>();
     private HitState hitState = HitState.CONTINUE;
@@ -87,7 +90,7 @@ public class Bullet extends Projectile {
         this.entityData.set(DATA_DRAG, (float) profile.value(ShotComponents.BULLET_DRAG));
     }
 
-    public @Nullable ShotProfile getProfile() {
+    public ShotProfile getProfile() {
         return profile;
     }
 
@@ -108,10 +111,6 @@ public class Bullet extends Projectile {
     }
 
     public float resolveDamage() {
-        if (profile == null) {
-            return 0;
-        }
-        // fixme: this is dumb
         return (float) (profile.value(ShotComponents.DAMAGE) / Math.max(1, profile.value(ShotComponents.PROJECTILE_COUNT)));
     }
 
@@ -141,9 +140,6 @@ public class Bullet extends Projectile {
     private static final double SEEK_FORWARD_DOT = 0.2;
 
     protected void handleSeeking() {
-        if (this.profile == null || level().isClientSide()) {
-            return;
-        }
         double seeking = profile.value(ShotComponents.SEEKING);
         if (seeking <= 0) {
             return;
@@ -266,7 +262,7 @@ public class Bullet extends Projectile {
             IronsArtifice.LOGGER.warn("Bullet ran to max iterations! Did something break, or did you just shoot 64 things?");
         }
 
-        if (level() instanceof ServerLevel serverLevel && profile != null) {
+        if (level() instanceof ServerLevel serverLevel) {
             Vec3 particleStart = position;
             Vec3 particleEnd = destination;
             if (tickCount < TRAIL_COMPENSATION_TICKS) {
@@ -304,9 +300,6 @@ public class Bullet extends Projectile {
     protected void onHit(@NonNull HitResult hitResult) {
         hitState = HitState.DISCARD; // setup default hit state
         super.onHit(hitResult);
-        if (profile == null) {
-            return;
-        }
         if (level() instanceof ServerLevel serverLevel) {
             HitEntityAccumulator accumulator = new HitEntityAccumulator();
             if (hitResult instanceof EntityHitResult entityHit) {
@@ -323,20 +316,28 @@ public class Bullet extends Projectile {
             }
             profile.get(ShotComponents.IMPACT_SOUND).playImpactSound(serverLevel, hitResult.getLocation(), hitResult.getType() == HitResult.Type.ENTITY);
         }
+        if (hitState != HitState.CONTINUE && hitResult instanceof BlockHitResult blockHitResult) {
+            // normally this would be handled in block hit, but we want to wait until bullet onhit effects have run before mutating entity direction
+            // on solid block impact, attempt to ricochet
+            int ricochet = this.entityData.get(DATA_RICOCHET);
+            if (ricochet > 0) {
+                this.entityData.set(DATA_RICOCHET, ricochet - 1);
+                reflectMotion(blockHitResult.getDirection());
+                hitState = HitState.STOP; // stop in place and resume next tick, raycaster doesn't handle bent segments
+            }
+        }
     }
 
     @Override
     protected void onHitEntity(@NonNull EntityHitResult result) {
         super.onHitEntity(result);
-        if (!(level() instanceof ServerLevel serverLevel) || profile == null) {
+        if (!(level() instanceof ServerLevel serverLevel)) {
             return;
         }
-
         Entity target = result.getEntity();
         if (!piercedEntities.add(target.getId())) {
             return;
         }
-
         Entity owner = getOwner();
         float damage = resolveDamage();
         DamageSource source = DamageSources.bullet(level(), this, owner);
@@ -347,7 +348,6 @@ public class Bullet extends Projectile {
             Vec3 v = getDeltaMovement();
             living.knockback(knockback, -v.x, -v.z);
         }
-
         if (piercingRemaining > 0) {
             this.hitState = HitState.CONTINUE;
             piercingRemaining--;
@@ -366,25 +366,27 @@ public class Bullet extends Projectile {
      * @return whether the block was completed destroyed
      */
     protected boolean attemptApplyBlockDamage(BlockHitResult hitResult) {
-        if (!(level() instanceof ServerLevel serverLevel) || this.profile == null
-                || !profile.get(ShotComponents.BREAKS_BLOCKS)) {
+        if (!(level() instanceof ServerLevel serverLevel) || !profile.get(ShotComponents.BREAKS_BLOCKS)) {
             return false;
         }
+
         if (getOwner() instanceof Mob
                 && !serverLevel.getGameRules().get(GameRules.MOB_GRIEFING)) {
             return false;
         }
+        var pos = hitResult.getBlockPos();
+        var state = level().getBlockState(pos);
+        if (state.isAir()) {
+            return false;
+        }
         float damage = (float) (this.profile.value(ShotComponents.BLOCK_DAMAGE_MULTIPLIER) * resolveDamage());
-        return BlockDamageManager.applyDamage(serverLevel, hitResult.getBlockPos(), level().getBlockState(hitResult.getBlockPos()), damage, this);
+        return BlockDamageManager.applyDamage(serverLevel, pos, state, damage, this);
     }
 
     @Override
     protected void onHitBlock(@NonNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
         playBlockHitEffects(hitResult);
-        if (profile == null) {
-            return;
-        }
         boolean brokeThroughBlock = attemptApplyBlockDamage(hitResult);
         if (brokeThroughBlock) {
             // if we break through block, continue forward, and maybe pierce for additional buffs
@@ -394,16 +396,6 @@ public class Bullet extends Projectile {
             } else {
                 // allow the bullet to continue without piercing, but do not allow additional block damage thereafter
                 profile.remove(ShotComponents.BREAKS_BLOCKS);
-            }
-        } else {
-            // on solid block impact, ricochet or discard
-            int ricochet = this.entityData.get(DATA_RICOCHET);
-            if (ricochet > 0) {
-                this.entityData.set(DATA_RICOCHET, ricochet - 1);
-                reflectMotion(hitResult.getDirection());
-                hitState = HitState.STOP; // stop in place and resume next tick, raycaster doesn't handle bent segments
-            } else {
-                hitState = HitState.DISCARD;
             }
         }
     }
@@ -423,9 +415,6 @@ public class Bullet extends Projectile {
     }
 
     private void emitTrail(ServerLevel level, Vec3 from, Vec3 to) {
-        if (profile == null) {
-            return;
-        }
         ParticleStack particles = profile.get(ShotComponents.PARTICLE_TRAIL);
         if (particles == null) {
             return;

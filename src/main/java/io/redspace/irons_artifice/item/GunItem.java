@@ -11,30 +11,23 @@ import com.geckolib.constant.dataticket.DataTicket;
 import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.base.GeoRenderState;
 import io.redspace.irons_artifice.IronsArtifice;
-import io.redspace.irons_artifice.data.PlayableSound;
+import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.ArmPoseKind;
-import io.redspace.irons_artifice.gun.FireCycleCueStack;
 import io.redspace.irons_artifice.gun.GunProfile;
-import io.redspace.irons_artifice.gun.HandOccupancy;
-import io.redspace.irons_artifice.gun.ReloadCueStack;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
@@ -43,6 +36,7 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -50,7 +44,6 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -64,32 +57,15 @@ public class GunItem extends BaseGeoItem {
     public static final String IDLE_ANIMATION_CONTROLLER = "gun_animation_controller";
 
     private final GunProfile gunProfile;
-    private final @Nullable Identifier geoModelId;
-    private final ArmPoseKind armPoseKind;
-    private final ReloadCueStack reloadCues;
-    private final FireCycleCueStack fireCycleCues;
-    private final @Nullable PlayableSound equipSound;
-    private final AnimationAdjuster animationAdjuster;
-    private final HandOccupancy defaultOccupancy;
-    private final Map<String, HandOccupancy> animationOccupancy;
 
-    public GunItem(Properties properties, GunProfile gunProfile, @Nullable Identifier geoModelId,
-                   ArmPoseKind armPoseKind, ReloadCueStack reloadCues, @Nullable PlayableSound equipSound,
-                   FireCycleCueStack fireCycleCues, AnimationAdjuster animationAdjuster,
-                   Map<String, HandOccupancy> animationOccupancy) {
+    public GunItem(Properties properties, GunProfile gunProfile) {
         super(properties
+                .stacksTo(1)
+                .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
                 .component(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.CONTAINER, true))
                 .component(DataComponentRegistry.MAGAZINE, new MagazineContents(gunProfile.magazineCapacity()))
         );
         this.gunProfile = gunProfile;
-        this.geoModelId = geoModelId;
-        this.armPoseKind = armPoseKind;
-        this.reloadCues = reloadCues;
-        this.fireCycleCues = fireCycleCues;
-        this.equipSound = equipSound;
-        this.animationAdjuster = animationAdjuster;
-        this.defaultOccupancy = armPoseKind == ArmPoseKind.RIFLE ? HandOccupancy.BOTH : HandOccupancy.MAINHAND;
-        this.animationOccupancy = Map.copyOf(animationOccupancy);
     }
 
     public static boolean hasGunSpyglass(ItemInstance stack) {
@@ -141,20 +117,8 @@ public class GunItem extends BaseGeoItem {
         return gunProfile.magazineCapacity();
     }
 
-    public @Nullable Identifier getGeoModelId() {
-        return geoModelId;
-    }
-
-    public ArmPoseKind getArmPoseKind() {
-        return armPoseKind;
-    }
-
-    public HandOccupancy occupancyForAnimation(String animation) {
-        return animationOccupancy.getOrDefault(animation, defaultOccupancy);
-    }
-
     public HandOccupancy occupancyForCurrentAnimation(ItemStack stack) {
-        return occupancyForAnimation(currentAnimation(stack));
+        return gunProfile.occupancyForAnimation(currentAnimation(stack));
     }
 
     public static @Nullable HandOccupancy currentOccupancy(ItemStack stack) {
@@ -193,14 +157,6 @@ public class GunItem extends BaseGeoItem {
         return "idle";
     }
 
-    public ReloadCueStack getReloadCues() {
-        return reloadCues;
-    }
-
-    public FireCycleCueStack getFireCycleCues() {
-        return fireCycleCues;
-    }
-
     public static MagazineContents getMagazine(ItemStack stack) {
         MagazineContents magazine = MagazineContents.get(stack);
         return magazine != null ? magazine : MagazineContents.EMPTY;
@@ -210,36 +166,8 @@ public class GunItem extends BaseGeoItem {
         MagazineContents.set(stack, magazine);
     }
 
-    public static void startReload(ItemStack stack, int ticks, double speed) {
-        ReloadState.set(stack, new ReloadState(0, (int) (ticks / speed), 0, (float) (speed + 2) / 3F));
-    }
-
     public static boolean isReloading(ItemStack stack) {
         return ReloadState.has(stack);
-    }
-
-    public GunProfile getGunProfile() {
-        return gunProfile;
-    }
-
-    @Override
-    public void inventoryTick(@NonNull ItemStack itemStack, @NonNull ServerLevel level, @NonNull Entity owner, @Nullable EquipmentSlot slot) {
-        super.inventoryTick(itemStack, level, owner, slot);
-        if (FireDelayState.isActive(itemStack)) {
-            FireDelayState.tick(itemStack, this, level, owner);
-        }
-        if (slot != EquipmentSlot.MAINHAND || !(owner instanceof LivingEntity living)) {
-            // fixme: will this cause issue in offhand? i think a lot of things (animations, dual-wielding) need specific offhand handling
-            //  not a v1 concern
-            return;
-        }
-
-        if (isReloading(itemStack) && ReloadState.tickReload(itemStack, this, level, living)) {
-            ReloadResult result = GunplayManager.attemptFinishReload(living, itemStack);
-            if (living instanceof Player player) {
-                playReloadFeedback(level, player, result);
-            }
-        }
     }
 
     @Override
@@ -268,7 +196,14 @@ public class GunItem extends BaseGeoItem {
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.fire_rate", highlightText.apply(fireRate)));
         }
         statBuilder.accept(Component.translatable("irons_artifice.tooltip.reload_time", highlightText.apply(reloadTime + "s")));
-        builder.accept(Component.translatable("irons_artifice.tooltip.modifier_count", gunProfile.modifierSlots()).withStyle(ChatFormatting.GOLD));
+        statBuilder.accept(Component.translatable("irons_artifice.tooltip.ammo_capacity", highlightText.apply("" + gunProfile.magazineCapacity())));
+        builder.accept(Component.translatable("irons_artifice.tooltip.modifier_count",
+                        gunProfile.modifierSlots()
+                ).withStyle(ChatFormatting.GOLD)
+                .append(" ").append(Component.translatable("irons_artifice.tooltip.keybind_hint",
+                        Component.keybind("key.irons_artifice.open_modifier_menu")
+                                .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withItalic(false)))
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW).withItalic(true))));
         GunContainer container = new GunContainer(itemStack);
         for (var item : container.getItems()) {
             if (!item.isEmpty()) {
@@ -332,18 +267,36 @@ public class GunItem extends BaseGeoItem {
         return PlayState.CONTINUE;
     }
 
-    public PlayableSound getEquipSound() {
-        return this.equipSound;
-    }
-
-    public AnimationAdjuster getAnimationAdjuster() {
-        return this.animationAdjuster;
+    public void configureActionTimelineSkip(long instanceId, double skipAtSeconds, double skipToSeconds) {
+        AnimationController<?> controller = getAnimatableInstanceCache().getManagerForId(instanceId)
+                .getAnimationControllers().get(TRIGGERED_ANIMATION_CONTROLLER);
+        if (controller instanceof OffsetableAnimationController<?> skippable) {
+            skippable.setTimelineSkip(skipAtSeconds, skipToSeconds);
+        }
     }
 
     private static class OffsetableAnimationController<T extends GeoAnimatable> extends AnimationController<T> {
+        private double skipAtSeconds;
+        private double skipToSeconds;
+        private boolean skipped;
 
         public OffsetableAnimationController(String name, AnimationStateHandler<T> stateHandler) {
             super(name, stateHandler);
+        }
+
+        public void setTimelineSkip(double skipAtSeconds, double skipToSeconds) {
+            this.skipAtSeconds = skipAtSeconds;
+            this.skipToSeconds = skipToSeconds;
+            this.skipped = false;
+        }
+
+        private boolean applyTimelineSkip() {
+            if (skipped || skipToSeconds <= skipAtSeconds || timelineTime < skipAtSeconds || timelineTime >= skipToSeconds) {
+                return false;
+            }
+            timelineTime = skipToSeconds;
+            skipped = true;
+            return true;
         }
 
         @Override
@@ -353,6 +306,18 @@ public class GunItem extends BaseGeoItem {
             if (offset > 0) {
                 timelineTime = offset;
             }
+            boolean skippedNow = applyTimelineSkip();
+            if (this.timeline != null && (offset > 0 || skippedNow)) {
+                this.animationPoint = this.timeline.createAnimationPoint(this.timelineTime, this.animationPoint, this.easingOverride);
+            }
+        }
+
+        @Override
+        protected void progressExistingAnimation(T animatable, GeoRenderState renderState, double prevTimelineTime, double timeAdvanced) {
+            if (applyTimelineSkip()) {
+                prevTimelineTime = timelineTime;
+            }
+            super.progressExistingAnimation(animatable, renderState, prevTimelineTime, timeAdvanced);
         }
 
     }

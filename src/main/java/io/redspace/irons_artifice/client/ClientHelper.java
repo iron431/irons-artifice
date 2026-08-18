@@ -2,7 +2,6 @@ package io.redspace.irons_artifice.client;
 
 import com.geckolib.animation.AnimationController;
 import com.geckolib.constant.DataTickets;
-import io.redspace.irons_artifice.client.hud.CrosshairRenderer;
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
 import io.redspace.irons_artifice.client.particle.FairyDustParticleOption;
 import io.redspace.irons_artifice.client.particle.ITrailParticle;
@@ -12,16 +11,16 @@ import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
 import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.HandOccupancy;
+import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.network.ClientboundBulletImpactPacket;
-import io.redspace.irons_artifice.network.ClientboundBulletTrailPacket;
-import io.redspace.irons_artifice.network.ClientboundEquipSoundPacket;
-import io.redspace.irons_artifice.network.ClientboundGunAnimationPacket;
-import io.redspace.irons_artifice.network.ClientboundGunshotSoundPacket;
-import io.redspace.irons_artifice.network.ClientboundLocalSoundPacket;
-import io.redspace.irons_artifice.network.ClientboundMuzzleFlashPacket;
-import io.redspace.irons_artifice.network.ClientboundReloadCrosshairAnimationPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundBulletImpactPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundBulletTrailPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundEquipSoundPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundGunshotSoundPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundLocalSoundPacket;
+import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.client.Minecraft;
@@ -171,10 +170,10 @@ public final class ClientHelper {
         if (!(stack.getItem() instanceof GunItem gun)) {
             return;
         }
-        playClientGunAnimation(gun, msg.instanceId(), msg.animName(), msg.speed(), msg.offsetSeconds());
+        playClientGunAnimation(gun, msg.instanceId(), msg.animName(), msg.speed(), msg.offsetSeconds(), msg.skipAtSeconds(), msg.skipToSeconds());
     }
 
-    public static void playClientGunAnimation(GunItem gun, long instanceId, String animName, double speed, double offsetSeconds) {
+    public static void playClientGunAnimation(GunItem gun, long instanceId, String animName, double speed, double offsetSeconds, double skipAtSeconds, double skipToSeconds) {
         var manager = gun.getAnimatableInstanceCache().getManagerForId(instanceId);
         manager.setAnimatableData(DataTickets.ITEM_RENDER_PERSPECTIVE, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND);
         AnimationController<?> controller = gun.getAnimatableInstanceCache().getManagerForId(instanceId).getAnimationControllers().get(GunItem.TRIGGERED_ANIMATION_CONTROLLER);
@@ -185,10 +184,33 @@ public final class ClientHelper {
         controller.setAnimationSpeed(speed);
         // IMPORTANT: set even if zero (controller workaround doesn't handle context-free transitions)
         controller.setTimelineTime(offsetSeconds);
+        gun.configureActionTimelineSkip(instanceId, skipAtSeconds, skipToSeconds);
     }
 
-    public static void handleCrosshairAnimation(ClientboundReloadCrosshairAnimationPacket msg) {
-        CrosshairRenderer.triggerReloadAnimation(msg.reloadDuration());
+    public static void handleCancelGunAnimationPacket(ClientboundCancelGunAnimationPacket msg) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            return;
+        }
+        Entity entity = level.getEntity(msg.entityId());
+        if (!(entity instanceof LivingEntity livingEntity)) {
+            return;
+        }
+        ItemStack stack = livingEntity.getItemInHand(msg.interactionHand());
+        if (!(stack.getItem() instanceof GunItem gun)) {
+            return;
+        }
+        cancelClientGunAnimation(gun, msg.instanceId());
+    }
+
+    public static void cancelClientGunAnimation(GunItem gun, long instanceId) {
+        AnimationController<?> controller = gun.getAnimatableInstanceCache().getManagerForId(instanceId)
+                .getAnimationControllers().get(GunItem.TRIGGERED_ANIMATION_CONTROLLER);
+        if (controller == null) {
+            return;
+        }
+        controller.stopTriggeredAnimation();
+        controller.reset();
     }
 
     public static void handleGunshotSound(ClientboundGunshotSoundPacket msg) {
@@ -231,7 +253,7 @@ public final class ClientHelper {
         if (!(payload.item() instanceof GunItem gunItem)) {
             return;
         }
-        PlayableSound sound = gunItem.getEquipSound();
+        PlayableSound sound = gunItem.getGun().equipSound();
         if (sound == null) {
             return;
         }

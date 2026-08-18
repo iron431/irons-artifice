@@ -55,7 +55,7 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new RangedGunAttackGoal<>(this, 24, 15, 45, 40, 80));
+        this.goalSelector.addGoal(2, new RangedGunAttackGoal<>(this, 24, 10, 30, 30, 60));
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 15.0F, 1.0F));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 15.0F));

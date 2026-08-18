@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "irons_artifice:item/illificer_spawn_egg"
+  }
+}

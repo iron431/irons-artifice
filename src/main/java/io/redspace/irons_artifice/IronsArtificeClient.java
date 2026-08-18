@@ -11,7 +11,7 @@ import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
-import io.redspace.irons_artifice.client.hud.AmmoCountHudOverlay;
+import io.redspace.irons_artifice.client.gui.AmmoCountHudOverlay;
 import io.redspace.irons_artifice.client.particle.BlockDustParticle;
 import io.redspace.irons_artifice.client.particle.BulletImpactParticle;
 import io.redspace.irons_artifice.client.particle.BulletTrailParticle;
@@ -35,6 +35,7 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.google.common.base.Suppliers;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -85,10 +86,7 @@ public class IronsArtificeClient {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         for (GunItem gun : guns()) {
-            Identifier modelId = gun.getGeoModelId();
-            if (modelId == null) {
-                continue;
-            }
+            Identifier modelId = BuiltInRegistries.ITEM.getKey(gun);
             gun.geoRenderProvider.setValue(new GeoRenderProvider() {
                 private final Supplier<GeoItemRenderer<GunItem>> renderer =
                         Suppliers.memoize(() -> new GunInHandRenderer(new DefaultedItemGeoModel<>(modelId)));
@@ -160,7 +158,7 @@ public class IronsArtificeClient {
         List<Item> pistols = new ArrayList<>();
         List<Item> rifles = new ArrayList<>();
         for (GunItem gun : guns()) {
-            if (gun.getArmPoseKind() == ArmPoseKind.PISTOL) {
+            if (gun.getGun().armPoseKind() == ArmPoseKind.PISTOL) {
                 pistols.add(gun);
             } else {
                 rifles.add(gun);

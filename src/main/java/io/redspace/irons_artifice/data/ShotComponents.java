@@ -3,12 +3,8 @@ package io.redspace.irons_artifice.data;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.GunShotSoundStack;
-import io.redspace.irons_artifice.gun.ImpactSoundStack;
-import io.redspace.irons_artifice.gun.MuzzleFlashSettings;
-import io.redspace.irons_artifice.gun.OnHitEffects;
-import io.redspace.irons_artifice.gun.PostHitEffects;
-import io.redspace.irons_artifice.recoil.RecoilProfile;
+import io.redspace.irons_artifice.modifier.OnHitEffects;
+import io.redspace.irons_artifice.modifier.PostHitEffects;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.sounds.SoundEvents;
 
@@ -21,7 +17,9 @@ public final class ShotComponents {
     public static final ComponentType<Value> IN_AIR_PENALTY = new ComponentType<>(IronsArtifice.id("in_air_penalty"), () -> Value.of(1.5));
     public static final ComponentType<Value> FIRE_DELAY = new ComponentType<>(IronsArtifice.id("fire_delay"), () -> Value.of(1));
     public static final ComponentType<Value> FIRE_RATE = new ComponentType<>(IronsArtifice.id("fire_rate"), () -> Value.of(1));
+    public static final ComponentType<Value> AMMO_CONSUME_CHANCE = new ComponentType<>(IronsArtifice.id("ammo_consume_chance"), () -> Value.of(1));
     public static final ComponentType<Boolean> FORCE_AUTO_FIRE = new ComponentType<>(IronsArtifice.id("force_auto_fire"), () -> false);
+    public static final ComponentType<Value> ACCELERATING = new ComponentType<>(IronsArtifice.id("accelerating"), () -> Value.of(0));
 
     // Attributes
     public static final ComponentType<Value> DAMAGE = new ComponentType<>(IronsArtifice.id("damage"), () -> Value.of(0));

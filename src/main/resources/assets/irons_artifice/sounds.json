@@ -70,6 +70,11 @@
       "irons_artifice:leather_accent"
     ]
   },
+  "modifier.enchanted_bullet.proc": {
+    "sounds": [
+      "irons_artifice:infinity_bullet"
+    ]
+  },
   "item.cowboy_hat.instant_reload": {
     "sounds": [
       "irons_artifice:instant_reload"

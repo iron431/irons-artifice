@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
-import io.redspace.irons_artifice.gun.FireCycleCueStack;
+import io.redspace.irons_artifice.data.FireCycleCueStack;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,6 +14,21 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 public record FireDelayState(int progress, int duration, int cueIndex, float pitchMultiplier) {
+    @Override
+    public boolean equals(Object o) {
+        // hacky workaround for letting a live tick state component not spam the network -- omit ticking volatiles from hashing/equals
+        if (this == o) return true;
+        if (!(o instanceof FireDelayState that)) return false;
+        return this.duration == that.duration
+                && Float.compare(this.pitchMultiplier, that.pitchMultiplier) == 0;
+    }
+    @Override
+    public int hashCode() {
+        // hacky workaround for letting a live tick state component not spam the network -- omit ticking volatiles from hashing/equals
+        int result = Integer.hashCode(duration);
+        result = 31 * result + Float.hashCode(pitchMultiplier);
+        return result;
+    }
     public static final FireDelayState EMPTY = new FireDelayState(0, 0, 0, 1);
 
     public static final Codec<FireDelayState> CODEC = RecordCodecBuilder.create(builder -> builder.group(
@@ -86,7 +101,7 @@ public record FireDelayState(int progress, int duration, int cueIndex, float pit
         }
         state = state.increment(1);
 
-        FireCycleCueStack cues = gun.getFireCycleCues();
+        FireCycleCueStack cues = gun.getGun().fireCycleCues();
         int nextCue = cues.playDueCues(owner, owner.position(), SoundSource.PLAYERS, state.percent(0), state.cueIndex(), state.pitchMultiplier);
         state = state.withCueIndex(nextCue);
 

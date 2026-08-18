@@ -51,6 +51,7 @@ public class IronsArtifice {
         SoundRegistry.register(modEventBus);
         modEventBus.addListener(PayloadRegistry::register);
         modEventBus.addListener(CommonSetup::entityAttributes);
+        modEventBus.addListener(CommonSetup::buildCreativeTabs);
         CREATIVE_MODE_TABS.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);

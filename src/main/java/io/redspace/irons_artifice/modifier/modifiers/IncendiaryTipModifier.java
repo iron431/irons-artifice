@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
-import io.redspace.irons_artifice.gun.MuzzleFlashSettings;
+import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.IgnitePostHit;
 import io.redspace.irons_artifice.registry.ParticleRegistry;

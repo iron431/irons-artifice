@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.modifier.on_hit_handlers;
 
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.gun.PostHitEffect;
+import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -43,6 +43,6 @@ public class PoisonPostHit implements PostHitEffect {
         MobEffectInstance existing = living.getEffect(MobEffects.POISON);
         int duration = durationTicks + (existing != null ? existing.getDuration() : 0);
         int amp = existing != null ? Math.max(existing.getAmplifier(), amplifier) : amplifier;
-        living.addEffect(new MobEffectInstance(MobEffects.POISON, duration, Math.max(0, amp)), bullet.getOwner());
+        living.addEffect(new MobEffectInstance(MobEffects.POISON, Math.min(duration, 20 * 30), Math.max(0, amp)), bullet.getOwner());
     }
 }

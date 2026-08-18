@@ -26,6 +26,12 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
 
     public GunModifierScreen(GunModifierMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, menu.gunstack.getHoverName().copy().setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE).withUnderlined(true)), 176, 183);
+
+    }
+
+    @Override
+    protected void init() {
+        super.init();
         int margin = (SLOT_SIZE - 16) / 2;
         for (var slot : menu.getModifierSlots()) {
             this.addRenderableOnly((graphics, mx, my, a) ->

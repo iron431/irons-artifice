@@ -23,7 +23,7 @@ public class GunContainer extends SimpleContainer {
         if (!(stack.getItem() instanceof GunItem gunItem)) {
             return 0;
         }
-        return gunItem.getGunProfile().modifierSlots();
+        return gunItem.getGun().modifierSlots();
     }
 
     public ItemStack getGunStack() {

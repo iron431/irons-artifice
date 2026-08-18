@@ -1,0 +1,85 @@
+name: 🐛 Bug Report
+description: Something is not working as expected
+title: "[Bug] "
+labels: [triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Common Issues (Try these fixes before making an issue):
+        - Broken models with optifine: Optifine is meant for vanilla clients. Use the many alternatives (such as Oculus) that work with forge
+        - Exit code 1: You are most likely missing dependencies, download them manually or use the CurseForge launcher to automatically download them
+        - Any Hud issues with using ImmediatelyFast: turn off hud_batching config
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behaviour
+      description: Describe what happened and when this happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: Describe what you expected to happen
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Step by step instructions on how to reproduce the observed behaviour
+      placeholder: |
+        1. Do X
+        2. Then do Y
+        3. Note [issue] with [something]
+    validations:
+      required: true
+  - type: dropdown
+    id: run-type
+    attributes:
+      label: Server Type
+      description: Are you running minecraft in single player or dedicated server?
+      options:
+        - Single Player
+        - Dedicated Server
+    validations:
+      required: true
+  - type: input
+    id: crashlog
+    attributes:
+      label: Crashlog
+      description: If this was a crash, grab [minecraft instance]/logs/debug.log, upload it as a [gist](https://gist.github.com/) and paste the link here
+      placeholder: https://gist.github.com/iron431/e23d75f
+  - type: input
+    id: irons-spellbooks-version
+    attributes:
+      label: Mod version.
+      placeholder: "example: 1.18.2-1.0.1 or 1.19.2-1.1.3"
+    validations:
+      required: true
+  - type: input
+    id: forge-version
+    attributes:
+      label: Forge version
+      placeholder: "example: Neoforge 1.19.2 - 43.2.8"
+    validations:
+      required: true
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other mods
+      description: List any other mods present when the bug was encountered, include the mod versions
+  - type: checkboxes
+    attributes:
+      label: Crashlog Check
+      options:
+        - label: I understand if this is a crashbug and I did not attach a crashlog, this will not be handled
+          required: true
+  - type: checkboxes
+    attributes:
+      label: Fabric Check
+      options:
+        - label: I understand if I am using Fabric APIs or Connector, this will not be handled
+          required: true
+          

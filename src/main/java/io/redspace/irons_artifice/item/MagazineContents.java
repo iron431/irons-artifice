@@ -53,4 +53,9 @@ public record MagazineContents(int count) {
     public MagazineContents deplete() {
         return with(this.count - 1);
     }
+
+    /** Returns a copy with rounds removed (floored at zero). */
+    public MagazineContents deplete(int deplete) {
+        return with(this.count - deplete);
+    }
 }

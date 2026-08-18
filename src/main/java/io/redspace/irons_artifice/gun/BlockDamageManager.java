@@ -78,13 +78,17 @@ public class BlockDamageManager {
 
         float blockCurrentHealth;
         var manager = INSTANCE.resolveManager(level);
-        int id = bullet.getId();
+        int id;
         if (manager.containsKey(pos)) {
             BlockHealth health = manager.get(pos);
             blockCurrentHealth = health.health;
             id = health.ownerId;
         } else {
             blockCurrentHealth = blockMaxHealth;
+            // normally, id is tied to entity id so an entity can only affect one block at once
+            // with explosive bullets, we want an entity to affect multiple, so use no-op id
+            // id is saved and reused, so we good
+            id = bullet.getRandom().nextInt(Integer.MAX_VALUE);
         }
         float lastProgress = 1 - blockCurrentHealth / blockMaxHealth;
         blockCurrentHealth -= damage;
@@ -100,7 +104,7 @@ public class BlockDamageManager {
             manager.put(pos, new BlockHealth(blockCurrentHealth, blockMaxHealth, level.getGameTime(), id));
             int stage = (int) (destroyProgress * 10);
             int lastStage = (int) (lastProgress * 10);
-            if (stage != lastStage) {
+            if (stage != lastStage && destroyProgress > 0.05) {
                 level.destroyBlockProgress(id, pos, (int) (destroyProgress * 10));
             }
             return false;

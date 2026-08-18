@@ -53,7 +53,7 @@ public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRende
             state.armPose = AbstractIllager.IllagerArmPose.NEUTRAL;
             if (entity.isAggressive() || FireDelayState.isActive(entity.getWeaponItem()) || GunItem.isReloading(entity.getWeaponItem())) {
                 state.mobGunPose = MobGunPose.HUMANOID;
-                state.humanoidPose = gun.getArmPoseKind() == ArmPoseKind.PISTOL ? GunArmPoses.PISTOL.getValue() : GunArmPoses.RIFLE.getValue();
+                state.humanoidPose = gun.getGun().armPoseKind() == ArmPoseKind.PISTOL ? GunArmPoses.PISTOL.getValue() : GunArmPoses.RIFLE.getValue();
             } else {
                 state.mobGunPose = MobGunPose.IDLE;
             }
