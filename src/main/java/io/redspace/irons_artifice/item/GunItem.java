@@ -33,14 +33,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.SpyglassItem;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -68,16 +65,14 @@ public class GunItem extends BaseGeoItem {
         this.gunProfile = gunProfile;
     }
 
+    public static final int SCOPE_USE_DURATION = 1200;
+
     public static boolean hasGunSpyglass(ItemInstance stack) {
         return stack.has(DataComponentRegistry.GUN_SPYGLASS);
     }
 
-    @Override
-    public boolean canPerformAction(@NonNull ItemInstance stack, @NonNull ItemAbility itemAbility) {
-        if (hasGunSpyglass(stack) && ItemAbilities.DEFAULT_SPYGLASS_ACTIONS.contains(itemAbility)) {
-            return true;
-        }
-        return super.canPerformAction(stack, itemAbility);
+    public static boolean isScoping(LivingEntity entity) {
+        return entity.isUsingItem() && hasGunSpyglass(entity.getUseItem());
     }
 
     @Override
@@ -92,13 +87,17 @@ public class GunItem extends BaseGeoItem {
 
     @Override
     public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity user) {
-        return hasGunSpyglass(stack) ? SpyglassItem.USE_DURATION : super.getUseDuration(stack, user);
+        return hasGunSpyglass(stack) ? SCOPE_USE_DURATION : super.getUseDuration(stack, user);
     }
 
-//    @Override
-//    public @NonNull ItemUseAnimation getUseAnimation(@NonNull ItemStack stack) {
-//        return hasGunSpyglass(stack) ? ItemUseAnimation.SPYGLASS : super.getUseAnimation(stack);
-//    }
+    @Override
+    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
+        if (hasGunSpyglass(stack)) {
+            entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
+            return stack;
+        }
+        return super.finishUsingItem(stack, level, entity);
+    }
 
     @Override
     public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {

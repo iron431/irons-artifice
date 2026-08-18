@@ -46,6 +46,7 @@
   "item.irons_artifice.tricorne": "Tricorne",
   "item.irons_artifice.tricorne.ability": "First Shot from a Full Magazine does +%d%% Damage",
   "item.irons_artifice.seeking_powder_modifier": "Seeking Powder Modifier",
+  "item.irons_artifice.scope_attachment_modifier": "Scope Attachment Modifier",
 
   "container.irons_artifice.gun": "Gun",
   "key.irons_artifice.open_modifier_menu": "Open Gun Modifiers",
@@ -85,6 +86,7 @@
   "irons_artifice.modifier.gravity_well": "Create a %s block Gravity Well on Hit",
   "irons_artifice.modifier.accelerating": "+%s%% Damage per shot fired in the last second",
   "irons_artifice.modifier.infinity": "%s%% Reduced Chance to consume Ammo",
+  "irons_artifice.modifier.scope": "Enables Scoping",
 
   "irons_artifice.value_modifier.plus": "+%s %s",
   "irons_artifice.value_modifier.minus": "-%s %s",

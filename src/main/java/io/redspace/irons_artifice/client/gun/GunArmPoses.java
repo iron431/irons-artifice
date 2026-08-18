@@ -33,6 +33,11 @@ public final class GunArmPoses {
         }
     }
 
+    private static void aimDownSights(ModelPart arm, boolean isRightArm) {
+//        if(GunItem.isScoping())
+//        arm.x += 4 * (isRightArm ? 1 : -1)
+    }
+
     private static <T extends HumanoidRenderState> void applyRiflePose(HumanoidModel<?> model, T renderState, HumanoidArm arm) {
         boolean holdingInRightArm = arm == HumanoidArm.RIGHT;
         ReloadState reloadState = ReloadState.get(renderState.getUseItemStackForArm(arm));

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:spyglass",
+    "*": "irons_artifice:simple_mechanical_components"
+  },
+  "pattern": [
+    "#",
+    "*"
+  ],
+  "result": {
+    "id": "irons_artifice:scope_attachment_modifier"
+  }
+}

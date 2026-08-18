@@ -12,7 +12,7 @@ import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.base.RenderPassInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
-import io.redspace.irons_artifice.gun.HandOccupancy;
+import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.item.AnimationAdjuster;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;

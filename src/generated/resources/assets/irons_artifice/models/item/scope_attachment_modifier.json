@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "irons_artifice:item/scope_attachment_modifier"
+  }
+}

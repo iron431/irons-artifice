@@ -232,7 +232,7 @@ public final class GunplayManager {
             float penalty = Mth.clamp(penaltyPerMovement * entitySpeed - 0.05f, 0, maxMovementPenalty);
             spread += penalty;
         }
-        return spread;
+        return Math.max(0, spread);
     }
 
     public static ShotProfile compose(@Nullable LivingEntity living, GunProfile gunProfile, ItemStack gunStack) {
@@ -246,7 +246,7 @@ public final class GunplayManager {
         }
         ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
         if (living != null) {
-            if (living instanceof Player player && player.isScoping()) {
+            if (living instanceof Player player && GunItem.isScoping(player)) {
                 profile.components().getOrCreate(ShotComponents.CAMERA_RECOIL_MULTIPLIER).addModifier(new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
             }
             NeoForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));

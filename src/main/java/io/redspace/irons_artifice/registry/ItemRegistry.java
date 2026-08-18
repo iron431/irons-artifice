@@ -25,13 +25,12 @@ import io.redspace.irons_artifice.modifier.modifiers.OverchargedPowderModifier;
 import io.redspace.irons_artifice.modifier.modifiers.ScattershotModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SeekingModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SingularityChargeModifier;
-import io.redspace.irons_artifice.modifier.modifiers.SpyglassModifier;
+import io.redspace.irons_artifice.modifier.modifiers.SpyglassAttachmentModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SteelCoreModifier;
 import io.redspace.irons_artifice.modifier.modifiers.TrickshotModifier;
 import io.redspace.irons_artifice.modifier.modifiers.VenomCapsuleModifier;
 import io.redspace.irons_artifice.modifier.modifiers.WindChamberModifier;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.bus.api.IEventBus;
@@ -116,8 +115,8 @@ public final class ItemRegistry {
             "mechanical_repeater_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalRepeaterModifier()));
     public static final DeferredItem<ModifierItem> MECHANICAL_ACCELERATOR_MODIFIER = ITEMS.registerItem(
             "mechanical_accelerator_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalAccelerator()));
-    public static final DeferredItem<ModifierItem> SPYGLASS_ATTACHMENT_MODIFIER = ITEMS.registerItem(
-            "spyglass_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpyglassModifier()));
+    public static final DeferredItem<ModifierItem> SCOPE_ATTACHMENT_MODIFIER = ITEMS.registerItem(
+            "scope_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpyglassAttachmentModifier()));
 
     //    public static final DeferredItem<ModifierItem> FAIRY_DUST = ITEMS.registerItem(
     //            "fairy_dust_modifier", properties -> new ModifierItem(properties.stacksTo(1), new FairyDustModifier()));

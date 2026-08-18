@@ -12,6 +12,7 @@ import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
 import io.redspace.irons_artifice.client.gui.AmmoCountHudOverlay;
+import io.redspace.irons_artifice.client.gui.GunScopeOverlay;
 import io.redspace.irons_artifice.client.particle.BlockDustParticle;
 import io.redspace.irons_artifice.client.particle.BulletImpactParticle;
 import io.redspace.irons_artifice.client.particle.BulletTrailParticle;
@@ -76,6 +77,7 @@ public class IronsArtificeClient {
     @SubscribeEvent
     public static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.HOTBAR, IronsArtifice.id("ammo_hud"), AmmoCountHudOverlay::render);
+        event.registerAbove(VanillaGuiLayers.CAMERA_OVERLAYS, IronsArtifice.id("gun_scope"), GunScopeOverlay::render);
     }
 
     @SubscribeEvent
@@ -96,12 +98,12 @@ public class IronsArtificeClient {
                     return this.renderer.get();
                 }
             });
-        }
+        }////
         AttachmentRenderableRegistry.register(
                 IronsArtifice.id("spyglass_scope"),
                 new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
-                        "test_scope",
-                        "model/spyglass_model",
+                        "spyglass_scope",
+                        "model/spyglass_scope",
                         "empty"))
         );
     }

@@ -409,6 +409,14 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('B', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
+        // Scope
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get())
+                .pattern("#")
+                .pattern("*")
+                .define('#', Items.SPYGLASS)
+                .define('*', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
+                .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
+                .save(this.output);
     }
 
     private static TagKey<Item> commonTag(String path) {
