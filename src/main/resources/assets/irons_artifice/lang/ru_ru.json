@@ -120,12 +120,12 @@
   "death.attack.irons_artifice.bullet.gunned_down.item": "%1$s был растрелен %2$s используя %3$s",
   "death.attack.irons_artifice.bullet.lead": "%1$s был нашпигован свинцом %2$s",
   "death.attack.irons_artifice.bullet.lead.item": "%1$s был нашпигован свинцом %2$s используя %3$s",
-  "death.attack.irons_artifice.bullet.ventilated": "%1$s was ventilated by %2$s",
-  "death.attack.irons_artifice.bullet.ventilated.item": "%1$s was ventilated by %2$s using %3$s",
-  "death.attack.irons_artifice.bullet.cut_down": "%1$s was cut down by %2$s",
-  "death.attack.irons_artifice.bullet.cut_down.item": "%1$s was cut down by %2$s using %3$s",
+  "death.attack.irons_artifice.bullet.ventilated": "%1$s превратил в решето %2$s",
+  "death.attack.irons_artifice.bullet.ventilated.item": "%1$s превратил в решето %2$s используя %3$s",
+  "death.attack.irons_artifice.bullet.cut_down": "%1$s был заколот %2$s",
+  "death.attack.irons_artifice.bullet.cut_down.item": "%1$s был заколот %2$s используя %3$s",
   "death.attack.irons_artifice.bullet.stopped_cold": "%1$s was stopped cold by %2$s",
   "death.attack.irons_artifice.bullet.stopped_cold.item": "%1$s was stopped cold by %2$s using %3$s",
-  "death.attack.irons_artifice.bullet.bullet": "%1$s was shot by %2$s. With a bullet.",
-  "death.attack.irons_artifice.bullet.bullet.item": "%1$s was shot by %2$s. With a bullet. From %3$s."
+  "death.attack.irons_artifice.bullet.bullet": "%1$s был застрелен %2$s. Используя пулю.",
+  "death.attack.irons_artifice.bullet.bullet.item": "%1$s был застрелен %2$s. Используя пулю. От %3$s."
 }
