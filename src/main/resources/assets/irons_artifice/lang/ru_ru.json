@@ -112,7 +112,7 @@
   "irons_artifice.tooltip.keybind_hint": "[Открыть: %s]",
   "irons_artifice.tooltip.modifiers": "Улучшения:",
   "irons_artifice.tooltip.refunded_ammo": "Возвращено %s пуль!",
-  "irons_artifice.tooltip.accelerated_percent": "%s%% Eскорения",
+  "irons_artifice.tooltip.accelerated_percent": "%s%% Ускорения",
 
   "death.attack.irons_artifice.bullet": "%1$s был застрелен %2$s",
   "death.attack.irons_artifice.bullet.item": "%1$s был застрелен %2$s используя %3$s",
