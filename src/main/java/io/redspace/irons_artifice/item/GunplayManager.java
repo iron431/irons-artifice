@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.item;
 
 import com.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
-import io.redspace.irons_artifice.api.ConsumeAmmoEvent;
+import io.redspace.irons_artifice.api.AmmoEvent;
 import io.redspace.irons_artifice.api.GunAboutToShootEvent;
 import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.client.ClientHelper;
@@ -63,7 +63,8 @@ public final class GunplayManager {
         GunProfile gunProfile = gunItem.getGun();
         ShotProfile profile = compose(shooter, gunProfile, stack);
 
-        if (magazine.isEmpty()) {
+        int ammoToConsume = NeoForge.EVENT_BUS.post(new AmmoEvent.Amount(shooter, profile, 1)).getAmmoToConsume();
+        if (magazine.count() < ammoToConsume) {
             if (shooter instanceof Player player && player.level().isClientSide()) {
                 ClientHelper.handleLocalDryFire(player, profile.get(ShotComponents.GUNSHOT_SOUND).getDryFireSound());
             }
@@ -88,15 +89,7 @@ public final class GunplayManager {
         Vec2 rotation = direction.rotation();
         float pitch = rotation.x - offset.pitch();
         float yaw = rotation.y + offset.yaw();
-        if (shouldConsumeAmmoForEnchantedBullet(shooter, profile)) {
-            int ammoToConsume = NeoForge.EVENT_BUS.post(new ConsumeAmmoEvent(shooter, profile)).getAmmoToConsume();
-            GunItem.setMagazine(stack, magazine.deplete(ammoToConsume));
-        } else {
-            PlayableSound.of(SoundRegistry.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
-            if (shooter instanceof Player player) {
-                player.sendOverlayMessage(Component.translatable("irons_artifice.tooltip.refunded_ammo", 1).withStyle(ChatFormatting.LIGHT_PURPLE));
-            }
-        }
+        depleteMagazine(shooter, profile, stack, magazine, ammoToConsume);
         profile.get(ShotComponents.GUNSHOT_SOUND).playGunShotSound(level, shooter.position());
         RecoilState.addImpulse(shooter, now, profile);
         fireShot(level, shooter, shooter.getEyePosition(), Vec3.directionFromRotation(pitch, yaw), profile);
@@ -106,6 +99,16 @@ public final class GunplayManager {
             shooter.stopUsingItem();
         }
         return true;
+    }
+
+    private static void depleteMagazine(LivingEntity shooter, ShotProfile profile, ItemStack stack, MagazineContents magazine, int ammoToConsume) {
+        if (ammoToConsume <= 0) {
+            return;
+        }
+        var event = new AmmoEvent.Consume(shooter, profile, ammoToConsume);
+        if (!NeoForge.EVENT_BUS.post(event).isCanceled()){
+            GunItem.setMagazine(stack, magazine.deplete(event.getAmmoToConsume()));
+        }
     }
 
     public static boolean debugFire(ServerLevel level, ServerPlayer player, Vec3 origin, Vec3 direction) {
@@ -121,14 +124,6 @@ public final class GunplayManager {
         profile.get(ShotComponents.GUNSHOT_SOUND).playGunShotSound(level, origin);
         playFireAnimation(player, stack, gunItem, profile);
         return true;
-    }
-
-    private static boolean shouldConsumeAmmoForEnchantedBullet(LivingEntity shooter, ShotProfile profile) {
-        double consumeChance = profile.value(ShotComponents.AMMO_CONSUME_CHANCE);
-        if (consumeChance >= 1) {
-            return true;
-        }
-        return shooter.getRandom().nextDouble() <= consumeChance;
     }
 
     private static float pitchMultiplierForFire(ShotProfile profile) {

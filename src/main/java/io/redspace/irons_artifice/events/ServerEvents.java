@@ -1,14 +1,18 @@
 package io.redspace.irons_artifice.events;
 
 import com.geckolib.animatable.GeoItem;
+import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.entity.DrownedPirateHelper;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.network.packets.ClientboundEquipSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -19,6 +23,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -119,30 +125,29 @@ public class ServerEvents {
         }
     }
 
-    // todo: not ready for release yet
-//    @SubscribeEvent
-//    public static void onBlockUsed(PlayerInteractEvent.RightClickBlock event) {
-//        if (!(event.getLevel() instanceof ServerLevel level)) {
-//            return;
-//        }
-//        if (event.getEntity().isCreative() || event.getEntity().isSpectator()) {
-//            return;
-//        }
-//        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity) || randomizableContainerBlockEntity.getLootTable() == null) {
-//            return;
-//        }
-//        ResourceKey<LootTable> lootTableKey = randomizableContainerBlockEntity.getLootTable();
-////        boolean isCursed = level.getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).get(lootTableKey).map(table -> table.is(IronsArtificeTags.CURSED_BY_PIRATES)).orElse(false);
-//        // fixme: appears loot table dont have tagging
-//        boolean isCursed = lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/buried_treasure")) ||
-//                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/shipwreck_treasure")) ||
-//                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/underwater_ruin_big"));
-//        if (!isCursed) {
-//            return;
-//        }
-//        if (level.getRandom().nextFloat() > ServerConfig.DROWNED_PIRATE_CURSE_CHANCE.get()) {
-//            return;
-//        }
-//        DrownedPirateHelper.trySpawnPirates(level, event.getEntity(), event.getPos().getCenter());
-//    }
+    @SubscribeEvent
+    public static void onBlockUsed(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        if (event.getEntity().isCreative() || event.getEntity().isSpectator()) {
+            return;
+        }
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity) || randomizableContainerBlockEntity.getLootTable() == null) {
+            return;
+        }
+        ResourceKey<LootTable> lootTableKey = randomizableContainerBlockEntity.getLootTable();
+//        boolean isCursed = level.getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).get(lootTableKey).map(table -> table.is(IronsArtificeTags.CURSED_BY_PIRATES)).orElse(false);
+        // fixme: appears loot table dont have tagging
+        boolean isCursed = lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/buried_treasure")) ||
+                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/shipwreck_treasure")) ||
+                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/underwater_ruin_big"));
+        if (!isCursed) {
+            return;
+        }
+        if (level.getRandom().nextFloat() > ServerConfig.DROWNED_PIRATE_CURSE_CHANCE.get()) {
+            return;
+        }
+        DrownedPirateHelper.trySpawnPirates(level, event.getEntity(), event.getPos().getCenter());
+    }
 }

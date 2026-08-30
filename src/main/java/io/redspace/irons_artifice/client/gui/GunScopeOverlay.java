@@ -13,12 +13,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
-import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class GunScopeOverlay {
     private static final Identifier SCOPE_TEXTURE = Identifier.withDefaultNamespace("textures/misc/spyglass_scope.png");
-    private static final float FOV_MODIFIER = 0.125F;
+    public static final float FOV_MODIFIER = 0.125F;
 
     private static float scopeScale = 0.5F;
 
@@ -35,18 +34,6 @@ public final class GunScopeOverlay {
         }
         scopeScale = Mth.lerp(0.5F * deltaTracker.getGameTimeDeltaTicks(), scopeScale, 1.125F);
         blitScope(graphics, scopeScale);
-    }
-
-    @SubscribeEvent
-    static void onComputeFovModifier(ComputeFovModifierEvent event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (!minecraft.options.getCameraType().isFirstPerson()) {
-            return;
-        }
-        if (!GunItem.isScoping(event.getPlayer())) {
-            return;
-        }
-        event.setNewFovModifier(event.getFovModifier() * FOV_MODIFIER);
     }
 
     @SubscribeEvent

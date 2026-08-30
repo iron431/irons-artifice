@@ -45,16 +45,16 @@ public final class Guns {
             },
             1,
             5,
-            60,
+            40,
             FireMode.SEMI,
             null,
             ArmPoseKind.PISTOL,
             ReloadCueStack.of(
-                    new ReloadCue(0.0f, PlayableSound.of(SoundRegistry.SIX_SHOOTER_HOLSTER, 1.25f, 0.95f, 1.05f)),
-                    new ReloadCue(0.4f, PlayableSound.of(SoundRegistry.FLINTLOCK_RELOAD_INSERT_BULLET, 1.25f, 0.95f, 1.05f)),
-                    new ReloadCue(1.3f, PlayableSound.of(SoundRegistry.FLINTLOCK_RELOAD_PACK_BULLET, 1.25f, 0.95f, 1.05f)),
-                    new ReloadCue(2.75f, PlayableSound.of(SoundRegistry.LEATHER_ACCENT, 1.25f, 0.85f, 0.95f)),
-                    new ReloadCue(2.88f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.25f, 0.85f, 0.95f))
+                    new ReloadCue(0.00f, PlayableSound.of(SoundRegistry.SIX_SHOOTER_HOLSTER, 0.75f, 0.95f, 1.05f)),
+                    new ReloadCue(0.20f, PlayableSound.of(SoundRegistry.FLINTLOCK_RELOAD_INSERT_BULLET, 1.25f, 0.95f, 1.05f)),
+                    new ReloadCue(1.00f, PlayableSound.of(SoundRegistry.FLINTLOCK_RELOAD_PACK_BULLET, 1.25f, 1.05f, 1.15f)),
+                    new ReloadCue(1.75f, PlayableSound.of(SoundRegistry.LEATHER_ACCENT, 0.75f, 0.85f, 0.95f)),
+                    new ReloadCue(1.85f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1.25f, 0.85f, 0.95f))
             ),
             PlayableSound.of(SoundRegistry.FLINTLOCK_EQUIP, 0.75f, 0.9f, 1.1f),
             FireCycleCueStack.EMPTY,

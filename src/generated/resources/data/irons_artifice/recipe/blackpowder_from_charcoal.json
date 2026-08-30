@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": "minecraft:charcoal"
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "id": "irons_artifice:blackpowder"
+  }
+}

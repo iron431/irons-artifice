@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class IncendiaryTipModifier extends ValueStackModifier {
-    public static final int BURN_TICKS_PER = 5 * 20;
+    public static final int BURN_TICKS_PER = 4 * 20;
 
     public IncendiaryTipModifier() {
         super(Map.of(
-                ShotComponents.DAMAGE, new ValueModifier(0.15, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.DAMAGE, new ValueModifier(0.10, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
         ));
     }
 

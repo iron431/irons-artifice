@@ -1,7 +1,9 @@
 package io.redspace.irons_artifice.entity;
 
+import io.redspace.irons_artifice.datagen.EntityLootProvider;
 import io.redspace.irons_artifice.datagen.LoadoutLootProvider;
 import io.redspace.irons_artifice.menu.GunContainer;
+import io.redspace.irons_artifice.mixin.MobAccessor;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
@@ -14,6 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.nautilus.ZombieNautilus;
 import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -25,6 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DrownedPirateHelper {
 
@@ -44,7 +48,14 @@ public class DrownedPirateHelper {
                     Drowned pirate = DrownedPirateHelper.createDrownedPirate(level);
                     pirate.setPos(pos.add(Utils.randomVec3(3)));
                     pirate.setTarget(target);
-                    level.addFreshEntity(pirate);
+                    if (level.getRandom().nextFloat() < 0.50) {
+                        ZombieNautilus zombieNautilus = new ZombieNautilus(EntityType.ZOMBIE_NAUTILUS, level);
+                        zombieNautilus.setPos(pirate.position());
+                        pirate.startRiding(zombieNautilus);
+                        level.addFreshEntityWithPassengers(zombieNautilus);
+                    } else {
+                        level.addFreshEntity(pirate);
+                    }
                 }
                 level.playSound(null, BlockPos.containing(pos), SoundRegistry.PIRATE_AMBUSH.get(), SoundSource.NEUTRAL, 2.5f, 1);
                 break;
@@ -54,11 +65,10 @@ public class DrownedPirateHelper {
 
     public static Drowned createDrownedPirate(ServerLevel level) {
         Drowned drowned = new Drowned(EntityType.DROWNED, level);
+        // drop chances intentionally left unchanged
         drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ItemRegistry.TRICORNE_HAT.get()));
-        drowned.setDropChance(EquipmentSlot.HEAD, 0);
         drowned.setItemSlot(EquipmentSlot.MAINHAND, createLoadout(level));
-        drowned.setDropChance(EquipmentSlot.MAINHAND, 0);
-        // todo: custom loot
+        ((MobAccessor) drowned).setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
         return drowned;
     }
 

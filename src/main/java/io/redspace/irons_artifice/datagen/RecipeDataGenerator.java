@@ -41,6 +41,11 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .requires(Items.REDSTONE)
                 .unlockedBy("has_redstone", this.has(Items.REDSTONE))
                 .save(this.output, recipeId("blackpowder"));
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 1)
+                .pattern("##")
+                .define('#', Items.CHARCOAL)
+                .unlockedBy("has_charcoal", this.has(Items.CHARCOAL))
+                .save(this.output, recipeId("blackpowder_from_charcoal"));
         /* **********************************
          * Bullets
          ********************************** */
@@ -84,22 +89,22 @@ public class RecipeDataGenerator extends RecipeProvider {
          * Mechanical Components
          ********************************** */
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS.get())
-                .pattern("CNC")
-                .pattern("IRI")
-                .pattern("NCN")
+                .pattern("CIC")
+                .pattern("INI")
+                .pattern("CIC")
                 .define('N', commonTag("nuggets/copper"))
                 .define('C', Items.COPPER_CHAIN.unaffected())
                 .define('I', commonTag("ingots/copper"))
-                .define('R', Items.REDSTONE)
                 .unlockedBy("has_redstone", this.has(Items.REDSTONE))
                 .save(this.output);
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MECHANICAL_COMPONENTS.get())
-                .pattern("BC ")
+                .pattern("BCR")
                 .pattern("CMC")
-                .pattern(" CN")
+                .pattern("RCN")
                 .define('B', commonTag("storage_blocks/iron"))
                 .define('N', commonTag("nuggets/iron"))
                 .define('C', Items.IRON_CHAIN)
+                .define('R', Items.REDSTONE)
                 .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_simple", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
@@ -154,7 +159,7 @@ public class RecipeDataGenerator extends RecipeProvider {
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SIX_SHOOTER.get())
                 .pattern("I  ")
                 .pattern(" HM")
-                .pattern(" ML")
+                .pattern(" IL")
                 .define('I', commonTag("ingots/iron"))
                 .define('L', ItemTags.LOGS)
                 .define('H', Items.HOPPER)

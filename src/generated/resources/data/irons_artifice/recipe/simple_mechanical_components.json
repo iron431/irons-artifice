@@ -4,13 +4,12 @@
   "key": {
     "C": "minecraft:copper_chain",
     "I": "#c:ingots/copper",
-    "N": "#c:nuggets/copper",
-    "R": "minecraft:redstone"
+    "N": "#c:nuggets/copper"
   },
   "pattern": [
-    "CNC",
-    "IRI",
-    "NCN"
+    "CIC",
+    "INI",
+    "CIC"
   ],
   "result": {
     "id": "irons_artifice:simple_mechanical_components"

@@ -5,12 +5,13 @@
     "B": "#c:storage_blocks/iron",
     "C": "minecraft:iron_chain",
     "M": "irons_artifice:simple_mechanical_components",
-    "N": "#c:nuggets/iron"
+    "N": "#c:nuggets/iron",
+    "R": "minecraft:redstone"
   },
   "pattern": [
-    "BC ",
+    "BCR",
     "CMC",
-    " CN"
+    "RCN"
   ],
   "result": {
     "id": "irons_artifice:mechanical_components"
