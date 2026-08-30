@@ -25,7 +25,7 @@
   "item.irons_artifice.voltaic_core_modifier": "Улучшение - <Вольт-сердечник>",
   "item.irons_artifice.chain_shot_modifier": "Улучшение - <Цепной выстрел>",
   "item.irons_artifice.frozen_jacket_modifier": "Улучшение - <Ледяная оболочка>",
-  "item.irons_artifice.fairy_dust_modifier": "Улучшение - <Волшебная пыльца>",
+  "item.irons_artifice.fairy_dust_modifier": "Улучшение - <Пыльца фей>",
   "item.irons_artifice.venom_capsule_modifier": "Улучшение - <Капсюль с ядом>",
   "item.irons_artifice.gun_oil_modifier": "Улучшение - <Оружейное масло>",
   "item.irons_artifice.antigravity_modifer": "Улучшение - <Антигравитация>",
@@ -50,8 +50,8 @@
   "item.irons_artifice.scope_attachment_modifier": "Улучшение - <Прицел>",
   "item.irons_artifice.bayonet_attachment_modifier": "Улучшение - <Штык-нож>",
 
-  "container.irons_artifice.gun": "Пушка",
-  "key.irons_artifice.open_modifier_menu": "Открыть меню улучшений пушки",
+  "container.irons_artifice.gun": "Оружие",
+  "key.irons_artifice.open_modifier_menu": "Открыть меню улучшений оружия",
   "key.irons_artifice.reload": "Перезарядка",
 
   "irons_artifice.component_type.knockback": "Откидывание",
