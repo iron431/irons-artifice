@@ -9,7 +9,7 @@
   "item.irons_artifice.clockwork_rifle": "Заводная Винтовка",
   
   "item.irons_artifice.cowboy_hat": "Ковбойская Шляпа",
-  "item.irons_artifice.cowboy_hat.ability": "Мгновенно перезаряжает оружие после убийства (%sс перезарядки)",
+  "item.irons_artifice.cowboy_hat.ability": "Мгновенно перезаряжает оружие после убийства (%sсек кулдаун)",
   "item.irons_artifice.cowboy_hat.ability.gain_ammo": "Перезаряжено +%d пуль!",
 
   "item.irons_artifice.tricorne": "Треуголка",
