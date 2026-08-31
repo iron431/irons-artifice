@@ -43,9 +43,9 @@
   "item.irons_artifice.bayonet_attachment_modifier": "Штык - <Улучшение>",
   "item.irons_artifice.bullet": "Пуля",
   "item.irons_artifice.blackpowder": "Дымный Порох",
-  "item.irons_artifice.simple_mechanical_components": "Простые Шестерни - <Компоненты>",
-  "item.irons_artifice.mechanical_components": "Механика - <Компоненты>",
-  "item.irons_artifice.clockwork_components": "Заводные Часы - <Компоненты>",
+  "item.irons_artifice.simple_mechanical_components": "Простые Шестерни - <Компонент>",
+  "item.irons_artifice.mechanical_components": "Механика - <Компонент>",
+  "item.irons_artifice.clockwork_components": "Заводные Часы - <Компонент>",
   "item.irons_artifice.illificer_spawn_egg": "Яйцо Призыва Оружейника",
   
   "entity.irons_artifice.gunslinger": "Стрелок",
