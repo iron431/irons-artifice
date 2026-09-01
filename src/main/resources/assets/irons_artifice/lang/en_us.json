@@ -107,6 +107,7 @@
   "irons_artifice.tooltip.damage": "%s Damage",
   "irons_artifice.tooltip.fire_rate": "%s Fire Rate",
   "irons_artifice.tooltip.reload_time": "%s Reload",
+  "irons_artifice.tooltip.reload_time_suffix": "s",
   "irons_artifice.tooltip.modifier_count": "%s Modifier Slots",
   "irons_artifice.tooltip.modifier_count_keybind_hint": "%s Modifier Slots (Open: [%s])",
   "irons_artifice.tooltip.keybind_hint": "[Open: %s]",

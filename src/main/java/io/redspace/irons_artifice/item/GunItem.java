@@ -190,7 +190,7 @@ public class GunItem extends BaseGeoItem {
             // hide fire rate on single shot guns
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.fire_rate", highlightText.apply(fireRate)));
         }
-        statBuilder.accept(Component.translatable("irons_artifice.tooltip.reload_time", highlightText.apply(reloadTime + "s")));
+        statBuilder.accept(Component.translatable("irons_artifice.tooltip.reload_time", highlightText.apply(reloadTime + Component.translatable("irons_artifice.tooltip.reload_time_suffix").getString())));
         statBuilder.accept(Component.translatable("irons_artifice.tooltip.ammo_capacity", highlightText.apply("" + gunProfile.magazineCapacity())));
         builder.accept(Component.translatable("irons_artifice.tooltip.modifier_count",
                         gunProfile.modifierSlots()
