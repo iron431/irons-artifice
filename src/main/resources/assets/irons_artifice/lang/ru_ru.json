@@ -111,7 +111,7 @@
   "irons_artifice.tooltip.modifier_count_keybind_hint": "%s Слотов улучшений (Открыть: [%s])",
   "irons_artifice.tooltip.keybind_hint": "[Открыть: %s]",
   "irons_artifice.tooltip.modifiers": "Улучшения:",
-  "irons_artifice.tooltip.refunded_ammo": "Возвращено %s пуль!",
+  "irons_artifice.tooltip.refunded_ammo": "Возвращена %s пуля!",
   "irons_artifice.tooltip.accelerated_percent": "%s%% Ускорения",
 
   "death.attack.irons_artifice.bullet": "%1$s был застрелен %2$s",
