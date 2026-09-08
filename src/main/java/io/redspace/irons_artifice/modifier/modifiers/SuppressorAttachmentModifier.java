@@ -12,10 +12,7 @@ import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.UseEffects;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +31,8 @@ public class SuppressorAttachmentModifier implements GunModifier {
         ));
         gunShotSoundStack.setEchoSound(new GunShotSoundSettings(
                 gunShotSoundStack.getEchoSound().soundEvent(),
-                echoSettings.minPitch(), echoSettings.maxPitch(), baseSettings.start(), 0, baseSettings.end()
+                echoSettings.minPitch(), echoSettings.maxPitch(),
+                -32, -16, baseSettings.end() - 32
         ));
         MuzzleFlashSettings muzzleFlashSettings = components.getOrCreate(ShotComponents.MUZZLE_FLASH);
         muzzleFlashSettings = new MuzzleFlashSettings(

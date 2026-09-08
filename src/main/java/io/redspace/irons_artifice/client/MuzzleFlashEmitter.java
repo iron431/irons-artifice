@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.data.ParticleBurst;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
@@ -9,34 +10,58 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class MuzzleFlashEmitter {
-    private static final Map<Integer, ClientboundMuzzleFlashPacket> PENDING = new HashMap<>();
+    private static final Map<Integer, Pending> PENDING = new HashMap<>();
 
-    private MuzzleFlashEmitter() {
+    private record Pending(ClientboundMuzzleFlashPacket packet, long queuedAtGameTime) {
     }
 
-    public static void queue(ClientboundMuzzleFlashPacket packet) {
-        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
+    public static void enqueue(ClientboundMuzzleFlashPacket packet) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || Minecraft.getInstance().player == null) {
             return;
         }
-        PENDING.put(packet.entityId(), packet);
+        PENDING.put(packet.entityId(), new Pending(packet, level.getGameTime()));
     }
 
     public static void tryEmit(int entityId, PoseStack poseStack) {
-        ClientboundMuzzleFlashPacket packet = PENDING.remove(entityId);
-        if (packet == null) {
+        Pending pending = PENDING.remove(entityId);
+        if (pending == null) {
             return;
         }
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;
         }
-        spawn(level, packet, worldPosFromBone(poseStack, packet.extraForwardOffset()));
+        spawn(level, pending.packet(), worldPosFromBone(poseStack, pending.packet().extraForwardOffset()));
+    }
+
+    @SubscribeEvent
+    static void onClientTick(ClientTickEvent.Post event) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || PENDING.isEmpty() || Minecraft.getInstance().isPaused()) {
+            return;
+        }
+        long gameTime = level.getGameTime();
+        Iterator<Pending> iterator = PENDING.values().iterator();
+        while (iterator.hasNext()) {
+            Pending pending = iterator.next();
+            if (gameTime > pending.queuedAtGameTime()) {
+                spawn(level, pending.packet(), pending.packet().backupPos());
+                iterator.remove();
+            }
+        }
     }
 
     private static Vec3 worldPosFromBone(PoseStack poseStack, float extraForwardOffset) {

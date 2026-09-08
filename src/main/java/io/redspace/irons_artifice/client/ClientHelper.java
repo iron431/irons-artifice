@@ -127,7 +127,7 @@ public final class ClientHelper {
     }
 
     public static void handleMuzzleFlash(ClientboundMuzzleFlashPacket msg) {
-        MuzzleFlashEmitter.queue(msg);
+        MuzzleFlashEmitter.enqueue(msg);
     }
 
     public static void handleGunAnimationPacket(ClientboundGunAnimationPacket msg) {

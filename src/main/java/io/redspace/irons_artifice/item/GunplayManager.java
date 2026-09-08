@@ -195,11 +195,11 @@ public final class GunplayManager {
             bullet.shoot(direction.x, direction.y, direction.z, speed, spread);
             level.addFreshEntity(bullet);
         }
-        spawnMuzzleFlash(level, shooter, profile);
+        spawnMuzzleFlash(level, shooter, direction, profile);
         NeoForge.EVENT_BUS.post(new GunShootEvent.Post(shooter, profile));
     }
 
-    private static void spawnMuzzleFlash(ServerLevel level, LivingEntity shooter, ShotProfile profile) {
+    private static void spawnMuzzleFlash(ServerLevel level, LivingEntity shooter, Vec3 direction, ShotProfile profile) {
         MuzzleFlashSettings settings = profile.get(ShotComponents.MUZZLE_FLASH);
         if (!settings.hasVisuals()) {
             return;
@@ -209,11 +209,13 @@ public final class GunplayManager {
             MuzzleFlashType type = settings.pick(level.getRandom());
             flash = Optional.of(type.particle(settings.pickTint(level.getRandom())));
         }
+        Vec3 backupPos = shooter.getEyePosition().add(direction.normalize().scale(1.25 + settings.muzzleDistanceScalar()));
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(shooter, new ClientboundMuzzleFlashPacket(
                 new MuzzleFlashVisuals(flash, List.copyOf(settings.airBursts()), List.copyOf(settings.underwaterBursts())),
                 shooter.getId(),
                 shooter.getDeltaMovement(),
-                settings.muzzleDistanceScalar()
+                settings.muzzleDistanceScalar(),
+                backupPos
         ));
     }
 
