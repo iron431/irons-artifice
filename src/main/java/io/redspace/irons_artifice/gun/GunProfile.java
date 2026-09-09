@@ -6,10 +6,11 @@ import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.data.ReloadCueStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
-import io.redspace.irons_artifice.item.AnimationAdjuster;
+import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.item.TopLoadConfig;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -32,10 +33,11 @@ public record GunProfile(
         ReloadCueStack reloadCues,
         @Nullable PlayableSound equipSound,
         FireCycleCueStack fireCycleCues,
-        AnimationAdjuster animationAdjuster,
+        List<AnimationAdjuster> animationAdjusters,
         Map<String, HandOccupancy> occupancyOverrides
 ) {
     public GunProfile {
+        animationAdjusters = List.copyOf(animationAdjusters);
         occupancyOverrides = Map.copyOf(occupancyOverrides);
     }
 

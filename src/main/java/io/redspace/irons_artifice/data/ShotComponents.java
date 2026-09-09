@@ -51,5 +51,6 @@ public final class ShotComponents {
     ));
     public static final ComponentType<ParticleStack> PARTICLE_TRAIL = new ComponentType<>(IronsArtifice.id("particle_trail"), ParticleStack::new);
     public static final ComponentType<MuzzleFlashSettings> MUZZLE_FLASH = new ComponentType<>(IronsArtifice.id("muzzle_flash"), MuzzleFlashSettings.DEFAULT);
+    public static final ComponentType<Value> MUZZLE_OFFSET = new ComponentType<>(IronsArtifice.id("muzzle_offset"), () -> Value.of(0));
 
 }

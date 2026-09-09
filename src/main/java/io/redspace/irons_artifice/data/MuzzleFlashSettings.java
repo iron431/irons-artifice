@@ -12,22 +12,20 @@ import java.util.function.Supplier;
 
 public record MuzzleFlashSettings(
         Set<MuzzleFlashType> types,
-        float muzzleDistanceScalar,
         List<Vector3f> tints,
         List<ParticleBurst> airBursts,
         List<ParticleBurst> underwaterBursts
 ) implements Copyable<MuzzleFlashSettings> {
     public static final Vector3f WHITE = new Vector3f(1f, 1f, 1f);
     public static final Vector3f UNTINTED = new Vector3f(-1f, -1f, -1f);
-    public static final Supplier<MuzzleFlashSettings> DEFAULT = () -> of(0f, MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR);
+    public static final Supplier<MuzzleFlashSettings> DEFAULT = () -> of(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR);
 
-    public static MuzzleFlashSettings of(float muzzleDistanceScalar, MuzzleFlashType... types) {
+    public static MuzzleFlashSettings of(MuzzleFlashType... types) {
         if (types.length == 0) {
             throw new IllegalArgumentException("Nonzero type count required");
         }
         return new MuzzleFlashSettings(
                 EnumSet.copyOf(List.of(types)),
-                muzzleDistanceScalar,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(List.of(ParticleBurst.BUBBLES))
@@ -72,7 +70,6 @@ public record MuzzleFlashSettings(
     public MuzzleFlashSettings copy() {
         return new MuzzleFlashSettings(
                 types.isEmpty() ? EnumSet.noneOf(MuzzleFlashType.class) : EnumSet.copyOf(types),
-                muzzleDistanceScalar,
                 new ArrayList<>(tints),
                 new ArrayList<>(airBursts),
                 new ArrayList<>(underwaterBursts)

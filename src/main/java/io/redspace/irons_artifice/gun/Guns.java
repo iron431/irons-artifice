@@ -15,12 +15,13 @@ import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.Value;
 import io.redspace.irons_artifice.entity.Bullet;
-import io.redspace.irons_artifice.item.AnimationAdjuster;
+import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.item.TopLoadConfig;
 import io.redspace.irons_artifice.data.RecoilProfile;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.sounds.SoundEvents;
 
+import java.util.List;
 import java.util.Map;
 
 // todo: should probably be converted into an item component, rather than hardcoded to gunitem
@@ -40,7 +41,7 @@ public final class Guns {
                 map.set(ShotComponents.CHARACTER_BLOWBACK, Value.of(0.5));
                 map.set(ShotComponents.SPREAD, Value.of(3));
                 map.set(ShotComponents.FIRE_DELAY, Value.of(1));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.LARGE));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.LARGE));
                 return map;
             },
             1,
@@ -58,7 +59,7 @@ public final class Guns {
             ),
             PlayableSound.of(SoundRegistry.FLINTLOCK_EQUIP, 0.75f, 0.9f, 1.1f),
             FireCycleCueStack.EMPTY,
-            AnimationAdjuster.LOWER_HAMMER,
+            List.of(AnimationAdjuster.LOWER_HAMMER, AnimationAdjuster.MUZZLE_LOAD_OFFSET),
             Map.of("reload", HandOccupancy.BOTH)
     );
 
@@ -75,7 +76,7 @@ public final class Guns {
                         GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_MUZZLELOADER, 1.15f),
                         PlayableSound.of(PlayableSound.holder(SoundEvents.DISPENSER_FAIL), 0.75f, 1.4f, 1.6f)
                 ));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.LARGE));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.LARGE));
                 return map;
             },
             1,
@@ -93,7 +94,7 @@ public final class Guns {
             ),
             PlayableSound.of(SoundRegistry.MUSKET_EQUIP, 0.75f, 0.9f, 1.1f),
             FireCycleCueStack.EMPTY,
-            AnimationAdjuster.LOWER_HAMMER,
+            List.of(AnimationAdjuster.LOWER_HAMMER, AnimationAdjuster.MUZZLE_LOAD_OFFSET),
             Map.of()
     );
 
@@ -109,7 +110,7 @@ public final class Guns {
                         GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_GENERIC, 0.8f),
                         PlayableSound.of(PlayableSound.holder(SoundEvents.DISPENSER_FAIL), 0.75f, 1.4f, 1.6f)
                 ));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.LARGE));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.LARGE));
                 return map;
             },
             6,
@@ -127,7 +128,7 @@ public final class Guns {
             FireCycleCueStack.of(
                     new FireCycleCue(1.0f, PlayableSound.of(SoundRegistry.COCK_HAMMER, 1f, 0.9f, 1.1f))
             ),
-            AnimationAdjuster.NONE,
+            List.of(),
             Map.of("reload", HandOccupancy.BOTH)
     );
 
@@ -158,7 +159,7 @@ public final class Guns {
             ),
             PlayableSound.of(SoundRegistry.SIX_SHOOTER_EQUIP, 0.75f, 0.95f, 1.05f),
             FireCycleCueStack.EMPTY,
-            AnimationAdjuster.NONE,
+            List.of(),
             Map.of("fire", HandOccupancy.BOTH)
     );
 
@@ -177,7 +178,7 @@ public final class Guns {
                         GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_MUZZLELOADER, 0.75f),
                         PlayableSound.of(PlayableSound.holder(SoundEvents.DISPENSER_FAIL), 0.75f, 1.4f, 1.6f)
                 ));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.LARGE));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.LARGE));
                 return map;
             },
             2,
@@ -194,7 +195,7 @@ public final class Guns {
             ),
             PlayableSound.of(SoundRegistry.BLUNDERBUSS_RELOAD_CLOSE, 0.75f, 0.9f, 1.1f),
             FireCycleCueStack.EMPTY,
-            AnimationAdjuster.DOUBLE_BARREL_HAMMER,
+            List.of(AnimationAdjuster.DOUBLE_BARREL_HAMMER),
             Map.of()
     );
 
@@ -206,7 +207,7 @@ public final class Guns {
                 map.set(ShotComponents.SPREAD, Value.of(1));
                 map.set(ShotComponents.FIRE_DELAY, Value.of(20));
                 map.set(ShotComponents.DAMAGE, Value.of(12));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.LARGE));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.LARGE));
                 map.set(ShotComponents.GUNSHOT_SOUND, new GunShotSoundStack(
                         GunShotSoundSettings.standardShot(SoundRegistry.ARQUEBUS_SHOOT, 1f),
                         GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_GENERIC, 1.5f),
@@ -234,7 +235,7 @@ public final class Guns {
                     new FireCycleCue(0.25f / 0.75f, PlayableSound.of(SoundRegistry.ARQUEBUS_OPEN_BREECH, 1f, 0.9f, 1.1f)),
                     new FireCycleCue(0.6f / 0.75f, PlayableSound.of(SoundRegistry.ARQUEBUS_CLOSE_BREECH, 1f, 0.9f, 1.1f))
             ),
-            AnimationAdjuster.LOWER_HAMMER,
+            List.of(AnimationAdjuster.LOWER_HAMMER),
             Map.of()
     );
 
@@ -246,7 +247,7 @@ public final class Guns {
                 map.set(ShotComponents.FIRE_DELAY, Value.of(4));
                 map.set(ShotComponents.SPREAD, Value.of(2));
                 map.set(ShotComponents.DAMAGE, Value.of(6));
-                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of(0f, MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR));
+                map.set(ShotComponents.MUZZLE_FLASH, MuzzleFlashSettings.of( MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR));
                 map.set(ShotComponents.GUNSHOT_SOUND, new GunShotSoundStack(
                         GunShotSoundSettings.standardShot(SoundRegistry.CLOCKWORK_RIFLE_SHOOT, 1f),
                         GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_GENERIC, 1f),
@@ -266,7 +267,7 @@ public final class Guns {
             ),
             PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.9f, 1.1f),
             FireCycleCueStack.EMPTY,
-            AnimationAdjuster.HARMONICA_MAGAZINE,
+            List.of(AnimationAdjuster.HARMONICA_MAGAZINE),
             Map.of()
     );
 

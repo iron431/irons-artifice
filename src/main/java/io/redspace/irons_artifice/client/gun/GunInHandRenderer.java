@@ -14,10 +14,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.MuzzleFlashEmitter;
 import io.redspace.irons_artifice.data.HandOccupancy;
-import io.redspace.irons_artifice.item.AnimationAdjuster;
+import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;
+import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
+import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -133,7 +136,13 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         }
         var controller = animatable.getAnimatableInstanceCache().getManagerForId(GeoItem.getId(renderData.itemStack())).getAnimationControllers().get(GunItem.TRIGGERED_ANIMATION_CONTROLLER);
         renderState.addGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, controller.isTriggeredAnimation("reload") ? controller.getCurrentAnimationTime() : 0.0);
-        renderState.addGeckolibData(GunItem.ANIMATION_ADJUSTER_TICKET, animatable.getGun().animationAdjuster());
+        ReloadState reload = ReloadState.get(renderData.itemStack());
+        renderState.addGeckolibData(GunItem.RELOAD_PERCENT_TICKET, reload != null ? reload.percent(partialTick) : 0f);
+        renderState.addGeckolibData(
+                GunItem.MUZZLE_OFFSET_TICKET,
+                (float) GunplayManager.compose(null, animatable.getGun(), renderData.itemStack()).value(ShotComponents.MUZZLE_OFFSET)
+        );
+        renderState.addGeckolibData(GunItem.ANIMATION_ADJUSTERS_TICKET, animatable.getGun().animationAdjusters());
         renderState.addGeckolibData(
                 GunItem.ATTACHMENTS,
                 renderData.itemStack().getOrDefault(DataComponentRegistry.ATTACHMENT, AttachmentMap.EMPTY)
@@ -213,52 +222,12 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     private void handleGunAdjustments(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo, @NonNull BoneSnapshots snapshots) {
-        AnimationAdjuster adjuster = renderPassInfo.getGeckolibData(GunItem.ANIMATION_ADJUSTER_TICKET);
-        if (adjuster == null || adjuster == AnimationAdjuster.NONE) {
+        List<AnimationAdjuster> adjusters = renderPassInfo.getGeckolibData(GunItem.ANIMATION_ADJUSTERS_TICKET);
+        if (adjusters == null || adjusters.isEmpty()) {
             return;
         }
-        // todo: this really shouldnt be an enum. requires hardcode and is non-addon-extensible
-        switch (adjuster) {
-            case HARMONICA_MAGAZINE -> {
-                double reloadProgress = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, 0.0);
-                MagazineContents magazineContents = renderPassInfo.getGeckolibData(GunItem.MAGAZINE_ANIMATION_TICKET);
-                Optional<BoneSnapshot> magazineOpt = snapshots.get("magazine");
-                if (magazineOpt.isEmpty() || magazineContents == null) {
-                    return;
-                }
-                boolean ignoreForReload = reloadProgress > 0.42;
-                if (!ignoreForReload) {
-                    float percent = 1 - magazineContents.count() / 10f;
-                    BoneSnapshot magazine = magazineOpt.get();
-                    magazine.setTranslation(4 * percent, 0, 0);
-                }
-            }
-            case LOWER_HAMMER -> {
-                MagazineContents magazineContents = renderPassInfo.getGeckolibData(GunItem.MAGAZINE_ANIMATION_TICKET);
-                double reloadProgress = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, 0.0);
-                Optional<BoneSnapshot> boneOpt = snapshots.get("hammer");
-                if (boneOpt.isEmpty() || magazineContents == null) {
-                    return;
-                } else if (magazineContents.isEmpty() && reloadProgress <= 0) {
-                    boneOpt.get().setRotation(0, 0, 0);
-                }
-            }
-            case DOUBLE_BARREL_HAMMER -> {
-                MagazineContents magazineContents = renderPassInfo.getGeckolibData(GunItem.MAGAZINE_ANIMATION_TICKET);
-                double reloadProgress = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, 0.0);
-                Optional<BoneSnapshot> leftOpt = snapshots.get("hammer_left");
-                Optional<BoneSnapshot> rightOpt = snapshots.get("hammer_right");
-                if (leftOpt.isEmpty() || rightOpt.isEmpty() || magazineContents == null) {
-                    return;
-                } else if (reloadProgress <= 1.17) {
-                    if (magazineContents.count() <= 1) {
-                        leftOpt.get().setRotation(0, 0, 0);
-                    }
-                    if (magazineContents.isEmpty()) {
-                        rightOpt.get().setRotation(0, 0, 0);
-                    }
-                }
-            }
+        for (AnimationAdjuster adjuster : adjusters) {
+            adjuster.adjust(renderPassInfo, snapshots);
         }
     }
 

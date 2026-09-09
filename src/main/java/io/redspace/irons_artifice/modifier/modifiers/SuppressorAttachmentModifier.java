@@ -7,6 +7,7 @@ import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.data.ParticleBurst;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
@@ -35,16 +36,10 @@ public class SuppressorAttachmentModifier implements GunModifier {
                 -32, -16, baseSettings.end() - 32
         ));
         MuzzleFlashSettings muzzleFlashSettings = components.getOrCreate(ShotComponents.MUZZLE_FLASH);
-        muzzleFlashSettings = new MuzzleFlashSettings(
-                muzzleFlashSettings.types(),
-                0.75f,
-                muzzleFlashSettings.tints(),
-                muzzleFlashSettings.airBursts(),
-                muzzleFlashSettings.underwaterBursts()
-        );
         muzzleFlashSettings.airBursts().add(ParticleBurst.SMOKE);
         muzzleFlashSettings.types().clear();
-        components.set(ShotComponents.MUZZLE_FLASH, muzzleFlashSettings);
+        components.getOrCreate(ShotComponents.MUZZLE_OFFSET).addModifier(
+                new ValueModifier(11/16f, ValueModifier.Operation.ADD, ValueModifier.Type.NEUTRAL));
     }
 
     @Override

@@ -209,12 +209,13 @@ public final class GunplayManager {
             MuzzleFlashType type = settings.pick(level.getRandom());
             flash = Optional.of(type.particle(settings.pickTint(level.getRandom())));
         }
-        Vec3 backupPos = shooter.getEyePosition().add(direction.normalize().scale(1.25 + settings.muzzleDistanceScalar()));
+        float muzzleOffset = (float) profile.value(ShotComponents.MUZZLE_OFFSET);
+        Vec3 backupPos = shooter.getEyePosition().add(direction.normalize().scale(1.25 + muzzleOffset));
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(shooter, new ClientboundMuzzleFlashPacket(
                 new MuzzleFlashVisuals(flash, List.copyOf(settings.airBursts()), List.copyOf(settings.underwaterBursts())),
                 shooter.getId(),
                 shooter.getDeltaMovement(),
-                settings.muzzleDistanceScalar(),
+                muzzleOffset,
                 backupPos
         ));
     }

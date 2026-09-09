@@ -16,6 +16,7 @@ import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
@@ -41,14 +42,18 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GunItem extends BaseGeoItem {
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = DataTicket.create(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
-    public static final DataTicket<AnimationAdjuster> ANIMATION_ADJUSTER_TICKET = DataTicket.create(IronsArtifice.id("animation_adjuster").toString(), AnimationAdjuster.class);
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static final DataTicket<List<AnimationAdjuster>> ANIMATION_ADJUSTERS_TICKET = DataTicket.create(IronsArtifice.id("animation_adjusters").toString(), (Class) List.class);
     public static final DataTicket<AttachmentMap> ATTACHMENTS = DataTicket.create(IronsArtifice.id("attachments").toString(), AttachmentMap.class);
     public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = DataTicket.create(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
+    public static final DataTicket<Float> RELOAD_PERCENT_TICKET = DataTicket.create(IronsArtifice.id("reload_percent").toString(), Float.class);
+    public static final DataTicket<Float> MUZZLE_OFFSET_TICKET = DataTicket.create(IronsArtifice.id("muzzle_offset").toString(), Float.class);
     public static final DataTicket<HandOccupancy> HAND_OCCUPANCY_TICKET = DataTicket.create(IronsArtifice.id("hand_occupancy").toString(), HandOccupancy.class);
     public static final DataTicket<Integer> ITEM_OWNER_ID_TICKET = DataTicket.create(IronsArtifice.id("item_owner_id").toString(), Integer.class);
     public static final String TRIGGERED_ANIMATION_CONTROLLER = "Actions";
