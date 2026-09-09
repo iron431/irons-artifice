@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "irons_artifice:item/gun_display",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

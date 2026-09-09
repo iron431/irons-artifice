@@ -155,4 +155,21 @@ public final class Guns {
             .equipSound(PlayableSound.of(SoundRegistry.CLOCKWORK_RIFLE_EQUIP, 0.75f, 0.9f, 1.1f))
             .animationAdjusters(AnimationAdjuster.HARMONICA_MAGAZINE)
             .build();
+
+    public static final GunProfile AK47 = GunProfile.builder(30, 6, 45, FireMode.AUTO, ArmPoseKind.RIFLE,
+                    ShotComponentTemplate.builder(7, 1.5, 0.025, 2, RecoilProfile.of(8f, .5f, 0.78f, 474747))
+                            .gunshotSound(
+                                    GunShotSoundSettings.standardShot(SoundRegistry.AK47_SHOOT, 1f),
+                                    GunShotSoundSettings.standardEcho(SoundRegistry.BULLET_ECHO_GENERIC, 1f),
+                                    PlayableSound.holder(SoundEvents.DISPENSER_FAIL))
+                            .muzzleFlash(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR)
+                            .build())
+            .reloadCues(ReloadCueStack.of(
+                    new ReloadCue(0.45f, PlayableSound.of(SoundRegistry.AK47_EJECT_MAG, 1.25f, 0.9f, 1.1f)),
+                    new ReloadCue(1.25f, PlayableSound.of(SoundRegistry.AK47_INSERT_MAG, 1.25f, 0.9f, 1.1f)),
+                    new ReloadCue(1.8f, PlayableSound.of(SoundRegistry.AK47_RACK, 1.25f, 0.9f, 1.1f))
+            ))
+            .equipSound(PlayableSound.of(SoundRegistry.AK47_RACK, 0.75f, 0.9f, 1.1f))
+            .animationAdjusters(AnimationAdjuster.HIDE_MAGAZINE_BULLET)
+            .build();
 }

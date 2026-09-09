@@ -9,6 +9,7 @@ public interface AnimationAdjuster {
     AnimationAdjuster DOUBLE_BARREL_HAMMER = new DoubleBarrelHammerAdjuster();
     AnimationAdjuster HARMONICA_MAGAZINE = new HarmonicaMagazineAdjuster();
     AnimationAdjuster MUZZLE_LOAD_OFFSET = new MuzzleLoadOffsetAdjuster();
+    AnimationAdjuster HIDE_MAGAZINE_BULLET = new HideMagazineBullet(0.83);
 
     void adjust(RenderPassInfo<GeoRenderState> renderPassInfo, BoneSnapshots snapshots);
 }

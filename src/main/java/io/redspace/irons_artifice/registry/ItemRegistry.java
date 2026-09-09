@@ -70,6 +70,9 @@ public final class ItemRegistry {
     public static final DeferredItem<GunItem> CLOCKWORK_RIFLE = ITEMS.registerItem("clockwork_rifle",
             properties -> new GunItem(properties, Guns.CLOCKWORK_RIFLE)
     );
+    public static final DeferredItem<GunItem> AK47 = ITEMS.registerItem("ak47",
+            properties -> new GunItem(properties, Guns.AK47)
+    );
 
     public static final DeferredItem<Item> COWBOY_HAT = ITEMS.registerItem("cowboy_hat", CowboyHatItem::new);
     public static final DeferredItem<Item> TRICORNE_HAT = ITEMS.registerItem("tricorne", TricorneItem::new);

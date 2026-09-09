@@ -64,6 +64,11 @@ public class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_SHOOT = registerSoundEvent("item.clockwork_rifle.shoot");
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_EQUIP = registerSoundEvent("item.clockwork_rifle.equip");
 
+    public static DeferredHolder<SoundEvent, SoundEvent> AK47_SHOOT = registerSoundEvent("item.ak47.shoot");
+    public static DeferredHolder<SoundEvent, SoundEvent> AK47_INSERT_MAG = registerSoundEvent("item.ak47.reload.insert_mag");
+    public static DeferredHolder<SoundEvent, SoundEvent> AK47_EJECT_MAG = registerSoundEvent("item.ak47.reload.eject_mag");
+    public static DeferredHolder<SoundEvent, SoundEvent> AK47_RACK = registerSoundEvent("item.ak47.reload.rack");
+
     private static DeferredHolder<SoundEvent, SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(IronsArtifice.id(name)));
     }

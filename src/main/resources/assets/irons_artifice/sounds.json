@@ -216,5 +216,25 @@
       "irons_artifice:icefreeze_02",
       "irons_artifice:icefreeze_03"
     ]
+  },
+  "item.ak47.shoot": {
+    "sounds": [
+      "irons_artifice:ak47_shoot"
+    ]
+  },
+  "item.ak47.reload.insert_mag": {
+    "sounds": [
+      "irons_artifice:ak47_mag_insert"
+    ]
+  },
+  "item.ak47.reload.eject_mag": {
+    "sounds": [
+      "irons_artifice:ak47_mag_remove"
+    ]
+  },
+  "item.ak47.reload.rack": {
+    "sounds": [
+      "irons_artifice:ak47_rack"
+    ]
   }
 }
