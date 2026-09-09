@@ -87,8 +87,8 @@
   "irons_artifice.modifier.spiral_tip": "Убирает сопротивление пули под водой",
   "irons_artifice.modifier.negate": "Убирает %s",
   "irons_artifice.modifier.gravity_well": "Создаёт %s блока гравитационной воронки при попадании",
-  "irons_artifice.modifier.accelerating": "+%s%% урона за каждый выстрел, произведённый в последнюю секунду",
-  "irons_artifice.modifier.infinity": "%s%% снижает шанс потери пули",
+  "irons_artifice.modifier.accelerating": "+%s%% Урона за каждый выстрел, произведённый в последнюю секунду",
+  "irons_artifice.modifier.infinity": "%s%% Снижает шанс потери пули",
   "irons_artifice.modifier.scope": "Включает прицеливание",
   "irons_artifice.modifier.bayonet": "Включает разбег с штыком",
 
