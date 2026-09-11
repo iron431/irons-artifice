@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -13,8 +14,8 @@ import java.util.function.Supplier;
 public record MuzzleFlashSettings(
         Set<MuzzleFlashType> types,
         List<Vector3f> tints,
-        List<ParticleBurst> airBursts,
-        List<ParticleBurst> underwaterBursts
+        Set<ParticleBurst> airBursts,
+        Set<ParticleBurst> underwaterBursts
 ) implements Copyable<MuzzleFlashSettings> {
     public static final Vector3f WHITE = new Vector3f(1f, 1f, 1f);
     public static final Vector3f UNTINTED = new Vector3f(-1f, -1f, -1f);
@@ -27,8 +28,8 @@ public record MuzzleFlashSettings(
         return new MuzzleFlashSettings(
                 EnumSet.copyOf(List.of(types)),
                 new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(List.of(ParticleBurst.BUBBLES))
+                new HashSet<>(),
+                new HashSet<>(List.of(ParticleBurst.BUBBLES))
         );
     }
 
@@ -71,8 +72,8 @@ public record MuzzleFlashSettings(
         return new MuzzleFlashSettings(
                 types.isEmpty() ? EnumSet.noneOf(MuzzleFlashType.class) : EnumSet.copyOf(types),
                 new ArrayList<>(tints),
-                new ArrayList<>(airBursts),
-                new ArrayList<>(underwaterBursts)
+                new HashSet<>(airBursts),
+                new HashSet<>(underwaterBursts)
         );
     }
 }

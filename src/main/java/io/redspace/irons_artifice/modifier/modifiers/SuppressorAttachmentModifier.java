@@ -7,7 +7,6 @@ import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.data.ParticleBurst;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
@@ -28,18 +27,17 @@ public class SuppressorAttachmentModifier implements GunModifier {
         GunShotSoundSettings echoSettings = gunShotSoundStack.getEchoSound();
         gunShotSoundStack.setBaseSound(new GunShotSoundSettings(
                 baseSettings.soundEvent(),
-                baseSettings.minPitch(), baseSettings.maxPitch(), -64, -32, 32
+                baseSettings.minPitch(), baseSettings.maxPitch(), -49, -48, 32
         ));
         gunShotSoundStack.setEchoSound(new GunShotSoundSettings(
                 gunShotSoundStack.getEchoSound().soundEvent(),
                 echoSettings.minPitch(), echoSettings.maxPitch(),
-                -32, -16, baseSettings.end() - 32
+                -33, -32, Math.min(baseSettings.end(), 112)
         ));
         MuzzleFlashSettings muzzleFlashSettings = components.getOrCreate(ShotComponents.MUZZLE_FLASH);
         muzzleFlashSettings.airBursts().add(ParticleBurst.SMOKE);
         muzzleFlashSettings.types().clear();
-        components.getOrCreate(ShotComponents.MUZZLE_OFFSET).addModifier(
-                new ValueModifier(11/16f, ValueModifier.Operation.ADD, ValueModifier.Type.NEUTRAL));
+        components.set(ShotComponents.MUZZLE_OFFSET, components.getOrDefault(ShotComponents.MUZZLE_OFFSET).withBase(11 / 16f));
     }
 
     @Override

@@ -125,7 +125,8 @@ public final class ItemRegistry {
     public static final DeferredItem<ModifierItem> BAYONET_ATTACHMENT_MODIFIER = ITEMS.registerItem(
             "bayonet_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BayonetAttachmentModifier()));
     public static final DeferredItem<ModifierItem> SUPRESSOR_ATTACHMENT_MODIFIER = ITEMS.registerItem(
-            "supressor_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SuppressorAttachmentModifier()));
+            "suppressor_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SuppressorAttachmentModifier()));
+
     //    public static final DeferredItem<ModifierItem> FAIRY_DUST = ITEMS.registerItem(
     //            "fairy_dust_modifier", properties -> new ModifierItem(properties.stacksTo(1), new FairyDustModifier()));
 

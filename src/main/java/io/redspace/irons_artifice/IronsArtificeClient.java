@@ -117,7 +117,7 @@ public class IronsArtificeClient {
                 IronsArtifice.id("suppressor"),
                 new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
                         "suppressor",
-                        "model/spyglass_scope",
+                        "model/suppressor",
                         "empty"))
         );
     }

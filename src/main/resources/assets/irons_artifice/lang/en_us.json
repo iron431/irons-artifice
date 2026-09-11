@@ -49,6 +49,7 @@
   "item.irons_artifice.seeking_powder_modifier": "Seeking Powder Modifier",
   "item.irons_artifice.scope_attachment_modifier": "Scope Attachment Modifier",
   "item.irons_artifice.bayonet_attachment_modifier": "Bayonet Attachment Modifier",
+  "item.irons_artifice.suppressor_attachment_modifier": "Suppressor Attachment Modifier",
 
   "container.irons_artifice.gun": "Gun",
   "key.irons_artifice.open_modifier_menu": "Open Gun Modifiers",

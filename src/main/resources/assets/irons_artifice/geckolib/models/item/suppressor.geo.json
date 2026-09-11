@@ -22,12 +22,22 @@
 							"pivot": [0, 0, -5],
 							"rotation": [0, 0, 45],
 							"uv": {
-								"north": {"uv": [0, 5], "uv_size": [2, 2]},
+								"north": {"uv": [0, 11], "uv_size": [2, 2]},
 								"east": {"uv": [0, 2], "uv_size": [2, 11], "uv_rotation": 270},
 								"south": {"uv": [0, 5], "uv_size": [2, 2]},
 								"west": {"uv": [0, 2], "uv_size": [2, 11], "uv_rotation": 90},
 								"up": {"uv": [0, 2], "uv_size": [2, 11]},
 								"down": {"uv": [0, 13], "uv_size": [2, -11]}
+							}
+						},
+						{
+							"origin": [-0.5, -0.5, -11.15],
+							"size": [1, 1, 0],
+							"inflate": 0.25,
+							"pivot": [0, 0, -5],
+							"rotation": [0, 0, 45],
+							"uv": {
+								"north": {"uv": [0, 13], "uv_size": [2, 2]}
 							}
 						},
 						{
