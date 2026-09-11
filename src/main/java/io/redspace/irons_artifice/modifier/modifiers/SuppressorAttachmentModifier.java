@@ -42,7 +42,8 @@ public class SuppressorAttachmentModifier implements GunModifier {
 
     @Override
     public void getDescriptionText(Consumer<Component> builder) {
-        builder.accept(Component.translatable("irons_artifice.modifier.bayonet").withStyle(ChatFormatting.AQUA));
+        builder.accept(Component.translatable("irons_artifice.modifier.suppressor").withStyle(ChatFormatting.AQUA));
+        builder.accept(Component.translatable("irons_artifice.modifier.flash_hider").withStyle(ChatFormatting.AQUA));
     }
 
     @Override

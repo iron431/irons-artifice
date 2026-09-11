@@ -92,6 +92,8 @@
   "irons_artifice.modifier.infinity": "%s%% Reduced Chance to consume Ammo",
   "irons_artifice.modifier.scope": "Enables Scoping",
   "irons_artifice.modifier.bayonet": "Enables Bayonet Charge",
+  "irons_artifice.modifier.suppressor": "Reduces Gunshot Sound Range",
+  "irons_artifice.modifier.flash_hider": "Hides Muzzle Flash",
 
   "irons_artifice.value_modifier.plus": "+%s %s",
   "irons_artifice.value_modifier.minus": "-%s %s",

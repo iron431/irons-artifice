@@ -439,6 +439,15 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('#', commonTag("ingots/iron"))
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
+        // Suppressor
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER.get())
+                .pattern("*C#")
+                .define('C', ItemRegistry.CLOCKWORK_COMPONENTS)
+                .define('#', commonTag("leathers"))
+                .define('*', commonTag("ingots/gold"))
+                .unlockedBy("has_precursor", this.has(ItemRegistry.CLOCKWORK_COMPONENTS))
+                .save(this.output);
+
     }
 
     private static TagKey<Item> commonTag(String path) {
