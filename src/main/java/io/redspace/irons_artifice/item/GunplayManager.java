@@ -31,6 +31,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -210,7 +211,10 @@ public final class GunplayManager {
             flash = Optional.of(type.particle(settings.pickTint(level.getRandom())));
         }
         float muzzleOffset = (float) profile.value(ShotComponents.MUZZLE_OFFSET);
-        Vec3 backupPos = shooter.getEyePosition().add(direction.normalize().scale(1.25 + muzzleOffset));
+        float offsetDirection = shooter.getMainArm() == HumanoidArm.LEFT ? -1.0F : 1.0F;
+        Vec3 backupPos = shooter.getEyePosition()
+                .add(direction.normalize().scale(1.25 + muzzleOffset))
+                .add(shooter.getForward().cross(new Vec3(0, 1, 0)).scale(0.5 * offsetDirection));
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(shooter, new ClientboundMuzzleFlashPacket(
                 new MuzzleFlashVisuals(flash, List.copyOf(settings.airBursts()), List.copyOf(settings.underwaterBursts())),
                 shooter.getId(),
