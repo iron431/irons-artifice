@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -22,45 +22,38 @@ import java.util.Map;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class MuzzleFlashEmitter {
-    private static final Map<Integer, Pending> PENDING = new HashMap<>();
-
-    private record Pending(ClientboundMuzzleFlashPacket packet, long queuedAtGameTime) {
-    }
+    private static final Map<Integer, ClientboundMuzzleFlashPacket> PENDING = new HashMap<>();
 
     public static void enqueue(ClientboundMuzzleFlashPacket packet) {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level == null || Minecraft.getInstance().player == null) {
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
             return;
         }
-        PENDING.put(packet.entityId(), new Pending(packet, level.getGameTime()));
+        PENDING.put(packet.entityId(), packet);
     }
 
     public static void tryEmit(int entityId, PoseStack poseStack) {
-        Pending pending = PENDING.remove(entityId);
-        if (pending == null) {
+        ClientboundMuzzleFlashPacket packet = PENDING.remove(entityId);
+        if (packet == null) {
             return;
         }
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;
         }
-        spawn(level, pending.packet(), worldPosFromBone(poseStack, pending.packet().extraForwardOffset()));
+        spawn(level, packet, worldPosFromBone(poseStack, packet.extraForwardOffset()));
     }
 
     @SubscribeEvent
-    static void onClientTick(ClientTickEvent.Post event) {
+    static void onRenderFrame(RenderFrameEvent.Post event) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || PENDING.isEmpty() || Minecraft.getInstance().isPaused()) {
             return;
         }
-        long gameTime = level.getGameTime();
-        Iterator<Pending> iterator = PENDING.values().iterator();
+        Iterator<ClientboundMuzzleFlashPacket> iterator = PENDING.values().iterator();
         while (iterator.hasNext()) {
-            Pending pending = iterator.next();
-            if (gameTime > pending.queuedAtGameTime()) {
-                spawn(level, pending.packet(), pending.packet().backupPos());
-                iterator.remove();
-            }
+            ClientboundMuzzleFlashPacket packet = iterator.next();
+            spawn(level, packet, packet.backupPos());
+            iterator.remove();
         }
     }
 
