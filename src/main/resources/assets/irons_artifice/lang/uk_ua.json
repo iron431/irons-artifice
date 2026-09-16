@@ -50,7 +50,7 @@
   "item.irons_artifice.tricorne.ability": "Перший вистріл з повного магазину завдає +%d%% шкоди",
   "item.irons_artifice.seeking_powder_modifier": "Модифікатор пошукового пороху",
   "item.irons_artifice.scope_attachment_modifier": "Модифікатор кріплення прицілу",
-  "item.irons_artifice.leech_modifier": "Модифікатор кровопивці",
+  "item.irons_artifice.bloodletting_tip_modifier": "Модифікатор кровотечі",
   "item.irons_artifice.heavy_bolt_modifier": "Модифікатор важкого ядра",
   "item.irons_artifice.bayonet_attachment_modifier": "Модифікатор кріплення штика",
   "item.irons_artifice.suppressor_attachment_modifier": "Модифікатор кріплення глушника",
