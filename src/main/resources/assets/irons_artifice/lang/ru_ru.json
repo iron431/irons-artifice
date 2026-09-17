@@ -102,7 +102,7 @@
   "irons_artifice.modifier.leech_cost": "Кровоток-выстрелы стоят %s сердца",
   "irons_artifice.modifier.suppressor": "Снижает дальность слышимости выстрела",
   "irons_artifice.modifier.flash_hider": "Скрывает вспышку выстрела",
-  "irons_artifice.modifier.hook_shoot": "Подтягивает поражённых существ с вам"
+  "irons_artifice.modifier.hook_shoot": "Подтягивает поражённых существ к вам"
 
   "irons_artifice.value_modifier.plus": "+%s %s",
   "irons_artifice.value_modifier.minus": "-%s %s",
