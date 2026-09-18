@@ -198,6 +198,18 @@
       "irons_artifice:arquebus_load_breech"
     ]
   },
+  "item.bayonet.use": {
+    "sounds": [
+      "irons_artifice:bayonet_use"
+    ]
+  },
+  "item.bayonet.hit": {
+    "sounds": [
+      "irons_artifice:bayonet_hit_1",
+      "irons_artifice:bayonet_hit_2",
+      "irons_artifice:bayonet_hit_3"
+    ]
+  },
   "modifier.chain_lightning.impact": {
     "sounds": [
       "irons_artifice:lightning_impact_accent_1"

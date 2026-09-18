@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "minecraft:charcoal",
-    "minecraft:redstone"
+    {
+      "item": "minecraft:charcoal"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
   ],
   "result": {
     "count": 2,

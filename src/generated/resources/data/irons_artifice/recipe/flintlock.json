@@ -2,10 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "F": "minecraft:flint_and_steel",
-    "I": "#c:ingots/iron",
-    "L": "#minecraft:logs"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "F": {
+      "item": "minecraft:flint_and_steel"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    }
   },
   "pattern": [
     "I  ",
@@ -13,6 +21,7 @@
     " LB"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:flintlock"
   }
 }

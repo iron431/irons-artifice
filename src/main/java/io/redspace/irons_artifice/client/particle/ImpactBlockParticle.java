@@ -6,10 +6,9 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ImpactBlockParticle extends TerrainParticle {
     public ImpactBlockParticle(ClientLevel level, double x, double y, double z,
@@ -41,7 +40,7 @@ public class ImpactBlockParticle extends TerrainParticle {
         @Override
         public @Nullable Particle createParticle(BlockParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             BlockState state = options.getState();
             if (state.isAir() || state.is(Blocks.MOVING_PISTON) || !state.shouldSpawnTerrainParticles()) {
                 return null;

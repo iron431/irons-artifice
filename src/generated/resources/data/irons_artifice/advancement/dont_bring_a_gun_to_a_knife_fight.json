@@ -15,6 +15,7 @@
     },
     "frame": "challenge",
     "icon": {
+      "count": 1,
       "id": "irons_artifice:bayonet_attachment_modifier"
     },
     "title": {

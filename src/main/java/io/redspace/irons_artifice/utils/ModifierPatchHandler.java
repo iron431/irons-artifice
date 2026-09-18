@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
@@ -45,9 +45,10 @@ public final class ModifierPatchHandler {
 
     public static DataComponentPatch combine(Container modifiers) {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        Map<String, Identifier> attachments = new LinkedHashMap<>();
+        Map<String, ResourceLocation> attachments = new LinkedHashMap<>();
         boolean empty = true;
-        for (ItemStack stack : modifiers) {
+        for (int slot = 0; slot < modifiers.getContainerSize(); slot++) {
+            ItemStack stack = modifiers.getItem(slot);
             if (stack.isEmpty() || !(stack.getItem() instanceof ModifierItem modifierItem)) {
                 continue;
             }
@@ -68,7 +69,7 @@ public final class ModifierPatchHandler {
     private static <T> void applyPatchToBuilder(
             DataComponentPatch.Builder builder,
             DataComponentPatch patch,
-            Map<String, Identifier> attachments
+            Map<String, ResourceLocation> attachments
     ) {
         Set<Map.Entry<DataComponentType<T>, Optional<T>>> entries = (Set) patch.entrySet();
         entries.forEach(entry -> {

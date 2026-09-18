@@ -11,8 +11,7 @@ import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -26,10 +25,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** Every test in the suite. {@link TestFunctionRegistry} and {@link ArtificeGameTests} loop these lists. */
+/** Every test in the suite. {@link ArtificeGameTests} loops these lists into test functions. */
 public final class TestCatalog {
-    public static final Identifier BOX_SMALL = IronsArtifice.id("box_small");
-    public static final Identifier RANGE_TWO_LANE = IronsArtifice.id("range_two_lane");
+    public static final ResourceLocation BOX_SMALL = IronsArtifice.id("box_small");
+    public static final ResourceLocation RANGE_TWO_LANE = IronsArtifice.id("range_two_lane");
 
     /** Whether a modifier test's claim is expected to hold (modifier present) or fail (modifier removed). */
     public enum Expectation {
@@ -47,17 +46,17 @@ public final class TestCatalog {
                 } catch (GameTestAssertException expected) {
                     return;
                 }
-                throw helper.assertionException(Component.literal(
-                        "the claim held with the modifier removed, so this test does not depend on its modifier"));
+                throw new GameTestAssertException(
+                        "the claim held with the modifier removed, so this test does not depend on its modifier");
             }
         };
 
         public abstract void check(GameTestHelper helper, Runnable claim);
     }
 
-    public record PlainTest(String name, Identifier arena, int maxTicks, boolean required,
+    public record PlainTest(String name, ResourceLocation arena, int maxTicks, boolean required,
                             Consumer<GameTestHelper> body) {
-        public PlainTest(String name, Identifier arena, int maxTicks, Consumer<GameTestHelper> body) {
+        public PlainTest(String name, ResourceLocation arena, int maxTicks, Consumer<GameTestHelper> body) {
             this(name, arena, maxTicks, true, body);
         }
     }
@@ -67,7 +66,7 @@ public final class TestCatalog {
         void run(GameTestHelper helper, Item[] variantModifiers, Expectation expectation);
     }
 
-    public record ModifierTest(DeferredItem<ModifierItem> modifier, String name, Identifier arena, int maxTicks,
+    public record ModifierTest(DeferredItem<ModifierItem> modifier, String name, ResourceLocation arena, int maxTicks,
                                ModifierTestBody body) {
         public String sadPathName() {
             return name + "_without_modifier";
@@ -167,16 +166,16 @@ public final class TestCatalog {
     /** No shot: composes a plain musket and one carrying the modifier, each held by its own mob. */
     public static ModifierTest compose(DeferredItem<ModifierItem> modifier, String name, ComposeClaim claim) {
         return new ModifierTest(modifier, name, BOX_SMALL, 20, (helper, variantModifiers, expectation) -> {
-            Composed control = composed(helper, new BlockPos(1, 1, 1),
+            Composed control = composed(helper, new BlockPos(1, 2, 1),
                     TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0));
-            Composed variant = composed(helper, new BlockPos(4, 1, 4),
+            Composed variant = composed(helper, new BlockPos(4, 2, 4),
                     TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0, variantModifiers));
             expectation.check(helper, () -> claim.check(helper, control, variant));
             helper.succeed();
         });
     }
 
-    public static ModifierTest bespoke(DeferredItem<ModifierItem> modifier, String name, Identifier arena,
+    public static ModifierTest bespoke(DeferredItem<ModifierItem> modifier, String name, ResourceLocation arena,
                                        int maxTicks, ModifierTestBody body) {
         return new ModifierTest(modifier, name, arena, maxTicks, body);
     }
@@ -191,9 +190,9 @@ public final class TestCatalog {
     public static ModifierTest fireInPlace(DeferredItem<ModifierItem> modifier, String name,
                                            Supplier<? extends Item> gun, ShooterClaim claim) {
         return new ModifierTest(modifier, name, BOX_SMALL, 20, (helper, variantModifiers, expectation) -> {
-            LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1),
+            LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1),
                     TestFixtures.gunWith(gun.get(), 1));
-            LivingEntity variant = TestFixtures.firingShooter(helper, new BlockPos(4, 1, 4),
+            LivingEntity variant = TestFixtures.firingShooter(helper, new BlockPos(4, 2, 4),
                     TestFixtures.gunWith(gun.get(), 1, variantModifiers));
             TestFixtures.shieldFromDaylight(control);
             TestFixtures.shieldFromDaylight(variant);

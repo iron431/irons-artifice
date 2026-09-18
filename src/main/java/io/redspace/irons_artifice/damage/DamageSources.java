@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class DamageSources {
     public static final ResourceKey<DamageType> BULLET_DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("bullet"));
@@ -18,7 +18,7 @@ public final class DamageSources {
 
     public static RandomizableDamageSource bullet(RegistryAccess registryAccess, Entity bullet, @Nullable Entity owner) {
         return new RandomizableDamageSource(
-                registryAccess.getOrThrow(BULLET_DAMAGE_TYPE),
+                registryAccess.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(BULLET_DAMAGE_TYPE),
                 bullet,
                 owner
         ).setDeathMessages(

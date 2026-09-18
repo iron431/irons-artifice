@@ -21,6 +21,7 @@
     "frame": "challenge",
     "hidden": true,
     "icon": {
+      "count": 1,
       "id": "irons_artifice:singularity_charge_modifier"
     },
     "title": {

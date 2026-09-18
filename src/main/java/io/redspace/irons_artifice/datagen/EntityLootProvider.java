@@ -65,7 +65,7 @@ public class EntityLootProvider extends EntityLootSubProvider {
         return LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
-                        .add(NestedLootTable.lootTableReference(EntityType.DROWNED.getDefaultLootTable().orElseThrow())))
+                        .add(NestedLootTable.lootTableReference(EntityType.DROWNED.getDefaultLootTable())))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(ItemRegistry.BLACKPOWDER.get())

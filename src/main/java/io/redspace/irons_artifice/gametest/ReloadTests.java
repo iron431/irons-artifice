@@ -25,7 +25,7 @@ public final class ReloadTests {
      */
     static void reloadProgressesToCompletion(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
         ItemStack held = shooter.getMainHandItem();
         GunItem gunItem = (GunItem) held.getItem();
 
@@ -54,7 +54,7 @@ public final class ReloadTests {
 
     static void reloadBlocksFiring(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
         ItemStack held = shooter.getMainHandItem();
 
         ReloadState.start(held, 20, 1.0, 1, null);

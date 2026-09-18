@@ -1,23 +1,25 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
-import org.jspecify.annotations.Nullable;
+import org.joml.Vector3f;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class MuzzleFlashParticle extends SingleQuadParticle {
+public class MuzzleFlashParticle extends TextureSheetParticle {
     private static final String FIRE_SUFFIX = "_fire";
     private static final String TINTED_MASKED_SUFFIX = "_tinted_masked";
     private static final String WHITE_MASK_SUFFIX = "_white_mask";
@@ -33,7 +35,8 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
     public MuzzleFlashParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet sprites,
                                float tintR, float tintG, float tintB) {
-        super(level, x, y, z, xa, ya, za, sprites.first());
+        super(level, x, y, z, xa, ya, za);
+        this.setSprite(sprites.get(0, 1));
         this.sprites = sprites;
         this.tinted = !(tintR < 0f || tintG < 0 || tintB < 0);
         this.lifetime = 3;
@@ -77,6 +80,12 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         updateSprites();
     }
 
+    @Nullable
+    private static TextureAtlas particleAtlas() {
+        AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_PARTICLES);
+        return texture instanceof TextureAtlas atlas ? atlas : null;
+    }
+
     private void updateSprites() {
         TextureAtlasSprite fireSprite = sprites.get(age, lifetime);
         if (!tinted) {
@@ -85,23 +94,23 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
             return;
         }
 
-        Identifier fireName = fireSprite.contents().name();
+        ResourceLocation fireName = fireSprite.contents().name();
         String path = fireName.getPath();
-        if (!path.endsWith(FIRE_SUFFIX)) {
+        TextureAtlas atlas = particleAtlas();
+        if (atlas == null || !path.endsWith(FIRE_SUFFIX)) {
             setSprite(fireSprite);
             whiteMaskSprite = null;
             return;
         }
 
         String basePath = path.substring(0, path.length() - FIRE_SUFFIX.length());
-        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(Identifier.withDefaultNamespace("particles"));
         setSprite(atlas.getSprite(fireName.withPath(basePath + TINTED_MASKED_SUFFIX)));
         whiteMaskSprite = atlas.getSprite(fireName.withPath(basePath + WHITE_MASK_SUFFIX));
     }
 
     @Override
-    protected void extractRotatedQuad(
-            QuadParticleRenderState particleTypeRenderState,
+    protected void renderRotatedQuad(
+            VertexConsumer buffer,
             Quaternionf rotation,
             float x,
             float y,
@@ -109,7 +118,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
             float partialTickTime
     ) {
         // Tinted masked pass (uses particle tint color), or single untinted fire pass.
-        super.extractRotatedQuad(particleTypeRenderState, rotation, x, y, z, partialTickTime);
+        super.renderRotatedQuad(buffer, rotation, x, y, z, partialTickTime);
 
         if (!tinted || whiteMaskSprite == null) {
             return;
@@ -120,25 +129,30 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         float u1 = mirrorHorizontal ? whiteMaskSprite.getU0() : whiteMaskSprite.getU1();
         float v0 = mirrorVertical ? whiteMaskSprite.getV1() : whiteMaskSprite.getV0();
         float v1 = mirrorVertical ? whiteMaskSprite.getV0() : whiteMaskSprite.getV1();
-        particleTypeRenderState.add(
-                getLayer(),
-                x, y, z,
-                rotation.x, rotation.y, rotation.z, rotation.w,
-                getQuadSize(partialTickTime),
-                u0, u1, v0, v1,
-                ARGB.colorFromFloat(alpha, 1f, 1f, 1f),
-                getLightCoords(partialTickTime)
-        );
+        float size = getQuadSize(partialTickTime);
+        int light = getLightColor(partialTickTime);
+        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, -1.0F, size, u1, v1, light);
+        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, 1.0F, size, u1, v0, light);
+        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, 1.0F, size, u0, v0, light);
+        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, -1.0F, size, u0, v1, light);
+    }
+
+    private void renderMaskVertex(VertexConsumer buffer, Quaternionf rotation,
+                                  float x, float y, float z,
+                                  float offsetX, float offsetY, float size,
+                                  float u, float v, int light) {
+        Vector3f corner = new Vector3f(offsetX, offsetY, 0.0F).rotate(rotation).mul(size).add(x, y, z);
+        buffer.addVertex(corner.x(), corner.y(), corner.z()).setUv(u, v).setColor(1.0F, 1.0F, 1.0F, alpha).setLight(light);
     }
 
     @Override
-    protected int getLightCoords(float a) {
-        return LightCoordsUtil.FULL_BRIGHT;
+    protected int getLightColor(float a) {
+        return LightTexture.FULL_BRIGHT;
     }
 
     @Override
-    protected Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NotNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<MuzzleFlashParticleOption> {
@@ -151,7 +165,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         @Override
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
         }
     }

@@ -4,10 +4,9 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,12 +15,12 @@ import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class GunScopeOverlay {
-    private static final Identifier SCOPE_TEXTURE = Identifier.withDefaultNamespace("textures/misc/spyglass_scope.png");
+    private static final ResourceLocation SCOPE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/spyglass_scope.png");
     public static final float FOV_MODIFIER = 0.125F;
 
     private static float scopeScale = 0.5F;
 
-    public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || !minecraft.options.getCameraType().isFirstPerson()) {
@@ -51,7 +50,7 @@ public final class GunScopeOverlay {
         event.setMouseSensitivity(sensitivityMod / 8);
     }
 
-    private static void blitScope(GuiGraphicsExtractor graphics, float scale) {
+    private static void blitScope(GuiGraphics graphics, float scale) {
         float srcWidth = Math.min(graphics.guiWidth(), graphics.guiHeight());
         float ratio = Math.min(graphics.guiWidth() / srcWidth, graphics.guiHeight() / srcWidth) * scale;
         int width = Mth.floor(srcWidth * ratio);
@@ -60,10 +59,10 @@ public final class GunScopeOverlay {
         int top = (graphics.guiHeight() - height) / 2;
         int right = left + width;
         int bottom = top + height;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SCOPE_TEXTURE, left, top, 0.0F, 0.0F, width, height, width, height);
-        graphics.fill(RenderPipelines.GUI, 0, bottom, graphics.guiWidth(), graphics.guiHeight(), -16777216);
-        graphics.fill(RenderPipelines.GUI, 0, 0, graphics.guiWidth(), top, -16777216);
-        graphics.fill(RenderPipelines.GUI, 0, top, left, bottom, -16777216);
-        graphics.fill(RenderPipelines.GUI, right, top, graphics.guiWidth(), bottom, -16777216);
+        graphics.blit(SCOPE_TEXTURE, left, top, 0.0F, 0.0F, width, height, width, height);
+        graphics.fill(0, bottom, graphics.guiWidth(), graphics.guiHeight(), -16777216);
+        graphics.fill(0, 0, graphics.guiWidth(), top, -16777216);
+        graphics.fill(0, top, left, bottom, -16777216);
+        graphics.fill(right, top, graphics.guiWidth(), bottom, -16777216);
     }
 }

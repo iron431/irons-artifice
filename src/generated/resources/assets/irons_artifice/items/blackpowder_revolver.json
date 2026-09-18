@@ -1,9 +1,0 @@
-{
-  "model": {
-    "type": "minecraft:special",
-    "base": "irons_artifice:item/pistol_display",
-    "model": {
-      "type": "geckolib:geckolib"
-    }
-  }
-}

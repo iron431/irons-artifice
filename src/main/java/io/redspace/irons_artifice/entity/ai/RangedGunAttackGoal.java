@@ -7,7 +7,8 @@ import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
-import net.minecraft.core.component.DataComponents;
+import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
+import io.redspace.irons_artifice.item.kinetic.KineticWeaponHandler;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -17,7 +18,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
 import java.util.function.Consumer;
@@ -270,7 +271,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
     protected boolean canStartBayonetCharge(ItemStack gun, double distSqr) {
         return bayonetCooldown <= 0
                 && distSqr < bands.bayonetSqr()
-                && gun.has(DataComponents.KINETIC_WEAPON);
+                && KineticWeapon.has(gun);
     }
 
     protected boolean shouldEndBayonetCharge(double distSqr) {
@@ -284,7 +285,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
         if (distSqr > chaseRange * chaseRange) {
             return true;
         }
-        return mob.stabbedEntities(e -> e == target) > 0;
+        return KineticWeaponHandler.stabbedEntities(mob, e -> e == target) > 0;
     }
 
     protected void endVolley() {
@@ -330,7 +331,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
         return mob.getMainHandItem().getItem() instanceof GunItem;
     }
 
-    protected @NonNull GunCombatMoveControl createMoveControl() {
+    protected @NotNull GunCombatMoveControl createMoveControl() {
         return new GunCombatMoveControl();
     }
 }

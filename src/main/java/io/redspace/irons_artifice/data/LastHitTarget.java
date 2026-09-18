@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import net.minecraft.world.entity.LivingEntity;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 

@@ -8,7 +8,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ public record ServerboundOpenModifierMenuPacket() implements CustomPacketPayload
     public static final ServerboundOpenModifierMenuPacket INSTANCE = new ServerboundOpenModifierMenuPacket();
 
     public static final Type<ServerboundOpenModifierMenuPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "open_gun_menu"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "open_gun_menu"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundOpenModifierMenuPacket> STREAM_CODEC =
             StreamCodec.unit(INSTANCE);

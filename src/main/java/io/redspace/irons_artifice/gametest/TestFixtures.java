@@ -16,7 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestSequence;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,8 +27,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -43,6 +43,18 @@ public final class TestFixtures {
      * of the top of its target's hitbox, and ordinary spread walks it over a few times in a hundred.
      */
     public static final Vec3 FORWARD = new Vec3(0.0, 0.0, 1.0);
+
+    /**
+     * The pitch and yaw that {@link Vec3#directionFromRotation(float, float)} turns back into
+     * {@code direction}: the inverse half of that round trip, which this Minecraft version does not
+     * carry on {@link Vec3} itself. Same arithmetic vanilla uses where it needs it, so a test can
+     * still build an aim by rotating one it already has.
+     */
+    public static Vec2 rotationOf(Vec3 direction) {
+        float yaw = (float) Math.atan2(-direction.x, direction.z) * 57.295776F;
+        float pitch = (float) Math.asin(-direction.y / direction.length()) * 57.295776F;
+        return new Vec2(pitch, yaw);
+    }
 
     /**
      * A gun stack loaded with {@code rounds} and carrying {@code modifiers} in the container
@@ -143,7 +155,7 @@ public final class TestFixtures {
     /** Further apart than {@code ChainLightningOnHit.RADIUS}. */
     private static final int LANE_X_CONTROL = 1;
     private static final int LANE_X_VARIANT = 9;
-    private static final int LANE_Y = 1;
+    private static final int LANE_Y = 2;
     private static final int LANE_Z_ORIGIN = 1;
 
     /** Under the 1024 attribute ceiling. */
@@ -180,9 +192,9 @@ public final class TestFixtures {
         Mob target = helper.spawnWithNoFreeWill(entityType, relativePos);
         AttributeInstance maxHealth = target.getAttribute(Attributes.MAX_HEALTH);
         if (maxHealth == null) {
-            throw helper.assertionException(Component.literal(
+            throw new GameTestAssertException(
                     "target has no MAX_HEALTH attribute, so its health cannot be raised and the "
-                            + "damage it reports would be capped at its default health"));
+                            + "damage it reports would be capped at its default health");
         }
         maxHealth.setBaseValue(TOUGH_TARGET_HEALTH);
         target.setHealth((float) TOUGH_TARGET_HEALTH);
@@ -238,7 +250,7 @@ public final class TestFixtures {
 
     public static ShotProfile composedProfile(GameTestHelper helper, LivingEntity shooter) {
         if (!(shooter.getMainHandItem().getItem() instanceof GunItem gunItem)) {
-            throw helper.assertionException(Component.literal("the shooter is holding a gun"));
+            throw new GameTestAssertException("the shooter is holding a gun");
         }
         return GunplayManager.compose(shooter, gunItem.getGun(), shooter.getMainHandItem());
     }
@@ -372,7 +384,7 @@ public final class TestFixtures {
         double range = box.getCenter().distanceTo(shooter.getEyePosition());
         return new ShotGeometry(
                 shooter.onGround(),
-                shooter.position().distanceTo(shooter.oldPosition()),
+                shooter.position().distanceTo(new Vec3(shooter.xOld, shooter.yOld, shooter.zOld)),
                 (float) profile.value(ShotComponents.SPREAD),
                 effective,
                 range * Math.tan(Math.toRadians(effective)),
@@ -541,8 +553,7 @@ public final class TestFixtures {
         } catch (GameTestAssertException assertionFailure) {
             throw assertionFailure;
         } catch (Exception unexpected) {
-            GameTestAssertException failure = helper.assertionException(Component.literal(
-                    what + " threw " + unexpected));
+            GameTestAssertException failure = new GameTestAssertException(what + " threw " + unexpected);
             failure.initCause(unexpected);
             throw failure;
         }
@@ -639,7 +650,7 @@ public final class TestFixtures {
 
     public static Bullet inFlight(GameTestHelper helper, String lane, @Nullable Bullet bullet) {
         if (bullet == null) {
-            throw helper.assertionException(Component.literal("the " + lane + " lane put no bullet in the air"));
+            throw new GameTestAssertException("the " + lane + " lane put no bullet in the air");
         }
         helper.assertTrue(!bullet.isRemoved(),
                 "the " + lane + " lane's bullet was still in flight when read (it died at " + bullet.position() + ")");

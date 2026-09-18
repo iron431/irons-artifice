@@ -1,14 +1,12 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.animation.AnimationController;
-import com.geckolib.animation.RawAnimation;
-import com.geckolib.animation.object.PlayState;
-import com.geckolib.animation.state.AnimationTest;
-import com.geckolib.constant.dataticket.DataTicket;
-import com.geckolib.model.GeoModel;
-import com.geckolib.renderer.base.GeoRenderState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.constant.dataticket.DataTicket;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.data.HandOccupancy;
@@ -18,7 +16,8 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.GunState;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
+import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
+import io.redspace.irons_artifice.item.kinetic.KineticWeaponHandler;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
@@ -29,35 +28,33 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GunItem extends BaseGeoItem {
-    public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = DataTicket.create(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static final DataTicket<List<AnimationAdjuster>> ANIMATION_ADJUSTERS_TICKET = DataTicket.create(IronsArtifice.id("animation_adjusters").toString(), (Class) List.class);
-    public static final DataTicket<AttachmentMap> ATTACHMENTS = DataTicket.create(IronsArtifice.id("attachments").toString(), AttachmentMap.class);
-    public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = DataTicket.create(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
-    public static final DataTicket<Float> RELOAD_PERCENT_TICKET = DataTicket.create(IronsArtifice.id("reload_percent").toString(), Float.class);
-    public static final DataTicket<Float> MUZZLE_OFFSET_TICKET = DataTicket.create(IronsArtifice.id("muzzle_offset").toString(), Float.class);
-    public static final DataTicket<HandOccupancy> HAND_OCCUPANCY_TICKET = DataTicket.create(IronsArtifice.id("hand_occupancy").toString(), HandOccupancy.class);
-    public static final DataTicket<Integer> ITEM_OWNER_ID_TICKET = DataTicket.create(IronsArtifice.id("item_owner_id").toString(), Integer.class);
+    // Only the values the render-time animation adjusters read travel on a DataTicket; the attachments, the holder
+    // and its hand occupancy are read straight off the rendered stack, which is all the item renderer is handed.
+    public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = new DataTicket<>(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
+    public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = new DataTicket<>(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
+    public static final DataTicket<Float> RELOAD_PERCENT_TICKET = new DataTicket<>(IronsArtifice.id("reload_percent").toString(), Float.class);
+    public static final DataTicket<Float> MUZZLE_OFFSET_TICKET = new DataTicket<>(IronsArtifice.id("muzzle_offset").toString(), Float.class);
     public static final String TRIGGERED_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_ACTIONS;
     public static final String IDLE_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_IDLE;
 
@@ -67,7 +64,6 @@ public class GunItem extends BaseGeoItem {
         super(properties
                 .stacksTo(1)
                 .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
-                .component(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.CONTAINER, true))
                 .component(DataComponentRegistry.MAGAZINE, new MagazineContents(gunProfile.magazineCapacity()))
         );
         this.gunProfile = gunProfile;
@@ -75,7 +71,15 @@ public class GunItem extends BaseGeoItem {
 
     public static final int SCOPE_USE_DURATION = 1200;
 
-    public static boolean hasGunSpyglass(ItemInstance stack) {
+    /**
+     * The same 72000 ticks vanilla's {@code Item.getUseDuration} returns for a kinetic stack once the
+     * component is vanilla's own. The charge ends on its conditions running out or on letting go, never
+     * on the duration elapsing -- and {@link KineticWeaponHandler} counts ticks up from it, so the value
+     * is load-bearing beyond keeping the use alive.
+     */
+    public static final int KINETIC_USE_DURATION = 72000;
+
+    public static boolean hasGunSpyglass(ItemStack stack) {
         return stack.has(DataComponentRegistry.GUN_SPYGLASS);
     }
 
@@ -84,43 +88,106 @@ public class GunItem extends BaseGeoItem {
     }
 
     public static boolean isChargingBayonet(Entity entity) {
-        return entity instanceof LivingEntity living && living.isUsingItem() && living.getUseItem().has(DataComponents.KINETIC_WEAPON);
+        return entity instanceof LivingEntity living && living.isUsingItem() && KineticWeapon.has(living.getUseItem());
+    }
+
+    /**
+     * Whether this stack's arm pose is the mod's own rather than vanilla's. A charging kinetic stack
+     * declares {@link UseAnim#SPEAR}, which 1.21.1 turns into {@code ArmPose.THROW_SPEAR} ahead of
+     * NeoForge's item extension; {@code PlayerRendererMixin} asks this before hoisting the extension.
+     */
+    public static boolean posedAsKineticWeapon(ItemStack stack) {
+        return stack.getItem() instanceof GunItem && KineticWeapon.has(stack);
     }
 
     @Override
-    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (GunItem.isReloading(stack)) {
-            return InteractionResult.FAIL;
+            return InteractionResultHolder.fail(stack);
         }
-        if (!hasGunSpyglass(stack)) {
-            return super.use(level, player, hand);
+        if (hasGunSpyglass(stack)) {
+            player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
+            return ItemUtils.startUsingInstantly(level, player, hand);
         }
-        player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
-        return ItemUtils.startUsingInstantly(level, player, hand);
+        // Vanilla starts the charge from Item#use once the component is its own; here the item does it,
+        // and only once the gun has finished cycling its action.
+        KineticWeapon kineticWeapon = KineticWeapon.get(stack);
+        if (kineticWeapon != null && !FireDelayState.isActive(player, stack)) {
+            player.startUsingItem(hand);
+            // Server-authoritative, with a null excluded listener so the charging player hears it too:
+            // Level.playSound's Player argument is the listener to EXCLUDE, and ServerLevel skips it
+            // where ClientLevel plays only for it. Item.use runs on both sides for a right click, so the
+            // guard is what stops the sound doubling.
+            if (!level.isClientSide()) {
+                kineticWeapon.sound().ifPresent(sound -> level.playSound(
+                        null, player.getX(), player.getY(), player.getZ(),
+                        sound, player.getSoundSource(), 1.0F, 1.0F));
+            }
+            return InteractionResultHolder.consume(stack);
+        }
+        return super.use(level, player, hand);
     }
 
     @Override
-    public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity user) {
-        return hasGunSpyglass(stack) ? SCOPE_USE_DURATION : super.getUseDuration(stack, user);
+    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
+        if (hasGunSpyglass(stack)) {
+            return SCOPE_USE_DURATION;
+        }
+        return KineticWeapon.has(stack) ? KINETIC_USE_DURATION : super.getUseDuration(stack, user);
+    }
+
+    /**
+     * {@link UseAnim#SPEAR} is what vanilla answers for a kinetic stack, so keeping the value keeps the
+     * first-person timing. {@code ItemInHandRendererMixin} replaces the trident pose 1.21.1 would
+     * otherwise draw for it, and {@code PlayerRendererMixin} the third-person one.
+     */
+    @Override
+    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
+        return KineticWeapon.has(stack) ? UseAnim.SPEAR : super.getUseAnimation(stack);
+    }
+
+    /**
+     * Vanilla intercepts this a level higher, in {@code ItemStack.onUseTick}; at 1.21.1 that method only
+     * forwards here, so the interception happens here. The return matters: falling through to super
+     * would run the item's ordinary use tick on top of the charge.
+     */
+    @Override
+    public void onUseTick(@NotNull Level level, @NotNull LivingEntity entity, @NotNull ItemStack stack, int remainingUseDuration) {
+        if (!level.isClientSide() && KineticWeapon.has(stack)) {
+            KineticWeaponHandler.tickCharge(stack, entity, remainingUseDuration,
+                    entity.getUsedItemHand() == InteractionHand.OFF_HAND
+                            ? EquipmentSlot.OFFHAND
+                            : EquipmentSlot.MAINHAND);
+            return;
+        }
+        super.onUseTick(level, entity, stack, remainingUseDuration);
     }
 
     @Override
-    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
+            return stack;
+        }
+        if (KineticWeapon.has(stack)) {
+            KineticWeaponHandler.endCharge(entity);
             return stack;
         }
         return super.finishUsingItem(stack, level, entity);
     }
 
     @Override
-    public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity, int remainingTime) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-            return true;
+            return;
         }
-        return super.releaseUsing(stack, level, entity, remainingTime);
+        if (KineticWeapon.has(stack)) {
+            KineticWeaponHandler.endCharge(entity);
+            return;
+        }
+        super.releaseUsing(stack, level, entity, remainingTime);
     }
 
     public GunProfile getGun() {
@@ -171,12 +238,14 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
-        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+    public void appendHoverText(@NotNull ItemStack itemStack, @NotNull Item.TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, context, tooltipComponents, tooltipFlag);
+        Consumer<Component> builder = tooltipComponents::add;
         Consumer<Component> statBuilder = (component) -> builder.accept(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
-        ShotProfile shotProfile = GunplayManager.compose(context.player(), this.gunProfile, itemStack);
+        // Item.TooltipContext carries no holder at this version, so the stat lines are composed off the
+        // stack alone -- the modifiers still apply, the holder-scoped ComposeShotEvent does not.
+        ShotProfile shotProfile = GunplayManager.compose(null, this.gunProfile, itemStack);
         String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
         int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
         int bulletSpeedPercent = (int) (100 * shotProfile.value(ShotComponents.BULLET_SPEED) / Bullet.BASE_SPEED);
@@ -252,18 +321,18 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public void registerControllers(AnimatableManager.@NonNull ControllerRegistrar controllers) {
+    public void registerControllers(AnimatableManager.@NotNull ControllerRegistrar controllers) {
         super.registerControllers(controllers);
-        controllers.add(new AnimationController<>(IDLE_ANIMATION_CONTROLLER, this::gunIdleHandler));
-        controllers.add(new OffsetableAnimationController<>(GunAnimations.CONTROLLER_ACTIONS, test -> PlayState.STOP)
+        controllers.add(new AnimationController<>(this, IDLE_ANIMATION_CONTROLLER, this::gunIdleHandler));
+        controllers.add(new OffsetableAnimationController<>(this, GunAnimations.CONTROLLER_ACTIONS, state -> PlayState.STOP)
                 .triggerableAnim(GunAnimations.FIRE, RawAnimation.begin().thenPlay(GunAnimations.FIRE))
                 .triggerableAnim(GunAnimations.RELOAD, RawAnimation.begin().thenPlay(GunAnimations.RELOAD))
                 .triggerableAnim(GunAnimations.EQUIP, RawAnimation.begin().thenPlay(GunAnimations.EQUIP))
         );
     }
 
-    private PlayState gunIdleHandler(AnimationTest<GunItem> animationTest) {
-        animationTest.setAnimation(RawAnimation.begin().thenPlayAndHold(GunAnimations.IDLE));
+    private PlayState gunIdleHandler(AnimationState<GunItem> animationState) {
+        animationState.setAnimation(RawAnimation.begin().thenPlayAndHold(GunAnimations.IDLE));
         return PlayState.CONTINUE;
     }
 
@@ -275,50 +344,90 @@ public class GunItem extends BaseGeoItem {
         }
     }
 
-    private static class OffsetableAnimationController<T extends GeoAnimatable> extends AnimationController<T> {
-        private double skipAtSeconds;
-        private double skipToSeconds;
-        private boolean skipped;
+    /**
+     * The controller has no timeline of its own; it only exposes a tick that restarts whenever an animation does.
+     * This subclass shifts that tick so an action animation can be joined part-way through, and so a stretch of it
+     * can be skipped over, and it surfaces the resulting position for the render-time animation adjusters.
+     */
+    public static class OffsetableAnimationController<T extends GeoAnimatable> extends AnimationController<T> {
+        private static final double TICKS_PER_SECOND = 20;
 
-        public OffsetableAnimationController(String name, AnimationStateHandler<T> stateHandler) {
-            super(name, stateHandler);
+        private double offsetTicks;
+        private double skipAtTicks;
+        private double skipToTicks;
+        private double skipShiftTicks;
+        private boolean skipped;
+        private double currentAnimationTicks;
+
+        public OffsetableAnimationController(T animatable, String name, AnimationStateHandler<T> stateHandler) {
+            super(animatable, name, stateHandler);
+        }
+
+        /**
+         * Join the animation this many seconds in. Applies to whatever animation is playing or triggered next.
+         */
+        public void setTimelineTime(double offsetSeconds) {
+            this.offsetTicks = Math.max(offsetSeconds, 0) * TICKS_PER_SECOND;
         }
 
         public void setTimelineSkip(double skipAtSeconds, double skipToSeconds) {
-            this.skipAtSeconds = skipAtSeconds;
-            this.skipToSeconds = skipToSeconds;
+            this.skipAtTicks = skipAtSeconds * TICKS_PER_SECOND;
+            this.skipToTicks = skipToSeconds * TICKS_PER_SECOND;
+            this.skipShiftTicks = 0;
             this.skipped = false;
         }
 
-        private boolean applyTimelineSkip() {
-            if (skipped || skipToSeconds <= skipAtSeconds || timelineTime < skipAtSeconds || timelineTime >= skipToSeconds) {
-                return false;
-            }
-            timelineTime = skipToSeconds;
-            skipped = true;
-            return true;
+        /**
+         * Seconds into the animation currently playing, or zero when the controller is stopped.
+         */
+        public double getCurrentAnimationTime() {
+            return getAnimationState() == State.STOPPED ? 0 : this.currentAnimationTicks / TICKS_PER_SECOND;
+        }
+
+        /**
+         * Whether the named triggerable animation is the one currently loaded on this controller.
+         */
+        public boolean isTriggeredAnimation(String animName) {
+            RawAnimation animation = this.triggerableAnimations.get(animName);
+            return animation != null && animation.equals(this.currentRawAnimation);
         }
 
         @Override
-        protected void initializeNewAnimation(T animatable, GeoRenderState renderState, GeoModel<T> geoModel, double prevAnimSpeed, int prevTransitionTicks) {
-            double offset = timelineTime;
-            super.initializeNewAnimation(animatable, renderState, geoModel, prevAnimSpeed, prevTransitionTicks);
-            if (offset > 0) {
-                timelineTime = offset;
-            }
-            boolean skippedNow = applyTimelineSkip();
-            if (this.timeline != null && (offset > 0 || skippedNow)) {
-                this.animationPoint = this.timeline.createAnimationPoint(this.timelineTime, this.animationPoint, this.easingOverride);
-            }
+        public boolean stopTriggeredAnimation() {
+            return super.stopTriggeredAnimation();
+        }
+
+        /**
+         * Stop the controller and drop everything the offset and skip state was carrying.
+         */
+        public void reset() {
+            stop();
+            forceAnimationReset();
+            this.offsetTicks = 0;
+            this.skipAtTicks = 0;
+            this.skipToTicks = 0;
+            this.skipShiftTicks = 0;
+            this.skipped = false;
+            this.currentAnimationTicks = 0;
         }
 
         @Override
-        protected void progressExistingAnimation(T animatable, GeoRenderState renderState, double prevTimelineTime, double timeAdvanced) {
-            if (applyTimelineSkip()) {
-                prevTimelineTime = timelineTime;
+        protected double adjustTick(double tick) {
+            double adjusted = super.adjustTick(tick);
+            if (getAnimationState() != State.RUNNING) {
+                // Transitions poll the animation queue off a zeroed tick; shifting it there would stall them.
+                return adjusted;
             }
-            super.progressExistingAnimation(animatable, renderState, prevTimelineTime, timeAdvanced);
-        }
+            adjusted += this.offsetTicks;
+            if (!this.skipped && this.skipToTicks > this.skipAtTicks
+                    && adjusted >= this.skipAtTicks && adjusted < this.skipToTicks) {
+                this.skipShiftTicks = this.skipToTicks - adjusted;
+                this.skipped = true;
+            }
+            adjusted += this.skipShiftTicks;
+            this.currentAnimationTicks = adjusted;
 
+            return adjusted;
+        }
     }
 }

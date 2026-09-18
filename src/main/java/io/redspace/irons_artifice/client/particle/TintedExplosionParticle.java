@@ -4,8 +4,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.RandomSource;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class TintedExplosionParticle extends MuzzleFlashParticle {
 
@@ -26,7 +25,7 @@ public class TintedExplosionParticle extends MuzzleFlashParticle {
         @Override
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new TintedExplosionParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
         }
     }

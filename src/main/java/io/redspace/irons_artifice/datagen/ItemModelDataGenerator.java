@@ -1,78 +1,67 @@
 package io.redspace.irons_artifice.datagen;
 
-import com.geckolib.renderer.internal.GeckolibItemSpecialRenderer;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
-import net.minecraft.client.data.models.BlockModelGenerators;
-import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.List;
-import java.util.stream.Stream;
 
-public class ItemModelDataGenerator extends ModelProvider {
-    public static final Identifier GECKOLIB_GUN_DISPLAY = IronsArtifice.id("item/gun_display");
-    public static final Identifier REVOLVER_GUN_DISPLAY = IronsArtifice.id("item/pistol_display");
-    private static final Identifier DEMO_GUN_MODEL = IronsArtifice.id("item/gun");
+public class ItemModelDataGenerator extends ItemModelProvider {
+    public static final ResourceLocation GECKOLIB_GUN_DISPLAY = IronsArtifice.id("item/gun_display");
+    public static final ResourceLocation REVOLVER_GUN_DISPLAY = IronsArtifice.id("item/pistol_display");
+    private static final ResourceLocation DEMO_GUN_MODEL = IronsArtifice.id("item/gun");
 
-    public ItemModelDataGenerator(PackOutput output) {
-        super(output, IronsArtifice.MODID);
+    public ItemModelDataGenerator(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, IronsArtifice.MODID, existingFileHelper);
     }
 
     @Override
-    protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+    protected void registerModels() {
         for (var item : ItemRegistry.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
-                Identifier displayParent = GECKOLIB_GUN_DISPLAY;
+                ResourceLocation displayParent = GECKOLIB_GUN_DISPLAY;
                 if (item == ItemRegistry.BLACKPOWDER_REVOLVER || item == ItemRegistry.SIX_SHOOTER) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
-                gunModel(itemModels, item.get(), displayParent);
+                gunModel(item.getId(), displayParent);
             } else {
-                generateTemplatedItem(itemModels, item.get(), itemTexture(item));
+                generateTemplatedItem(item.getId(), itemTexture(item));
             }
         }
     }
 
     /**
-     * Writes {@code models/item/<item>.json} from {@link ModelTemplates#FLAT_ITEM}
-     * with the given layer0 texture, plus the matching {@code items/<item>.json} client item.
+     * Writes {@code models/item/<item>.json} from vanilla's {@code item/generated} template with the given layer0
+     * texture. That one file is the whole item model at this version; there is no {@code items/<item>.json}.
      */
-    public static void generateTemplatedItem(ItemModelGenerators itemModels, Item item, Identifier layer0Texture) {
-        Identifier modelLocation = ModelLocationUtils.getModelLocation(item);
-        ModelTemplates.FLAT_ITEM.create(
-                modelLocation,
-                TextureMapping.layer0(new Material(layer0Texture)),
-                itemModels.modelOutput
-        );
-        itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(modelLocation));
+    public ItemModelBuilder generateTemplatedItem(ResourceLocation item, ResourceLocation layer0Texture) {
+        return getBuilder(item.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", layer0Texture);
     }
 
-    public static void gunModel(ItemModelGenerators itemModels, Item item, Identifier displayParent) {
-        itemModels.itemModelOutput.accept(
-                item,
-                ItemModelUtils.specialModel(displayParent, new GeckolibItemSpecialRenderer.Unbaked<>())
-        );
+    /**
+     * A GeckoLib gun reaches its renderer through the display parent's {@code builtin/entity} root, which bakes the
+     * item to a {@code BuiltInModel} and hands rendering to the item's {@code BlockEntityWithoutLevelRenderer}. The
+     * display model is the item's own model file here, not the {@code base} of a separate client item definition.
+     */
+    public ItemModelBuilder gunModel(ResourceLocation item, ResourceLocation displayParent) {
+        return withExistingParent(item.toString(), displayParent);
     }
 
-    private static Identifier itemTexture(DeferredHolder<?, ?> item) {
+    private static ResourceLocation itemTexture(DeferredHolder<?, ?> item) {
         return itemTexture(item.getId());
     }
 
-    private static Identifier itemTexture(Identifier identifier) {
+    private static ResourceLocation itemTexture(ResourceLocation identifier) {
         return identifier.withPrefix("item/");
     }
 
@@ -81,15 +70,5 @@ public class ItemModelDataGenerator extends ModelProvider {
                 .filter(holder -> holder.get() instanceof GunItem)
                 .map(h -> (DeferredItem<GunItem>) h)
                 .toList();
-    }
-
-    @Override
-    protected Stream<? extends Holder<Block>> getKnownBlocks() {
-        return Stream.empty();
-    }
-
-    @Override
-    protected Stream<? extends Holder<Item>> getKnownItems() {
-        return ItemRegistry.ITEMS.getEntries().stream().map(holder -> holder);
     }
 }

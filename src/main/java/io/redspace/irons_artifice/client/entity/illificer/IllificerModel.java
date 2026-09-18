@@ -2,42 +2,82 @@ package io.redspace.irons_artifice.client.entity.illificer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.redspace.irons_artifice.client.gun.GunArmPoses;
+import io.redspace.irons_artifice.entity.Illificer;
+import io.redspace.irons_artifice.item.FireDelayState;
+import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.monster.illager.IllagerModel;
-import net.minecraft.client.renderer.entity.state.IllagerRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemStack;
 
-public class IllificerModel extends IllagerModel<IllificerRenderer.GunIllagerRenderState> {
+import java.util.List;
+import java.util.Map;
+
+public class IllificerModel extends IllagerModel<Illificer> {
+    enum MobGunPose {
+        NONE,
+        IDLE,
+        HUMANOID
+    }
+
     protected final ModelPart rightArm;
     protected final ModelPart leftArm;
+    /**
+     * The arm poses are written against a {@link HumanoidModel}, which an illager model is not. The proxy owns no
+     * geometry of its own: it is a humanoid-shaped view over this model's own parts, so posing it poses this model.
+     */
+    private final HumanoidModel<Illificer> humanoidProxy;
+    private MobGunPose mobGunPose = MobGunPose.NONE;
+    private HumanoidArm mainArm = HumanoidArm.RIGHT;
 
     public IllificerModel(ModelPart root) {
         super(root);
         this.leftArm = root.getChild("left_arm");
         this.rightArm = root.getChild("right_arm");
+        this.humanoidProxy = new HumanoidModel<>(humanoidView(root));
         this.getHat().visible = true;
     }
 
+    private static ModelPart humanoidView(ModelPart root) {
+        ModelPart head = root.getChild("head");
+        return new ModelPart(List.of(), Map.of(
+                "head", head,
+                "hat", head.getChild("hat"),
+                "body", root.getChild("body"),
+                "right_arm", root.getChild("right_arm"),
+                "left_arm", root.getChild("left_arm"),
+                "right_leg", root.getChild("right_leg"),
+                "left_leg", root.getChild("left_leg")
+        ));
+    }
+
     @Override
-    public void setupAnim(IllificerRenderer.GunIllagerRenderState state) {
-        super.setupAnim(state);
-        var humanoidProxy = new HumanoidModel<>(this.root);
-        if (state.mobGunPose == IllificerRenderer.MobGunPose.HUMANOID) {
-            state.humanoidPose.applyTransform(humanoidProxy, state, state.mainArm);
-        } else if (state.mobGunPose == IllificerRenderer.MobGunPose.IDLE) {
-            var arm = getArm(state.mainArm);
+    public void setupAnim(Illificer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        this.mainArm = entity.getMainArm();
+        this.mobGunPose = MobGunPose.NONE;
+        ItemStack weapon = entity.getWeaponItem();
+        if (!(weapon.getItem() instanceof GunItem gun)) {
+            return;
+        }
+        if (entity.isAggressive() || FireDelayState.isActive(entity, weapon) || GunItem.isReloading(weapon)) {
+            this.mobGunPose = MobGunPose.HUMANOID;
+            GunArmPoses.poseFor(gun).applyTransform(this.humanoidProxy, entity, this.mainArm);
+        } else {
+            this.mobGunPose = MobGunPose.IDLE;
+            var arm = getArm(this.mainArm);
             arm.xRot *= 0.25f;
             arm.xRot -= Mth.PI / 6f;
         }
     }
 
     @Override
-    public void translateToHand(IllagerRenderState state, HumanoidArm arm, PoseStack poseStack) {
-        super.translateToHand(state, arm, poseStack);
-        if (state instanceof IllificerRenderer.GunIllagerRenderState gunState && gunState.mobGunPose == IllificerRenderer.MobGunPose.IDLE && arm == state.mainArm) {
-//            var hand = getArm(arm);
+    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+        super.translateToHand(arm, poseStack);
+        if (this.mobGunPose == MobGunPose.IDLE && arm == this.mainArm) {
             poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             poseStack.translate(0,-1,0);
         }

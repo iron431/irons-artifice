@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "#c:ingots/iron",
-    "^": "irons_artifice:blackpowder"
+    "#": {
+      "tag": "c:ingots/iron"
+    },
+    "^": {
+      "item": "irons_artifice:blackpowder"
+    }
   },
   "pattern": [
     "#",

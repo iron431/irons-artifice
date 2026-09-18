@@ -27,7 +27,7 @@ public class GunModifierMenu extends AbstractContainerMenu {
     private final List<Slot> modifierSlots;
 
     public GunModifierMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, new GunContainer(playerInventory.getSelectedItem()));
+        this(containerId, playerInventory, new GunContainer(playerInventory.getSelected()));
     }
 
     public GunModifierMenu(int containerId, Inventory playerInventory, Container gunInventory) {
@@ -38,7 +38,7 @@ public class GunModifierMenu extends AbstractContainerMenu {
         gunInventory.startOpen(playerInventory.player);
         this.size = gunInventory.getContainerSize();
         // fixme: mainhand only
-        this.gunstack = playerInventory.getSelectedItem();
+        this.gunstack = playerInventory.getSelected();
 
         int maxPerRow = 8;
         if (size % maxPerRow == 1) {
@@ -70,7 +70,19 @@ public class GunModifierMenu extends AbstractContainerMenu {
             }));
         }
 
-        this.addStandardInventorySlots(playerInventory, 8, 101);
+        addStandardInventorySlots(playerInventory, 8, 101);
+    }
+
+    /** {@code AbstractContainerMenu} grows this helper only after this version; this is its body. */
+    private void addStandardInventorySlots(Inventory playerInventory, int x, int y) {
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, x + col * 18, y + row * 18));
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(playerInventory, col, x + col * 18, y + 58));
+        }
     }
 
     private void notifyGunModified() {

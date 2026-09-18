@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "*": "#c:ingots/iron",
-    "B": "irons_artifice:blackpowder",
-    "R": "minecraft:blue_ice"
+    "*": {
+      "tag": "c:ingots/iron"
+    },
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "R": {
+      "item": "minecraft:blue_ice"
+    }
   },
   "pattern": [
     " * ",
@@ -12,6 +18,7 @@
     "RBR"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:frozen_jacket_modifier"
   }
 }

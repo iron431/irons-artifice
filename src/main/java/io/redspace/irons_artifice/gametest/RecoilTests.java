@@ -19,7 +19,7 @@ public final class RecoilTests {
 
     private static LivingEntity armedShooter(GameTestHelper helper, int rounds) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), rounds);
-        return TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
+        return TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
     }
 
     static void firingAddsRecoil(GameTestHelper helper) {
@@ -85,7 +85,7 @@ public final class RecoilTests {
      * it.
      * <p>
      * So this builds an independent control aim by applying that combination to
-     * {@link TestFixtures#FORWARD}'s rotation through the vanilla {@link Vec3#rotation()} /
+     * {@link TestFixtures#FORWARD}'s rotation through the {@link TestFixtures#rotationOf(Vec3)} /
      * {@link Vec3#directionFromRotation(float, float)} round trip, then fires a shooter carrying a
      * directly-set {@link RecoilState} offset straight along FORWARD. The control shot never touches
      * a nonzero offset, so it exercises none of the code under test. Right signs and both shots land
@@ -108,7 +108,7 @@ public final class RecoilTests {
         float pitchOffset = 20.0F;
         float yawOffset = 15.0F;
 
-        Vec2 base = TestFixtures.FORWARD.rotation();
+        Vec2 base = TestFixtures.rotationOf(TestFixtures.FORWARD);
         Vec3 expectedDirection = Vec3.directionFromRotation(base.x - pitchOffset, base.y + yawOffset);
 
         helper.assertValueEqual(GunplayManager.tryFire(shooter, expectedDirection),

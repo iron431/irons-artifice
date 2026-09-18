@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.datagen;
 
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
@@ -10,12 +11,13 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ItemTagDataGenerator extends IntrinsicHolderTagsProvider<Item> {
-    public ItemTagDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, Registries.ITEM, lookupProvider, item -> item.builtInRegistryHolder().key());
+    public ItemTagDataGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
+        super(output, Registries.ITEM, lookupProvider, item -> item.builtInRegistryHolder().key(), IronsArtifice.MODID, existingFileHelper);
     }
 
     @Override

@@ -2,11 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "H": "minecraft:hopper",
-    "I": "#c:ingots/netherite",
-    "L": "#minecraft:logs",
-    "M": "irons_artifice:clockwork_components",
-    "R": "minecraft:repeater"
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "I": {
+      "tag": "c:ingots/netherite"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:clockwork_components"
+    },
+    "R": {
+      "item": "minecraft:repeater"
+    }
   },
   "pattern": [
     "I  ",
@@ -14,6 +24,7 @@
     " LM"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:clockwork_rifle"
   }
 }

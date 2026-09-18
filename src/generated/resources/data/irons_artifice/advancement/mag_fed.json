@@ -37,6 +37,7 @@
       "translate": "advancements.irons_artifice.mag_fed.description"
     },
     "icon": {
+      "count": 1,
       "id": "irons_artifice:six_shooter"
     },
     "title": {

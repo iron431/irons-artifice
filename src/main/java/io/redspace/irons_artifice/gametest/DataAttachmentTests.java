@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 public final class DataAttachmentTests {
 
     public static void attachmentDefaults(GameTestHelper helper) {
-        ServerPlayer player = TestFixtures.shooter(helper, new BlockPos(1, 1, 1), ItemStack.EMPTY);
+        ServerPlayer player = TestFixtures.shooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
         long now = helper.getLevel().getGameTime();
 
         helper.assertValueEqual(FireDelayState.get(player).duration(), 0, "fire delay default duration");
@@ -64,7 +64,7 @@ public final class DataAttachmentTests {
         // not fire after setItemSlot during this suite's development. The clearing logic lives on
         // LivingEntity rather than Player, so a mob exercises the same path and sidesteps the open
         // question.
-        LivingEntity entity = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(1, 2, 1));
+        LivingEntity entity = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(1, 3, 1));
         entity.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ItemRegistry.MUSKET.get()));
 
         helper.startSequence()

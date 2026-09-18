@@ -28,7 +28,7 @@ repositories {
                 url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
             }
         }
-        filter { includeGroupAndSubgroups('com.geckolib') }
+        filter { includeGroupAndSubgroups('software.bernie.geckolib') }
     }
     maven {
         url "https://cursemaven.com"
@@ -45,7 +45,7 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 java {
     withSourcesJar()
@@ -75,12 +75,11 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            programArgument '--report'
-            programArgument file('build/gametest-report.xml').getAbsolutePath()
+            systemProperty 'irons_artifice.gameTestReport', file('build/gametest-report.xml').getAbsolutePath()
         }
 
         data {
-            clientData()
+            data()
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
@@ -102,9 +101,9 @@ configurations {
 }
 
 dependencies {
-    implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 //    implementation "io.redspace:irons_lib:${irons_lib_version}"
-    runtimeOnly "curse.maven:jei-238222:8548511"
+    runtimeOnly "curse.maven:jei-238222:8895652"
 
 //    implementation "curse.maven:ftb-teams-forge-404468:8074003"
 //    implementation "curse.maven:ftb-library-forge-404465:8574542"
@@ -116,6 +115,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,

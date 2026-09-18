@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": "#c:ingots/iron",
-    "L": "#minecraft:logs",
-    "M": "irons_artifice:simple_mechanical_components"
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:simple_mechanical_components"
+    }
   },
   "pattern": [
     "MI ",
@@ -12,6 +18,7 @@
     " IL"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:blunderbuss"
   }
 }

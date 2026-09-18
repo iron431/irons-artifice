@@ -87,8 +87,8 @@ public final class LaneHarnessTests {
     }
 
     static void controlMissTerminalRejectsTwoMisses(GameTestHelper helper) {
-        LivingEntity target = TestFixtures.toughTarget(helper, new BlockPos(1, 1, 3));
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1),
+        LivingEntity target = TestFixtures.toughTarget(helper, new BlockPos(1, 2, 3));
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1),
                 TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0));
         LaneResult miss = new LaneResult(0.0F, Vec3.ZERO, 1, target, shooter);
         LaneComparison neitherLanded = new LaneComparison(miss, miss);

@@ -1,50 +1,56 @@
 package io.redspace.irons_artifice.gametest;
 
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.gametest.TestCatalog.Expectation;
 import io.redspace.irons_artifice.gametest.TestCatalog.ModifierTest;
 import io.redspace.irons_artifice.gametest.TestCatalog.PlainTest;
-import net.minecraft.core.Holder;
-import net.minecraft.gametest.framework.FunctionGameTestInstance;
+import net.minecraft.gametest.framework.GameTestGenerator;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.gametest.framework.TestData;
-import net.minecraft.gametest.framework.TestEnvironmentDefinition;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.minecraft.gametest.framework.TestFunction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.gametest.GameTestHolder;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID)
+/**
+ * Turns the catalog into the framework's own {@link TestFunction}s. NeoForge finds this class through
+ * {@link GameTestHolder} in the mod's scan data and calls the generator once, so a test is one object
+ * rather than a registered body plus a registered contract, and there is no registry to seal.
+ */
+@GameTestHolder(IronsArtifice.MODID)
 public final class ArtificeGameTests {
-    public static final Identifier ENVIRONMENT = IronsArtifice.id("suite");
+    /** The suite has no per-batch setup, so every test shares the framework's default batch. */
+    private static final String BATCH = "defaultBatch";
 
-    @SubscribeEvent
-    public static void registerTests(RegisterGameTestsEvent event) {
-        Holder<TestEnvironmentDefinition<?>> environment =
-                event.registerEnvironment(ENVIRONMENT, new TestEnvironmentDefinition.AllOf(List.of()));
+    @GameTestGenerator
+    public static Collection<TestFunction> generateTests() {
+        List<TestFunction> functions = new ArrayList<>();
 
         for (PlainTest test : TestCatalog.PLAIN_TESTS) {
-            registerTest(event, environment, test.name(), test.arena(), test.maxTicks(), test.required());
+            functions.add(testFunction(test.name(), test.arena(), test.maxTicks(), test.required(), test.body()));
         }
 
         for (ModifierTest test : ModifierTests.ENTRIES) {
-            registerTest(event, environment, test.name(), test.arena(), test.maxTicks(), true);
-            registerTest(event, environment, test.sadPathName(), test.arena(), test.maxTicks(), true);
+            Consumer<GameTestHelper> withModifier = helper ->
+                    test.body().run(helper, new Item[]{test.modifier().get()}, Expectation.CLAIM_HOLDS);
+            Consumer<GameTestHelper> withoutModifier = helper ->
+                    test.body().run(helper, new Item[0], Expectation.CLAIM_FAILS);
+            functions.add(testFunction(test.name(), test.arena(), test.maxTicks(), true, withModifier));
+            functions.add(testFunction(test.sadPathName(), test.arena(), test.maxTicks(), true, withoutModifier));
         }
+
+        return functions;
     }
 
-    private static void registerTest(RegisterGameTestsEvent event,
-                                     Holder<TestEnvironmentDefinition<?>> environment,
-                                     String name,
-                                     Identifier structure,
-                                     int maxTicks,
-                                     boolean required) {
-        ResourceKey<Consumer<GameTestHelper>> function = TestFunctionRegistry.key(name);
-        event.registerTest(
-                function.identifier(),
-                new FunctionGameTestInstance(function, new TestData<>(environment, structure, maxTicks, 0, required)));
+    private static TestFunction testFunction(String name, ResourceLocation arena, int maxTicks, boolean required,
+                                             Consumer<GameTestHelper> body) {
+        return new TestFunction(BATCH, name, arena.toString(), maxTicks, 0L, required, body);
+    }
+
+    private ArtificeGameTests() {
     }
 }

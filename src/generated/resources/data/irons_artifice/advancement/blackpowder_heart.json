@@ -18,6 +18,7 @@
       "translate": "advancements.irons_artifice.blackpowder_heart.description"
     },
     "icon": {
+      "count": 1,
       "id": "irons_artifice:blackpowder"
     },
     "title": {

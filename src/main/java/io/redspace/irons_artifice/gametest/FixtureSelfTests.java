@@ -15,7 +15,7 @@ public final class FixtureSelfTests {
     static void fixtureBuildsALoadedShooter(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1,
                 ItemRegistry.LEAD_CORE.get());
-        ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 1, 1), gun);
+        ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 2, 1), gun);
 
         ItemStack held = shooter.getMainHandItem();
         helper.assertTrue(held.getItem() instanceof GunItem, "shooter is holding a gun");

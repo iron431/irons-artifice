@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +13,7 @@ public record ClientboundCancelGunAnimationPacket(int entityId, long instanceId,
         implements CustomPacketPayload {
 
     public static final Type<ClientboundCancelGunAnimationPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "cancel_gun_animation"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "cancel_gun_animation"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundCancelGunAnimationPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundCancelGunAnimationPacket::encode, ClientboundCancelGunAnimationPacket::decode);

@@ -15,14 +15,26 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 
 public class Utils {
     public static final DecimalFormat DECIMAL_FORMAT = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT;
+
+    /**
+     * The inverse of {@link Vec3#directionFromRotation(float, float)}. {@code Vec3} carries no
+     * {@code rotation()} of its own at this version.
+     */
+    public static Vec2 rotationFromDirection(Vec3 direction) {
+        Vec3 n = direction.normalize();
+        float pitch = (float) (-Math.asin(Mth.clamp(n.y, -1.0, 1.0)) * Mth.RAD_TO_DEG);
+        float yaw = (float) (Math.atan2(-n.x, n.z) * Mth.RAD_TO_DEG);
+        return new Vec2(pitch, yaw);
+    }
 
     public static Vec3 reflect(Vec3 direction, Vec3 normal) {
         return direction.subtract(normal.scale(2 * normal.dot(direction)));
@@ -79,7 +91,7 @@ public class Utils {
     }
 
     public static void spawnParticles(Level level, ParticleOptions particle, double x, double y, double z, int count, double deltaX, double deltaY, double deltaZ, double speed, boolean force) {
-        level.getServer().getPlayerList().getPlayers().forEach(player -> ((ServerLevel) level).sendParticles(player, particle, force, force, x, y, z, count, deltaX, deltaY, deltaZ, speed));
+        level.getServer().getPlayerList().getPlayers().forEach(player -> ((ServerLevel) level).sendParticles(player, particle, force, x, y, z, count, deltaX, deltaY, deltaZ, speed));
     }
 
     public static Vec3 randomVec3(double scale) {

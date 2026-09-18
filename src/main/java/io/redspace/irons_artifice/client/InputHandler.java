@@ -16,7 +16,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class InputHandler {
@@ -50,14 +50,14 @@ public final class InputHandler {
 
         while (Keybinds.OPEN_MODIFIER_MENU.consumeClick()) {
             if (player.getMainHandItem().getItem() instanceof GunItem) {
-                ClientPacketDistributor.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
+                PacketDistributor.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
             }
         }
 
         while (Keybinds.RELOAD.consumeClick()) {
             if (minecraft.screen == null && !player.isSpectator() && player.getMainHandItem().getItem() instanceof GunItem
                     && !GunItem.isReloading(player.getMainHandItem())) {
-                ClientPacketDistributor.sendToServer(ServerboundReloadGunPacket.INSTANCE);
+                PacketDistributor.sendToServer(ServerboundReloadGunPacket.INSTANCE);
             }
         }
     }
@@ -86,7 +86,7 @@ public final class InputHandler {
 
     private static void tryFire(ShotProfile profile, LocalPlayer player) {
         if (GunplayManager.tryFire(player, player.getLookAngle()).fired()) {
-            ClientPacketDistributor.sendToServer(new ServerboundFireGunPacket(player.getLookAngle()));
+            PacketDistributor.sendToServer(new ServerboundFireGunPacket(player.getLookAngle()));
             RecoilManager.applyRecoil(profile);
         }
     }

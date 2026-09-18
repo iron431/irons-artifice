@@ -16,7 +16,7 @@ public final class ShotQueueTests {
 
     private static LivingEntity armedShooter(GameTestHelper helper, int rounds) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), rounds);
-        return TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
+        return TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
     }
 
     static void earlyShotQueuesAndFlushes(GameTestHelper helper) {

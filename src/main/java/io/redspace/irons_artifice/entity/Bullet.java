@@ -37,9 +37,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -48,8 +48,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -125,7 +125,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected boolean canHitEntity(@NonNull Entity entity) {
+    protected boolean canHitEntity(@NotNull Entity entity) {
         return super.canHitEntity(entity) && !piercedEntities.contains(entity.getId()) && Utils.canHarm(getOwner(), entity);
     }
 
@@ -320,7 +320,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    public @NonNull Vec3 getMovementToShoot(double xd, double yd, double zd, float pow, float uncertainty) {
+    public @NotNull Vec3 getMovementToShoot(double xd, double yd, double zd, float pow, float uncertainty) {
         return Utils.directionWithinCone(new Vec3(xd, yd, zd), uncertainty, this.random).scale(pow);
     }
 
@@ -331,7 +331,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHit(@NonNull HitResult hitResult) {
+    protected void onHit(@NotNull HitResult hitResult) {
         // setup default hit state
         hitState = HitState.DISCARD;
         brokeBlocksThisTick = false;
@@ -410,7 +410,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHitEntity(@NonNull EntityHitResult result) {
+    protected void onHitEntity(@NotNull EntityHitResult result) {
         super.onHitEntity(result);
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
@@ -422,7 +422,7 @@ public class Bullet extends Projectile {
         Entity owner = getOwner();
         float damage = resolveDamage();
         DamageSource source = DamageSources.bullet(level(), this, owner);
-        target.hurtServer(serverLevel, source, damage);
+        target.hurt(source, damage);
 
         float knockback = (float) profile.value(ShotComponents.KNOCKBACK);
         if (target instanceof LivingEntity living && knockback > 0.0F) {
@@ -439,7 +439,7 @@ public class Bullet extends Projectile {
         BlockPos pos = hitResult.getBlockPos();
         level().playSound(null, pos, level().getBlockState(pos).getSoundType(level(), pos, null).getBreakSound(), SoundSource.BLOCKS, .75f, 1f);
         if (level() instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), hitResult.getDirection().getUnitVec3(), this.resolveDamage()));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), Vec3.atLowerCornerOf(hitResult.getDirection().getNormal()), this.resolveDamage()));
         }
     }
 
@@ -456,7 +456,7 @@ public class Bullet extends Projectile {
         }
 
         if (getOwner() instanceof Mob
-                && !serverLevel.getGameRules().get(GameRules.MOB_GRIEFING)) {
+                && !serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             return false;
         }
 
@@ -468,7 +468,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHitBlock(@NonNull BlockHitResult hitResult) {
+    protected void onHitBlock(@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
         playBlockHitEffects(hitResult);
         boolean brokeThroughBlock = attemptApplyBlockDamage(hitResult);
@@ -480,7 +480,7 @@ public class Bullet extends Projectile {
     }
 
     private void reflectMotion(Direction face) {
-        setDeltaMovement(Utils.reflect(getDeltaMovement(), face.getUnitVec3()));
+        setDeltaMovement(Utils.reflect(getDeltaMovement(), Vec3.atLowerCornerOf(face.getNormal())));
         this.piercedEntities.clear();
         if (shotRecord != null) {
             shotRecord.markRicocheted();
@@ -524,7 +524,7 @@ public class Bullet extends Projectile {
 
     @Override
     public void checkDespawn() {
-        if (this.level() instanceof ServerLevel serverLevel && !serverLevel.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(this.chunkPosition().pack())) {
+        if (this.level() instanceof ServerLevel serverLevel && !serverLevel.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(this.chunkPosition().toLong())) {
             this.discard();
         }
     }

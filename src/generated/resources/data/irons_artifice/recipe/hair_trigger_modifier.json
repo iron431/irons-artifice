@@ -2,14 +2,19 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": "irons_artifice:simple_mechanical_components",
-    "R": "minecraft:breeze_rod"
+    "C": {
+      "item": "irons_artifice:simple_mechanical_components"
+    },
+    "R": {
+      "item": "minecraft:breeze_rod"
+    }
   },
   "pattern": [
     "C",
     "R"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:hair_trigger_modifier"
   }
 }

@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "I": "#c:ingots/copper",
-    "R": "minecraft:flint"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "c:ingots/copper"
+    },
+    "R": {
+      "item": "minecraft:flint"
+    }
   },
   "pattern": [
     " R ",
@@ -12,6 +18,7 @@
     "III"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:breaching_shell_modifier"
   }
 }

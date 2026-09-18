@@ -17,6 +17,7 @@
       "translate": "advancements.irons_artifice.seven_sockets.description"
     },
     "icon": {
+      "count": 1,
       "id": "irons_artifice:arquebus"
     },
     "title": {

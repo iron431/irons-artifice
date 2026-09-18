@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "*": "#c:ingots/iron",
-    "B": "irons_artifice:bullet",
-    "C": "minecraft:iron_chain"
+    "*": {
+      "tag": "c:ingots/iron"
+    },
+    "B": {
+      "item": "irons_artifice:bullet"
+    },
+    "C": {
+      "item": "minecraft:chain"
+    }
   },
   "pattern": [
     "**B",
@@ -12,6 +18,7 @@
     "C *"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:hook_shot_modifier"
   }
 }

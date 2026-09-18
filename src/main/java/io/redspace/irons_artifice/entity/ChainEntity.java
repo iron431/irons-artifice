@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -11,15 +12,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class ChainEntity extends Entity {
     public static final float SPAWN_RANGE = 8f;
@@ -53,9 +53,9 @@ public class ChainEntity extends Entity {
             SynchedEntityData.defineId(ChainEntity.class, EntityDataSerializers.INT);
 
     @Nullable
-    private EntityReference<LivingEntity> firstRef;
+    private UUID firstUuid;
     @Nullable
-    private EntityReference<LivingEntity> secondRef;
+    private UUID secondUuid;
 
     public int warmup;
 
@@ -76,34 +76,43 @@ public class ChainEntity extends Entity {
     }
 
     public void setFirst(LivingEntity entity) {
-        this.firstRef = EntityReference.of(entity);
+        this.firstUuid = entity.getUUID();
         this.entityData.set(DATA_FIRST_ID, entity.getId());
     }
 
     public void setSecond(LivingEntity entity) {
-        this.secondRef = EntityReference.of(entity);
+        this.secondUuid = entity.getUUID();
         this.entityData.set(DATA_SECOND_ID, entity.getId());
     }
 
     @Nullable
     public LivingEntity getFirst() {
-        return resolveBound(entityData.get(DATA_FIRST_ID), firstRef);
+        return resolveBound(entityData.get(DATA_FIRST_ID), firstUuid);
     }
 
     @Nullable
     public LivingEntity getSecond() {
-        return resolveBound(entityData.get(DATA_SECOND_ID), secondRef);
+        return resolveBound(entityData.get(DATA_SECOND_ID), secondUuid);
     }
 
     @Nullable
-    private LivingEntity resolveBound(int entityId, @Nullable EntityReference<LivingEntity> reference) {
+    private LivingEntity resolveBound(int entityId, @Nullable UUID uuid) {
         if (entityId != 0) {
             Entity entity = level().getEntity(entityId);
             if (entity instanceof LivingEntity living && !living.isRemoved()) {
                 return living;
             }
         }
-        return EntityReference.getLivingEntity(reference, level());
+        return resolveByUuid(uuid);
+    }
+
+    @Nullable
+    private LivingEntity resolveByUuid(@Nullable UUID uuid) {
+        if (uuid != null && level() instanceof ServerLevel serverLevel
+                && serverLevel.getEntity(uuid) instanceof LivingEntity living && !living.isRemoved()) {
+            return living;
+        }
+        return null;
     }
 
     @Override
@@ -156,7 +165,7 @@ public class ChainEntity extends Entity {
 
     private void breakWithEffects(Vec3 from, Vec3 to) {
         playSound(SoundEvents.CHAIN_BREAK, 1f, 1f);
-        BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_CHAIN.defaultBlockState());
+        BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.CHAIN.defaultBlockState());
         int count = 12;
         for (int i = 0; i < count; i++) {
             Vec3 pos = from.lerp(to, i / (float) (count - 1));
@@ -175,12 +184,12 @@ public class ChainEntity extends Entity {
     }
 
     @Override
-    public boolean canBeCollidedWith(@Nullable Entity other) {
+    public boolean canBeCollidedWith() {
         return false;
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurt(DamageSource source, float damage) {
         return false;
     }
 
@@ -191,16 +200,16 @@ public class ChainEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        this.firstRef = EntityReference.read(input, "First");
-        this.secondRef = EntityReference.read(input, "Second");
-        this.tickCount = input.getIntOr("Age", 0);
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        this.firstUuid = tag.hasUUID("First") ? tag.getUUID("First") : null;
+        this.secondUuid = tag.hasUUID("Second") ? tag.getUUID("Second") : null;
+        this.tickCount = tag.getInt("Age");
         if (level() instanceof ServerLevel) {
-            LivingEntity first = EntityReference.getLivingEntity(firstRef, level());
+            LivingEntity first = resolveByUuid(firstUuid);
             if (first != null) {
                 entityData.set(DATA_FIRST_ID, first.getId());
             }
-            LivingEntity second = EntityReference.getLivingEntity(secondRef, level());
+            LivingEntity second = resolveByUuid(secondUuid);
             if (second != null) {
                 entityData.set(DATA_SECOND_ID, second.getId());
             }
@@ -208,9 +217,13 @@ public class ChainEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        EntityReference.store(firstRef, output, "First");
-        EntityReference.store(secondRef, output, "Second");
-        output.putInt("Age", tickCount);
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        if (firstUuid != null) {
+            tag.putUUID("First", firstUuid);
+        }
+        if (secondUuid != null) {
+            tag.putUUID("Second", secondUuid);
+        }
+        tag.putInt("Age", tickCount);
     }
 }

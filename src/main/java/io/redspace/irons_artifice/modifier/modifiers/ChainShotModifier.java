@@ -20,7 +20,7 @@ public final class ChainShotModifier implements GunModifier {
     public void apply(ShotComponentMap components) {
         components.getOrCreate(ShotComponents.POST_HIT_EFFECTS).add(new ChainShotOnHit());
         components.getOrCreate(ShotComponents.PARTICLE_TRAIL).addAccent(
-                new ParticleStack.ParticleAccent(new BlockParticleOption(ParticleTypes.BLOCK_CRUMBLE, Blocks.IRON_CHAIN.defaultBlockState()), 0.5)
+                new ParticleStack.ParticleAccent(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.CHAIN.defaultBlockState()), 0.5)
         );
     }
 

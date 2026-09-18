@@ -34,7 +34,7 @@ public class ChainLightningOnHit implements OnHitEffect {
             if (!targets.isEmpty()) {
                 Entity entity = targets.get(random.nextInt(targets.size()));
                 float damage = bullet.resolveDamage() * DAMAGE_MULTIPLIER;
-                if (entity.hurtServer(level, bullet.damageSources().indirectMagic(bullet, bullet.getOwner()), damage)) {
+                if (entity.hurt(bullet.damageSources().indirectMagic(bullet, bullet.getOwner()), damage)) {
                     accumulator.add(entity);
                 }
                 visualAnchor = entity.getBoundingBox().getCenter();
@@ -44,7 +44,7 @@ public class ChainLightningOnHit implements OnHitEffect {
             Vec3 motion = visualAnchor.subtract(center).normalize().scale(0.05);
             for (int j = 0; j < particles; j++) {
                 Vec3 pos = center.lerp(visualAnchor, j / (float) particles);
-                Utils.spawnParticles(level, ChainLightningModifier.LIGHTNING_TRAIL, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0.01, true);
+                Utils.spawnParticles(level, ChainLightningModifier.LIGHTNING_TRAIL.get(), pos.x, pos.y, pos.z, 1, 0, 0, 0, 0.01, true);
             }
         }
     }

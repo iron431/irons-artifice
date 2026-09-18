@@ -6,7 +6,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.ValidationContextSource;
+import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class LootTableDataGenerator extends LootTableProvider {
     }
 
     @Override
-    protected void validate(WritableRegistry<LootTable> registry, ValidationContextSource context, ProblemReporter.Collector collector) {
+    protected void validate(WritableRegistry<LootTable> registry, ValidationContext context, ProblemReporter.Collector collector) {
         // it thinks the referenced vanilla loot tables dont exist since they arent held here. its fine.
     }
 }

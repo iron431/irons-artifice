@@ -2,12 +2,10 @@ package io.redspace.irons_artifice.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.util.Ease;
+import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.KineticWeapon;
 import net.minecraft.world.phys.Vec3;
 
 public class BayonetAnimations {
@@ -20,7 +18,7 @@ public class BayonetAnimations {
     }
 
     public static void firstPersonUse(float ticksSinceKineticHitFeedback, PoseStack poseStack, float timeHeld, HumanoidArm arm, ItemStack itemStack) {
-        KineticWeapon kineticWeapon = itemStack.get(DataComponents.KINETIC_WEAPON);
+        KineticWeapon kineticWeapon = KineticWeapon.get(itemStack);
         if (kineticWeapon != null) {
             BayonetAnimations.UseParams params = BayonetAnimations.UseParams.fromKineticWeapon(kineticWeapon, timeHeld);
             int invert = arm == HumanoidArm.RIGHT ? 1 : -1;
@@ -103,6 +101,48 @@ public class BayonetAnimations {
                     swayScaleSlow,
                     swayScaleFast
             );
+        }
+    }
+
+    /**
+     * The easing curves this animation uses, copied from vanilla's {@code net.minecraft.util.Ease}, which does
+     * not exist at this version. Same bodies, except that {@code Mth.cube} is inlined (also absent here).
+     */
+    static class Ease {
+        public static float outQuart(float x) {
+            return 1.0F - Mth.square(Mth.square(1.0F - x));
+        }
+
+        public static float outCubic(float x) {
+            return 1.0F - Mth.square(1.0F - x) * (1.0F - x);
+        }
+
+        public static float outCirc(float x) {
+            return (float) Math.sqrt(1.0F - Mth.square(x - 1.0F));
+        }
+
+        public static float inOutSine(float x) {
+            return -(Mth.cos(3.1415927F * x) - 1.0F) / 2.0F;
+        }
+
+        public static float inOutBack(float x) {
+            if (x < 0.5F) {
+                return 4.0F * x * x * (7.189819F * x - 2.5949094F) / 2.0F;
+            } else {
+                float dt = 2.0F * x - 2.0F;
+                return (dt * dt * (3.5949094F * dt + 2.5949094F) + 2.0F) / 2.0F;
+            }
+        }
+
+        public static float inOutElastic(float x) {
+            if (x == 0.0F) {
+                return 0.0F;
+            } else if (x == 1.0F) {
+                return 1.0F;
+            } else {
+                double sin = Math.sin((20.0 * x - 11.125) * 1.3962634801864624);
+                return x < 0.5F ? (float) (-(Math.pow(2.0, 20.0 * x - 10.0) * sin) / 2.0) : (float) (Math.pow(2.0, -20.0 * x + 10.0) * sin / 2.0 + 1.0);
+            }
         }
     }
 }

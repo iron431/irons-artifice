@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "S": "minecraft:string"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
   },
   "pattern": [
     "BSB",
@@ -11,6 +15,7 @@
     "BBB"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:blackpowder_charge_modifier"
   }
 }

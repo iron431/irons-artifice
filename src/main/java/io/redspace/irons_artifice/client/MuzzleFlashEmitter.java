@@ -63,7 +63,7 @@ public final class MuzzleFlashEmitter {
         if (forward.lengthSquared() > 1.0e-6f) {
             forward.normalize();
         }
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         return camera.add(origin.x, origin.y, origin.z)
                 .add(forward.x * extraForwardOffset, forward.y * extraForwardOffset, forward.z * extraForwardOffset);
     }

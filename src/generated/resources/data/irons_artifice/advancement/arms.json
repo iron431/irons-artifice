@@ -10,6 +10,7 @@
       "translate": "advancements.irons_artifice.arms.description"
     },
     "icon": {
+      "count": 1,
       "id": "irons_artifice:flintlock"
     },
     "title": {

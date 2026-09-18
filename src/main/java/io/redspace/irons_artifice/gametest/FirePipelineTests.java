@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.gametest;
 
-import com.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.FireOutcome;
 import io.redspace.irons_artifice.item.GunItem;
@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 public final class FirePipelineTests {
 
     static void refusals(GameTestHelper helper) {
-        ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 1, 1), ItemStack.EMPTY);
+        ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
 
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.NO_GUN, "empty hand is refused as NO_GUN");
@@ -51,7 +51,7 @@ public final class FirePipelineTests {
 
     static void successfulShot(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 2);
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
 
         ItemStack held = shooter.getMainHandItem();
         var profile = GunplayManager.compose(shooter, ((GunItem) held.getItem()).getGun(), held);
@@ -77,7 +77,7 @@ public final class FirePipelineTests {
         ServerLevel level = helper.getLevel();
 
         ItemStack musket = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), musket);
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), musket);
 
         // GeoItem.getOrAssignId is public and is what GunplayManager.playFireAnimation calls.
         // Assigning real, distinct ids up front is what lets this observe per-gun keying: a

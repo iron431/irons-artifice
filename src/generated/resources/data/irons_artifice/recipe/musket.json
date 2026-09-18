@@ -2,11 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "F": "minecraft:flint_and_steel",
-    "I": "#c:ingots/iron",
-    "L": "#minecraft:logs",
-    "M": "irons_artifice:simple_mechanical_components"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "F": {
+      "item": "minecraft:flint_and_steel"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:simple_mechanical_components"
+    }
   },
   "pattern": [
     "I  ",
@@ -14,6 +24,7 @@
     " LB"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:musket"
   }
 }

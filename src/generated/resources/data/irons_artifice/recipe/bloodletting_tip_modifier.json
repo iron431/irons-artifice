@@ -2,10 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "irons_artifice:blackpowder",
-    "$": "minecraft:redstone",
-    "*": "minecraft:ghast_tear",
-    "B": "minecraft:quartz"
+    "#": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "$": {
+      "item": "minecraft:redstone"
+    },
+    "*": {
+      "item": "minecraft:ghast_tear"
+    },
+    "B": {
+      "item": "minecraft:quartz"
+    }
   },
   "pattern": [
     " BB",
@@ -13,6 +21,7 @@
     "$# "
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:bloodletting_tip_modifier"
   }
 }

@@ -1,24 +1,24 @@
 package io.redspace.irons_artifice.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.ARGB;
-import net.minecraft.util.RandomSource;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.util.FastColor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SplashParticle extends Particle {
+public class SplashParticle extends NoRenderParticle {
     private final int color;
 
     public SplashParticle(ClientLevel level, double x, double y, double z,
                           double xa, double ya, double za, ColorParticleOption options) {
         super(level, x, y, z);
         this.setParticleSpeed(xa, ya, za);
-        this.color = ARGB.opaque(ARGB.colorFromFloat(
+        this.color = FastColor.ARGB32.opaque(FastColor.ARGB32.colorFromFloat(
                 Math.max(options.getAlpha(), 1f),
                 options.getRed(),
                 options.getGreen(),
@@ -47,7 +47,7 @@ public class SplashParticle extends Particle {
     }
 
     @Override
-    public @NonNull ParticleRenderType getGroup() {
+    public @NotNull ParticleRenderType getRenderType() {
         return ParticleRenderType.NO_RENDER;
     }
 
@@ -59,7 +59,7 @@ public class SplashParticle extends Particle {
         @Override
         public @Nullable Particle createParticle(ColorParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new SplashParticle(level, x, y, z, xa, ya, za, options);
         }
     }

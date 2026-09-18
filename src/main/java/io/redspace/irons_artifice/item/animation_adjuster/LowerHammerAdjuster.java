@@ -1,9 +1,8 @@
 package io.redspace.irons_artifice.item.animation_adjuster;
 
-import com.geckolib.animation.state.BoneSnapshot;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.model.GeoModel;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.MagazineContents;
@@ -12,14 +11,14 @@ import java.util.Optional;
 
 public final class LowerHammerAdjuster implements AnimationAdjuster {
     @Override
-    public void adjust(RenderPassInfo<GeoRenderState> renderPassInfo, BoneSnapshots snapshots) {
-        MagazineContents magazineContents = renderPassInfo.getGeckolibData(GunItem.MAGAZINE_ANIMATION_TICKET);
-        double reloadProgress = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, 0.0);
-        Optional<BoneSnapshot> boneOpt = snapshots.get(GunBones.HAMMER);
+    public void adjust(AnimationState<GunItem> animationState, GeoModel<GunItem> model) {
+        MagazineContents magazineContents = animationState.getData(GunItem.MAGAZINE_ANIMATION_TICKET);
+        double reloadProgress = AnimationAdjuster.reloadProgressSeconds(animationState);
+        Optional<GeoBone> boneOpt = model.getBone(GunBones.HAMMER);
         if (boneOpt.isEmpty() || magazineContents == null) {
             return;
         } else if (magazineContents.isEmpty() && reloadProgress <= 0) {
-            boneOpt.get().setRotation(0, 0, 0);
+            AnimationAdjuster.restoreRestRotation(boneOpt.get());
         }
     }
 }

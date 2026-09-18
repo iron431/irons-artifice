@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "minecraft:string",
-    "B": "irons_artifice:bullet",
-    "P": "irons_artifice:blackpowder"
+    "#": {
+      "item": "minecraft:string"
+    },
+    "B": {
+      "item": "irons_artifice:bullet"
+    },
+    "P": {
+      "item": "irons_artifice:blackpowder"
+    }
   },
   "pattern": [
     " BB",
@@ -12,6 +18,7 @@
     " # "
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:scattershot_modifier"
   }
 }

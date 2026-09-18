@@ -22,7 +22,6 @@ import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -33,7 +32,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -239,8 +238,8 @@ public final class ModifierTests {
                         "the scope narrowed composed spread");
             }),
             compose(ItemRegistry.BAYONET_ATTACHMENT_MODIFIER, "bayonet_attachment_applies_patch", (helper, control, variant) -> {
-                helper.assertFalse(control.stack().has(DataComponents.KINETIC_WEAPON), "a plain gun has no kinetic-weapon component");
-                helper.assertTrue(variant.stack().has(DataComponents.KINETIC_WEAPON),
+                helper.assertFalse(control.stack().has(DataComponentRegistry.KINETIC_WEAPON.get()), "a plain gun has no kinetic-weapon component");
+                helper.assertTrue(variant.stack().has(DataComponentRegistry.KINETIC_WEAPON.get()),
                         "the bayonet's patch put the kinetic-weapon component on the stack");
             }),
             compose(ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER, "suppressor_quietens_and_attaches", (helper, control, variant) -> {
@@ -319,7 +318,7 @@ public final class ModifierTests {
     private static void fillCrossSection(GameTestHelper helper, int fromZ, int toZ, Block block) {
         for (int z = fromZ; z <= toZ; z++) {
             for (int x = 0; x < ARENA_WIDTH; x++) {
-                for (int y = 1; y < ARENA_HEIGHT; y++) {
+                for (int y = 2; y <= ARENA_HEIGHT; y++) {
                     helper.setBlock(new BlockPos(x, y, z), block);
                 }
             }
@@ -328,7 +327,7 @@ public final class ModifierTests {
 
     private static boolean wallColumnIntact(GameTestHelper helper, int lane) {
         int x = TestFixtures.laneOrigin(lane).getX();
-        for (int y = 1; y < ARENA_HEIGHT; y++) {
+        for (int y = 2; y <= ARENA_HEIGHT; y++) {
             if (!helper.getBlockState(new BlockPos(x, y, WALL_Z)).is(Blocks.DIRT)) {
                 return false;
             }
@@ -524,12 +523,12 @@ public final class ModifierTests {
                 .map(ChainShotOnHit.class::cast)
                 .findFirst();
 
-        LivingEntity owner = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), ItemStack.EMPTY);
+        LivingEntity owner = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
         Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), helper.getLevel());
         bullet.setOwner(owner);
-        LivingEntity first = toughTarget(helper, new BlockPos(1, 1, 2));
-        LivingEntity second = toughTarget(helper, new BlockPos(1, 1, 2 + CHAIN_IN_RANGE_OFFSET));
-        LivingEntity third = toughTarget(helper, new BlockPos(1, 1, 2 + CHAIN_IN_RANGE_OFFSET + CHAIN_OUT_OF_RANGE_OFFSET));
+        LivingEntity first = toughTarget(helper, new BlockPos(1, 2, 2));
+        LivingEntity second = toughTarget(helper, new BlockPos(1, 2, 2 + CHAIN_IN_RANGE_OFFSET));
+        LivingEntity third = toughTarget(helper, new BlockPos(1, 2, 2 + CHAIN_IN_RANGE_OFFSET + CHAIN_OUT_OF_RANGE_OFFSET));
         helper.assertValueEqual(countChainEntities(helper), 0, "no chain links exist before any hit");
 
         expectation.check(helper, () -> {
@@ -559,8 +558,8 @@ public final class ModifierTests {
     private static void mechanicalAcceleratorRampsDamage(GameTestHelper helper, Item[] variantModifiers,
                                                          TestCatalog.Expectation expectation) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 2, variantModifiers);
-        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1), gun);
-        LivingEntity target = toughTarget(helper, new BlockPos(1, 1, 1 + ACCEL_TARGET_DISTANCE));
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
+        LivingEntity target = toughTarget(helper, new BlockPos(1, 2, 1 + ACCEL_TARGET_DISTANCE));
         TestFixtures.shieldFromDaylight(shooter);
         float[] healthBefore = new float[1];
         float[] shotDamage = new float[2];
@@ -596,9 +595,9 @@ public final class ModifierTests {
 
     private static void enchantedBulletSparesAmmo(GameTestHelper helper, Item[] variantModifiers,
                                                   TestCatalog.Expectation expectation) {
-        LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 1, 1),
+        LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1),
                 TestFixtures.gunWith(ItemRegistry.MUSKET.get(), AMMO_SHOTS));
-        LivingEntity variant = TestFixtures.firingShooter(helper, new BlockPos(4, 1, 4),
+        LivingEntity variant = TestFixtures.firingShooter(helper, new BlockPos(4, 2, 4),
                 TestFixtures.gunWith(ItemRegistry.MUSKET.get(), AMMO_SHOTS, variantModifiers));
 
         for (int i = 0; i < AMMO_SHOTS; i++) {

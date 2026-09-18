@@ -4,15 +4,16 @@ import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class FairyDustParticle extends SingleQuadParticle {
+public class FairyDustParticle extends TextureSheetParticle {
     private final float angularSpeed;
     private final SpriteSet spriteSet;
     private final float phase;
@@ -25,7 +26,8 @@ public class FairyDustParticle extends SingleQuadParticle {
 
     public FairyDustParticle(ClientLevel level, double x, double y, double z,
                              double xa, double ya, double za, SpriteSet spriteSet, FairyDustParticleOption options) {
-        super(level, x, y, z, spriteSet.first());
+        super(level, x, y, z);
+        this.setSprite(spriteSet.get(0, 1));
         this.spriteSet = spriteSet;
         this.phase = options.getPhase();
         this.radius = options.getRadius();
@@ -104,15 +106,13 @@ public class FairyDustParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected int getLightCoords(float a) {
+    protected int getLightColor(float a) {
         float lightIntensity = (this.age + a) / lifetime;
 //        lightIntensity = 1 - (1 - lightIntensity) * (1 - lightIntensity);
-        int packed = super.getLightCoords(a);
-        int block = LightCoordsUtil.block(packed);
-        int sky = LightCoordsUtil.sky(packed);
-        block = (int) Mth.lerp(lightIntensity, block, 240);
-        sky = (int) Mth.lerp(lightIntensity, sky, 240);
-        return LightCoordsUtil.pack(block, sky);
+        int packed = super.getLightColor(a);
+        int block = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.block(packed), 240), 0, 15);
+        int sky = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.sky(packed), 240), 0, 15);
+        return LightTexture.pack(block, sky);
     }
 
 
@@ -123,8 +123,8 @@ public class FairyDustParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public @NotNull ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<FairyDustParticleOption> {
@@ -137,7 +137,7 @@ public class FairyDustParticle extends SingleQuadParticle {
         @Override
         public @Nullable Particle createParticle(FairyDustParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new FairyDustParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

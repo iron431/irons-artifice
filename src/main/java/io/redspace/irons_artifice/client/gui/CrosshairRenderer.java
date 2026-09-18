@@ -1,5 +1,14 @@
 package io.redspace.irons_artifice.client.gui;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Axis;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.RecoilManager;
 import io.redspace.irons_artifice.gun.ShotProfile;
@@ -8,16 +17,16 @@ import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import org.joml.Matrix3x2fStack;
+import org.joml.Matrix4f;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class CrosshairRenderer {
@@ -31,7 +40,7 @@ public final class CrosshairRenderer {
     private static int reloadAnimationDuration;
     private static int reloadAnimationTick;
 
-    public static boolean renderGunCrosshair(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    public static boolean renderGunCrosshair(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.options.getCameraType().isFirstPerson()) {
             return false;
@@ -47,25 +56,33 @@ public final class CrosshairRenderer {
 
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
         float degreesSpread = localCrosshairGap(partialTick);
-        float gap = Math.max(GAP_BASE + degreesToGuiPixels(degreesSpread, graphics.guiHeight(), minecraft.gameRenderer.getMainCamera().getFov()), 0);
-        graphics.nextStratum();
-        Matrix3x2fStack poseStack = graphics.pose();
-        poseStack.pushMatrix();
-        poseStack.translate(graphics.guiWidth() / 2 - 1, graphics.guiHeight() / 2);
+        float gap = Math.max(GAP_BASE + degreesToGuiPixels(degreesSpread, graphics.guiHeight(), currentFovDegrees(minecraft, player)), 0);
+        PoseStack poseStack = graphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(graphics.guiWidth() / 2 - 1, graphics.guiHeight() / 2, 0.0F);
         if (reloadAnimationTick > 0) {
-            poseStack.translate(0.5f, 0.5f);
+            poseStack.translate(0.5f, 0.5f, 0.0F);
             float f = (reloadAnimationTick - partialTick) / reloadAnimationDuration;
 
 //            float remaining = 1f - Mth.lerp(partialTick, reloadProgressO, reloadProgress);
             f = crosshairAnimationInterpolation(f);
-            poseStack.rotate(f * 180 * Mth.DEG_TO_RAD);
-            poseStack.translate(-0.5f, -0.5f);
+            poseStack.mulPose(Axis.ZP.rotation(f * 180 * Mth.DEG_TO_RAD));
+            poseStack.translate(-0.5f, -0.5f, 0.0F);
         }
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO
+        );
         drawCross(graphics, gap);
         if (GunItem.isScoping(player)) {
             drawScopeCrosshair(graphics, gap);
         }
-        poseStack.popMatrix();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        poseStack.popPose();
 
         return true;
     }
@@ -73,6 +90,15 @@ public final class CrosshairRenderer {
     private static float crosshairAnimationInterpolation(float remaining) {
         float percent = 1 - remaining;
         return 1 - (percent * percent * percent * percent * percent);
+    }
+
+    /**
+     * The camera carries no field of view and {@link net.minecraft.client.renderer.GameRenderer}'s own accessor is
+     * private, so the vertical FOV is recomposed from the video setting and the player's own modifier -- which is
+     * where the scope zoom already lives.
+     */
+    private static float currentFovDegrees(Minecraft minecraft, LocalPlayer player) {
+        return minecraft.options.fov().get() * player.getFieldOfViewModifier();
     }
 
     private static float degreesToGuiPixels(float degreesSpread, int guiHeight, float fovDegrees) {
@@ -147,45 +173,59 @@ public final class CrosshairRenderer {
         updateReloadProgress();
     }
 
-    private static void drawScopeCrosshair(GuiGraphicsExtractor graphics, float gap) {
-        Matrix3x2fStack poseStack = graphics.pose();
-        poseStack.pushMatrix();
-        poseStack.translate(-gap, 0.25f);
-        poseStack.scale(0.5f);
-        poseStack.scale((gap) * 4 + 2, 1f);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, 1, THICKNESS, COLOR);
-        poseStack.popMatrix();
-        poseStack.pushMatrix();
-        poseStack.translate(0.25f, -gap);
-        poseStack.scale(0.5f);
-        poseStack.scale(1f,(gap) * 4 + 2);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, THICKNESS, 1, COLOR);
-        poseStack.popMatrix();
+    private static void drawScopeCrosshair(GuiGraphics graphics, float gap) {
+        PoseStack poseStack = graphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(-gap, 0.25f, 0.0F);
+        poseStack.scale(0.5f, 0.5f, 1.0F);
+        poseStack.scale((gap) * 4 + 2, 1f, 1.0F);
+        fillInverted(graphics, 0, 0, 1, THICKNESS, COLOR);
+        poseStack.popPose();
+        poseStack.pushPose();
+        poseStack.translate(0.25f, -gap, 0.0F);
+        poseStack.scale(0.5f, 0.5f, 1.0F);
+        poseStack.scale(1f,(gap) * 4 + 2, 1.0F);
+        fillInverted(graphics, 0, 0, THICKNESS, 1, COLOR);
+        poseStack.popPose();
     }
 
-    private static void drawCross(GuiGraphicsExtractor graphics, float gap) {
-        Matrix3x2fStack poseStack = graphics.pose();
+    private static void drawCross(GuiGraphics graphics, float gap) {
+        PoseStack poseStack = graphics.pose();
         int length = LENGTH + (int) (gap / 40);
         // left prong;
-        poseStack.pushMatrix();
-        poseStack.translate(-gap - length, 0);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, length, THICKNESS, COLOR);
-        poseStack.popMatrix();
+        poseStack.pushPose();
+        poseStack.translate(-gap - length, 0, 0.0F);
+        fillInverted(graphics, 0, 0, length, THICKNESS, COLOR);
+        poseStack.popPose();
         // right prong
-        poseStack.pushMatrix();
-        poseStack.translate(1 + gap, 0);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, length, THICKNESS, COLOR);
-        poseStack.popMatrix();
+        poseStack.pushPose();
+        poseStack.translate(1 + gap, 0, 0.0F);
+        fillInverted(graphics, 0, 0, length, THICKNESS, COLOR);
+        poseStack.popPose();
         // top prong;
-        poseStack.pushMatrix();
-        poseStack.translate(0, -gap - length);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, THICKNESS, length, COLOR);
-        poseStack.popMatrix();
+        poseStack.pushPose();
+        poseStack.translate(0, -gap - length, 0.0F);
+        fillInverted(graphics, 0, 0, THICKNESS, length, COLOR);
+        poseStack.popPose();
         // down prong
-        poseStack.pushMatrix();
-        poseStack.translate(0, 1 + gap);
-        graphics.fill(RenderPipelines.GUI_INVERT, 0, 0, THICKNESS, length, COLOR);
-        poseStack.popMatrix();
+        poseStack.pushPose();
+        poseStack.translate(0, 1 + gap, 0.0F);
+        fillInverted(graphics, 0, 0, THICKNESS, length, COLOR);
+        poseStack.popPose();
 
+    }
+
+    // Draws the quad immediately so that the inverting blend function set by the caller still
+    // applies. GuiGraphics#fill cannot be used here: it goes through RenderType.gui(), whose
+    // translucency shard resets the blend function before the quad reaches the screen.
+    private static void fillInverted(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
+        Matrix4f matrix = graphics.pose().last().pose();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.addVertex(matrix, x0, y0, 0.0F).setColor(color);
+        builder.addVertex(matrix, x0, y1, 0.0F).setColor(color);
+        builder.addVertex(matrix, x1, y1, 0.0F).setColor(color);
+        builder.addVertex(matrix, x1, y0, 0.0F).setColor(color);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
     }
 }

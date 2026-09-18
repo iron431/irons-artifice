@@ -30,6 +30,7 @@
     "frame": "challenge",
     "hidden": true,
     "icon": {
+      "count": 1,
       "id": "irons_artifice:tricorne"
     },
     "title": {

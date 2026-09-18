@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.GeckoLibConstants;
+import software.bernie.geckolib.GeckoLibConstants;
 import io.redspace.irons_artifice.data.FireCycleCueStack;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import net.minecraft.sounds.SoundSource;

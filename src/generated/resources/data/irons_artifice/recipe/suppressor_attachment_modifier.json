@@ -2,14 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "#c:leathers",
-    "*": "#c:ingots/gold",
-    "C": "irons_artifice:clockwork_components"
+    "#": {
+      "tag": "c:leathers"
+    },
+    "*": {
+      "tag": "c:ingots/gold"
+    },
+    "C": {
+      "item": "irons_artifice:clockwork_components"
+    }
   },
   "pattern": [
     "*C#"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:suppressor_attachment_modifier"
   }
 }

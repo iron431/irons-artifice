@@ -16,8 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.nautilus.ZombieNautilus;
-import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -28,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
-import java.util.Optional;
 
 public class DrownedPirateHelper {
 
@@ -37,9 +35,9 @@ public class DrownedPirateHelper {
         for (int i = 0; i < 18; i++) {
             Vec3 pos = center.add(new Vec3(0, 0, distance).yRot(i * 60 * Mth.DEG_TO_RAD)).add(Utils.randomVec3(3));
             BlockPos heightSamplePos = BlockPos.containing(pos);
-            int waterHeight = level.getHeight(Heightmap.Types.WORLD_SURFACE, heightSamplePos);
+            int waterHeight = level.getHeight(Heightmap.Types.WORLD_SURFACE, heightSamplePos.getX(), heightSamplePos.getZ());
             if (pos.y > waterHeight - 3) {
-                int y = (int) Math.min((pos.y + pos.y + level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, heightSamplePos)) / 3, waterHeight - 5);
+                int y = (int) Math.min((pos.y + pos.y + level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, heightSamplePos.getX(), heightSamplePos.getZ())) / 3, waterHeight - 5);
                 pos = new Vec3(pos.x, y, pos.z);
             }
             AABB box = AABB.ofSize(pos, 5, 3, 5);
@@ -48,14 +46,7 @@ public class DrownedPirateHelper {
                     Drowned pirate = DrownedPirateHelper.createDrownedPirate(level);
                     pirate.setPos(pos.add(Utils.randomVec3(3)));
                     pirate.setTarget(target);
-                    if (level.getRandom().nextFloat() < 0.50) {
-                        ZombieNautilus zombieNautilus = new ZombieNautilus(EntityType.ZOMBIE_NAUTILUS, level);
-                        zombieNautilus.setPos(pirate.position());
-                        pirate.startRiding(zombieNautilus);
-                        level.addFreshEntityWithPassengers(zombieNautilus);
-                    } else {
-                        level.addFreshEntity(pirate);
-                    }
+                    level.addFreshEntity(pirate);
                 }
                 level.playSound(null, BlockPos.containing(pos), SoundRegistry.PIRATE_AMBUSH.get(), SoundSource.NEUTRAL, 2.5f, 1);
                 break;
@@ -68,7 +59,7 @@ public class DrownedPirateHelper {
         // drop chances intentionally left unchanged
         drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ItemRegistry.TRICORNE_HAT.get()));
         drowned.setItemSlot(EquipmentSlot.MAINHAND, createLoadout(level));
-        ((MobAccessor) drowned).setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
+        ((MobAccessor) drowned).setLootTable(EntityLootProvider.DROWNED_PIRATE);
         return drowned;
     }
 

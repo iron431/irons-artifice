@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "I": "#c:ingots/gold",
-    "S": "#c:storage_blocks/gold"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "c:ingots/gold"
+    },
+    "S": {
+      "tag": "c:storage_blocks/gold"
+    }
   },
   "pattern": [
     " I ",
@@ -12,6 +18,7 @@
     "IBI"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:trick_bullet_modifier"
   }
 }

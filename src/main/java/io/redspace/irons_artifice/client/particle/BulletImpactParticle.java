@@ -1,25 +1,26 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BulletImpactParticle extends SingleQuadParticle {
+public class BulletImpactParticle extends TextureSheetParticle {
     public BulletImpactParticle(ClientLevel level, double x, double y, double z,
                                 double xa, double ya, double za, SpriteSet spriteSet, ColorTransitionParticleOption particleOptions) {
-        super(level, x, y, z, xa, ya, za, spriteSet.first());
+        super(level, x, y, z, xa, ya, za);
+        this.setSprite(spriteSet.get(0, 1));
         this.setParticleSpeed(xa, ya, za);
         this.quadSize = 1;
         this.particleOptions = particleOptions;
@@ -32,9 +33,9 @@ public class BulletImpactParticle extends SingleQuadParticle {
     protected final ColorTransitionParticleOption particleOptions;
 
     @Override
-    public void extract(@NonNull QuadParticleRenderState particleTypeRenderState, @NonNull Camera camera, float partialTickTime) {
+    public void render(@NotNull VertexConsumer buffer, @NotNull Camera camera, float partialTickTime) {
         setupColorAndAlpha(partialTickTime);
-        super.extract(particleTypeRenderState, camera, partialTickTime);
+        super.render(buffer, camera, partialTickTime);
     }
 
     private void setupColorAndAlpha(float partialTickTime) {
@@ -50,18 +51,16 @@ public class BulletImpactParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected int getLightCoords(float a) {
+    protected int getLightColor(float a) {
         float f = getLifePercent(a);
         float lightIntensity = Mth.lerp(f, particleOptions.getFromIntensity(), particleOptions.getToIntensity());
-        int packed = super.getLightCoords(a);
+        int packed = super.getLightColor(a);
         if (lightIntensity == 0) {
             return packed;
         }
-        int block = LightCoordsUtil.block(packed);
-        int sky = LightCoordsUtil.sky(packed);
-        block = (int) Mth.lerp(lightIntensity, block, 240);
-        sky = (int) Mth.lerp(lightIntensity, sky, 240);
-        return LightCoordsUtil.pack(block, sky);
+        int block = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.block(packed), 240), 0, 15);
+        int sky = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.sky(packed), 240), 0, 15);
+        return LightTexture.pack(block, sky);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class BulletImpactParticle extends SingleQuadParticle {
     }
 
     private void despawnIfFloating() {
-        BlockPos anchoredBlock = BlockPos.containing(this.getPos().add(new Vec3(xd, yd, zd).normalize().scale(0.25)));
+        BlockPos anchoredBlock = BlockPos.containing(new Vec3(this.x, this.y, this.z).add(new Vec3(xd, yd, zd).normalize().scale(0.25)));
         if (level.getBlockState(anchoredBlock).isAir()) {
             remove();
         }
@@ -94,8 +93,8 @@ public class BulletImpactParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected Layer getLayer() {
-        return hasAlpha ? Layer.TRANSLUCENT : Layer.OPAQUE;
+    public @NotNull ParticleRenderType getRenderType() {
+        return hasAlpha ? ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT : ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
 
@@ -109,7 +108,7 @@ public class BulletImpactParticle extends SingleQuadParticle {
         @Override
         public @Nullable Particle createParticle(ColorTransitionParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new BulletImpactParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

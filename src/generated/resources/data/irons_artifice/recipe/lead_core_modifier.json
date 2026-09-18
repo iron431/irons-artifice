@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:blackpowder",
-    "I": "#c:ingots/iron",
-    "S": "minecraft:deepslate_bricks"
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "S": {
+      "item": "minecraft:deepslate_bricks"
+    }
   },
   "pattern": [
     " I ",
@@ -12,6 +18,7 @@
     "IBI"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:lead_core_modifier"
   }
 }

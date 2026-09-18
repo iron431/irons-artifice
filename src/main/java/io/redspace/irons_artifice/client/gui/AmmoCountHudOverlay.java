@@ -1,5 +1,7 @@
 package io.redspace.irons_artifice.client.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.item.GunItem;
@@ -8,11 +10,10 @@ import io.redspace.irons_artifice.item.MagazineContents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
@@ -20,17 +21,16 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
-import org.joml.Matrix3x2fStack;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class AmmoCountHudOverlay {
-    private static final Identifier BULLET_ICON = IronsArtifice.id("textures/gui/bullet_icon.png");
+    private static final ResourceLocation BULLET_ICON = IronsArtifice.id("textures/gui/bullet_icon.png");
 
     private static int previousAmmoCount = -1;
     private static int flashTicksRemaining;
     private static int flashDuration;
 
-    public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         if (!ClientConfig.ENABLED.get()) {
             return;
         }
@@ -89,13 +89,11 @@ public final class AmmoCountHudOverlay {
         int reserveColor = ClientConfig.colorReserve();
         int iconColor = ClientConfig.colorIcon();
 
-        graphics.nextStratum();
-
         float textLeft = left + iconBlock;
         float magazineTop = top + Math.max(0, (totalHeight - (magazineHeight + gapBetweenRows + reserveHeight)) * 0.5F);
         if (showIcon) {
             float iconY = top + (totalHeight - iconSize) * 0.5F;
-            graphics.blit(RenderPipelines.GUI_TEXTURED, BULLET_ICON, Math.round(left), Math.round(iconY), 0.0F, 0.0F, iconSize, iconSize, iconSize, iconSize, iconColor);
+            blitTinted(graphics, BULLET_ICON, Math.round(left), Math.round(iconY), iconSize, iconColor);
         }
 
         float magazineBaselineY = magazineTop;
@@ -134,7 +132,7 @@ public final class AmmoCountHudOverlay {
         }
     }
 
-    private static void renderFlash(GuiGraphicsExtractor graphics, String flashText, Font font, float partialTick, boolean shadow, float startX, float startY, float baseScale, float travel, float endScale) {
+    private static void renderFlash(GuiGraphics graphics, String flashText, Font font, float partialTick, boolean shadow, float startX, float startY, float baseScale, float travel, float endScale) {
         float remaining = flashTicksRemaining - partialTick;
         float progress = 1.0F - Mth.clamp(remaining / Math.max(1, flashDuration), 0.0F, 1.0F);
         float eased = 1.0F - (1.0F - progress) * (1.0F - progress) * (1.0F - progress) * (1.0F - progress);
@@ -145,7 +143,7 @@ public final class AmmoCountHudOverlay {
             return;
         }
 
-        int color = ARGB.color(alpha, ClientConfig.colorFlash());
+        int color = FastColor.ARGB32.color(FastColor.as8BitChannel(alpha), ClientConfig.colorFlash());
 
         // interpolate towards the center of the screen
         float textWidth = font.width(flashText) * scale;
@@ -181,19 +179,27 @@ public final class AmmoCountHudOverlay {
             return full;
         }
         float t = Mth.clamp((loaded - 1) / (float) (capacity - 1), 0.0F, 1.0F);
-        return ARGB.srgbLerp(t, ClientConfig.colorLow(), full);
+        return FastColor.ARGB32.lerp(t, ClientConfig.colorLow(), full);
     }
 
-    private static void drawScaledText(GuiGraphicsExtractor graphics, Font font, String text, float x, float y, float scale, int color, boolean shadow) {
-        if (ARGB.alpha(color) == 0) {
+    private static void blitTinted(GuiGraphics graphics, ResourceLocation texture, int x, int y, int size, int color) {
+        RenderSystem.enableBlend();
+        graphics.setColor(FastColor.ARGB32.red(color) / 255.0F, FastColor.ARGB32.green(color) / 255.0F, FastColor.ARGB32.blue(color) / 255.0F, FastColor.ARGB32.alpha(color) / 255.0F);
+        graphics.blit(texture, x, y, 0.0F, 0.0F, size, size, size, size);
+        graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+    }
+
+    private static void drawScaledText(GuiGraphics graphics, Font font, String text, float x, float y, float scale, int color, boolean shadow) {
+        if (FastColor.ARGB32.alpha(color) < 4) {
             return;
         }
-        Matrix3x2fStack pose = graphics.pose();
-        pose.pushMatrix();
-        pose.translate(x, y);
-        pose.scale(scale, scale);
-        graphics.text(font, text, 0, 0, color, shadow);
-        pose.popMatrix();
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(x, y, 0.0F);
+        pose.scale(scale, scale, 1.0F);
+        graphics.drawString(font, text, 0, 0, color, shadow);
+        pose.popPose();
     }
 
     @SubscribeEvent

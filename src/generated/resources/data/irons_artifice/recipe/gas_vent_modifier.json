@@ -2,13 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": "irons_artifice:simple_mechanical_components",
-    "P": "minecraft:hopper"
+    "B": {
+      "item": "irons_artifice:simple_mechanical_components"
+    },
+    "P": {
+      "item": "minecraft:hopper"
+    }
   },
   "pattern": [
     "BPB"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:gas_vent_modifier"
   }
 }

@@ -15,6 +15,7 @@
       "translate": "advancements.irons_artifice.artifice.description"
     },
     "icon": {
+      "count": 1,
       "id": "irons_artifice:incendiary_tip_modifier"
     },
     "title": {

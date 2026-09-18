@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.config;
 
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class ClientConfig {
@@ -120,7 +120,7 @@ public final class ClientConfig {
         }
         try {
             int rgb = Integer.parseInt(hex, 16);
-            return ARGB.color(255, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+            return FastColor.ARGB32.color(255, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
         } catch (NumberFormatException ignored) {
         }
         return fallback;

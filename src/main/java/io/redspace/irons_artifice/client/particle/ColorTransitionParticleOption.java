@@ -8,7 +8,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor;
 import org.joml.Vector3f;
 
 public class ColorTransitionParticleOption implements ParticleOptions {
@@ -87,11 +87,22 @@ public class ColorTransitionParticleOption implements ParticleOptions {
     }
 
     public Vector3f getFromColor() {
-        return ARGB.vector3fFromRGB24(this.fromColor);
+        return vector3fFromRGB24(this.fromColor);
     }
 
     public Vector3f getToColor() {
-        return ARGB.vector3fFromRGB24(this.toColor);
+        return vector3fFromRGB24(this.toColor);
+    }
+
+    /**
+     * {@code ARGB.vector3fFromRGB24} has no counterpart here, so the packed colour is unpacked by hand.
+     */
+    private static Vector3f vector3fFromRGB24(int packed) {
+        return new Vector3f(
+                FastColor.ARGB32.red(packed) / 255.0F,
+                FastColor.ARGB32.green(packed) / 255.0F,
+                FastColor.ARGB32.blue(packed) / 255.0F
+        );
     }
     public int getFromColorPacked() {
         return fromColor;

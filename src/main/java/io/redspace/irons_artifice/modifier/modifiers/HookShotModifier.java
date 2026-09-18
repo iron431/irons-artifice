@@ -39,7 +39,7 @@ public final class HookShotModifier implements GunModifier {
             }
         });
         components.getOrCreate(ShotComponents.PARTICLE_TRAIL).addAccent(
-                new ParticleStack.ParticleAccent(new BlockParticleOption(ParticleTypes.BLOCK_CRUMBLE, Blocks.IRON_CHAIN.defaultBlockState()), 0.5)
+                new ParticleStack.ParticleAccent(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.CHAIN.defaultBlockState()), 0.5)
         );
     }
 

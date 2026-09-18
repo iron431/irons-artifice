@@ -1,9 +1,8 @@
 package io.redspace.irons_artifice.item.animation_adjuster;
 
-import com.geckolib.animation.state.BoneSnapshot;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.model.GeoModel;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.util.Mth;
@@ -15,25 +14,33 @@ public final class MuzzleLoadOffsetAdjuster implements AnimationAdjuster {
     private static final float OUT_START = 0.80f;
 
     @Override
-    public void adjust(RenderPassInfo<GeoRenderState> renderPassInfo, BoneSnapshots snapshots) {
-        float muzzleOffset = renderPassInfo.getOrDefaultGeckolibData(GunItem.MUZZLE_OFFSET_TICKET, 0f);
-        float reloadPercent = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PERCENT_TICKET, 0f);
+    public void adjust(AnimationState<GunItem> animationState, GeoModel<GunItem> model) {
+        Float muzzleOffsetData = animationState.getData(GunItem.MUZZLE_OFFSET_TICKET);
+        Float reloadPercentData = animationState.getData(GunItem.RELOAD_PERCENT_TICKET);
+        float muzzleOffset = muzzleOffsetData != null ? muzzleOffsetData : 0f;
+        float reloadPercent = reloadPercentData != null ? reloadPercentData : 0f;
         if (muzzleOffset == 0f || reloadPercent == 0f) {
             return;
         }
-        Optional<BoneSnapshot> gunOpt = snapshots.get(GunBones.GUN);
-        Optional<BoneSnapshot> ramrodOpt = snapshots.get(GunBones.RAMROD);
+        Optional<GeoBone> gunOpt = model.getBone(GunBones.GUN);
+        Optional<GeoBone> ramrodOpt = model.getBone(GunBones.RAMROD);
         float weight = envelope(reloadPercent);
         if (weight == 0f) {
             return;
         }
         float offset = muzzleOffset * 16 * weight;
         gunOpt.ifPresent(
-                bone->bone.setTranslateZ(bone.getTranslateZ() + offset)
+                bone -> {
+                    bone.setPosZ(bone.getPosZ() + offset);
+                    bone.resetStateChanges();
+                }
         );
         ramrodOpt.ifPresent(
                 // assuming all ramrods are attached to gun, we need to pull it back out the offset so it too lines up with the muzzle
-                bone->bone.setTranslateZ(bone.getTranslateZ() - offset)
+                bone -> {
+                    bone.setPosZ(bone.getPosZ() - offset);
+                    bone.resetStateChanges();
+                }
         );
     }
 

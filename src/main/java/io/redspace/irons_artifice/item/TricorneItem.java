@@ -1,52 +1,43 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.renderer.GeoArmorRenderer;
-import com.google.common.base.Suppliers;
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
-import io.redspace.irons_artifice.client.armor.GenericArmorModel;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.equipment.ArmorMaterial;
-import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
+import net.neoforged.neoforge.client.event.AddAttributeTooltipsEvent;
 
+import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 @EventBusSubscriber
-public class TricorneItem extends BaseGeoItem {
-    public static final ArmorMaterial TRICORNE_MATERIAL = new ArmorMaterial(37, Map.of(ArmorType.HELMET, 3),
+public class TricorneItem extends BaseGeoArmorItem {
+    private static final int DURABILITY_MULTIPLIER = 37;
+
+    /** Held directly, for the reason given on {@link CowboyHatItem#COWBOY_HAT_MATERIAL}. */
+    public static final Holder<ArmorMaterial> TRICORNE_MATERIAL = Holder.direct(new ArmorMaterial(
+            Map.of(ArmorItem.Type.HELMET, 3),
             15,
             SoundEvents.ARMOR_EQUIP_LEATHER,
+            () -> Ingredient.of(Items.LEATHER),
+            List.of(),
             0,
-            0,
-            ItemTags.REPAIRS_LEATHER_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, IronsArtifice.id("empty")));
+            0));
 
     public TricorneItem(Properties properties) {
-        super(properties.humanoidArmor(TRICORNE_MATERIAL, ArmorType.HELMET));
-        geoRenderProvider.setValue(new GeoRenderProvider() {
-            private final Supplier<GeoArmorRenderer<?, ?>> renderer =
-                    Suppliers.memoize(() -> new GeoArmorRenderer<>(new GenericArmorModel<>("tricorne")));
-
-            @Override
-            public @org.jspecify.annotations.Nullable GeoArmorRenderer<?, ?> getGeoArmorRenderer(ItemStack itemStack, EquipmentSlot equipmentSlot) {
-                return renderer.get();
-            }
-        });
+        super(TRICORNE_MATERIAL, ArmorItem.Type.HELMET,
+                properties.durability(ArmorItem.Type.HELMET.getDurability(DURABILITY_MULTIPLIER)));
     }
 
     public static final double DAMAGE_BUFF_PERCENT = 0.25;

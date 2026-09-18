@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.api.AmmoEvent;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.api.GunAboutToShootEvent;
@@ -42,7 +42,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.List;
@@ -94,7 +94,7 @@ public final class GunplayManager {
         //  - fire shot from fixed direction
         //  - then apply character motion
         RecoilState offset = RecoilState.current(shooter, now);
-        Vec2 rotation = direction.rotation();
+        Vec2 rotation = Utils.rotationFromDirection(direction);
         float pitch = rotation.x - offset.pitch();
         float yaw = rotation.y + offset.yaw();
         depleteMagazine(shooter, profile, stack, magazine, ammoToConsume);

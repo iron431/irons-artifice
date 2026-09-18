@@ -2,15 +2,22 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "minecraft:iron_chain",
-    "*": "#c:ingots/gold",
-    "B": "irons_artifice:clockwork_components"
+    "#": {
+      "item": "minecraft:chain"
+    },
+    "*": {
+      "tag": "c:ingots/gold"
+    },
+    "B": {
+      "item": "irons_artifice:clockwork_components"
+    }
   },
   "pattern": [
     "#B#",
     "***"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:mechanical_repeater_modifier"
   }
 }

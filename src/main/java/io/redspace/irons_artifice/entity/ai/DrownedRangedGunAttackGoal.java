@@ -2,8 +2,8 @@ package io.redspace.irons_artifice.entity.ai;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.zombie.Drowned;
-import org.jspecify.annotations.NonNull;
+import net.minecraft.world.entity.monster.Drowned;
+import org.jetbrains.annotations.NotNull;
 
 public class DrownedRangedGunAttackGoal extends RangedGunAttackGoal<Drowned> {
     public DrownedRangedGunAttackGoal(Drowned mob, float range, int telegraphMinTicks, int telegraphMaxTicks, int volleyIntervalMin, int volleyIntervalMax) {
@@ -55,7 +55,7 @@ public class DrownedRangedGunAttackGoal extends RangedGunAttackGoal<Drowned> {
     }
 
     @Override
-    protected @NonNull GunCombatMoveControl createMoveControl() {
+    protected @NotNull GunCombatMoveControl createMoveControl() {
         return new SwimmingGunMoveControl();
     }
 }

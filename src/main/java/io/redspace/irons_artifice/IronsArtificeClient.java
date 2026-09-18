@@ -5,10 +5,9 @@ import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
 import io.redspace.irons_artifice.client.entity.GunslingerRenderer;
 import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
-import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
-import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
+import io.redspace.irons_artifice.client.gun.GunGeoModel;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
 import io.redspace.irons_artifice.client.gui.AmmoCountHudOverlay;
@@ -29,14 +28,14 @@ import io.redspace.irons_artifice.menu.GunModifierScreen;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.MenuRegistry;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.model.DefaultedItemGeoModel;
-import com.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 import com.google.common.base.Suppliers;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -53,7 +52,6 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -79,20 +77,15 @@ public class IronsArtificeClient {
     }
 
     @SubscribeEvent
-    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
-        event.register(GunPreviewRenderState.class, GunPreviewRenderer::new);
-    }
-
-    @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         for (GunItem gun : guns()) {
-            Identifier modelId = BuiltInRegistries.ITEM.getKey(gun);
+            ResourceLocation modelId = BuiltInRegistries.ITEM.getKey(gun);
             gun.geoRenderProvider.setValue(new GeoRenderProvider() {
                 private final Supplier<GeoItemRenderer<GunItem>> renderer =
-                        Suppliers.memoize(() -> new GunInHandRenderer(new DefaultedItemGeoModel<>(modelId)));
+                        Suppliers.memoize(() -> new GunInHandRenderer(new GunGeoModel(modelId)));
 
                 @Override
-                public @Nullable GeoItemRenderer<GunItem> getGeoItemRenderer() {
+                public @Nullable BlockEntityWithoutLevelRenderer getGeoItemRenderer() {
                     return this.renderer.get();
                 }
             });
@@ -166,31 +159,27 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        IClientItemExtensions pistolPose = armPoseExtension(GunArmPoses.PISTOL.getValue());
-        IClientItemExtensions riflePose = armPoseExtension(GunArmPoses.RIFLE.getValue());
-
-        List<Item> pistols = new ArrayList<>();
-        List<Item> rifles = new ArrayList<>();
+        // A gun bakes to a BuiltInModel, which draws nothing on its own: the item has to hand the item
+        // renderer a BlockEntityWithoutLevelRenderer, and GeckoLib's is reached through the render provider
+        // that registerRenderers installed on the item. One extension per gun, since the renderer differs.
         for (GunItem gun : guns()) {
-            if (gun.getGun().armPoseKind() == ArmPoseKind.PISTOL) {
-                pistols.add(gun);
-            } else {
-                rifles.add(gun);
-            }
-        }
-        if (!pistols.isEmpty()) {
-            event.registerItem(pistolPose, pistols.toArray(Item[]::new));
-        }
-        if (!rifles.isEmpty()) {
-            event.registerItem(riflePose, rifles.toArray(Item[]::new));
+            event.registerItem(gunExtension(gun), gun);
         }
     }
 
-    public static IClientItemExtensions armPoseExtension(HumanoidModel.ArmPose pose) {
+    public static IClientItemExtensions gunExtension(GunItem gun) {
+        HumanoidModel.ArmPose pose = gun.getGun().armPoseKind() == ArmPoseKind.PISTOL
+                ? GunArmPoses.PISTOL.getValue()
+                : GunArmPoses.RIFLE.getValue();
         return new IClientItemExtensions() {
             @Override
             public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
                 return pose;
+            }
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return GeoRenderProvider.of(gun).getGeoItemRenderer();
             }
         };
     }

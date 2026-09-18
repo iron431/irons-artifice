@@ -6,9 +6,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class LightningTrailEmitterParticle extends BulletTrailParticle {
     private static final float EMIT_CHANCE = 0.04f;
@@ -55,7 +54,7 @@ public class LightningTrailEmitterParticle extends BulletTrailParticle {
         @Override
         public @Nullable Particle createParticle(ColorTransitionParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new LightningTrailEmitterParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

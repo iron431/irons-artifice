@@ -2,15 +2,22 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "#c:ingots/iron",
-    "*": "minecraft:nautilus_shell",
-    "B": "irons_artifice:blackpowder"
+    "#": {
+      "tag": "c:ingots/iron"
+    },
+    "*": {
+      "item": "minecraft:nautilus_shell"
+    },
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    }
   },
   "pattern": [
     " * ",
     "#B#"
   ],
   "result": {
+    "count": 1,
     "id": "irons_artifice:spiral_tip_modifier"
   }
 }
