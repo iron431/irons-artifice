@@ -100,7 +100,7 @@
   "irons_artifice.modifier.infinity": "%s%% зменшення шансу втрати куль",
   "irons_artifice.modifier.scope": "Додає приціл",
   "irons_artifice.modifier.bayonet": "Додає штик",
-  "irons_artifice.modifier.leech_damage": "Постріл кровопивці завдає +%s%% шкоди",
+  "irons_artifice.modifier.leech_damage": "Постріл кровопивці завдає %s%% шкоди",
   "irons_artifice.modifier.leech_cost": "Постріл кровопивці споживає %s сердце",
   "irons_artifice.modifier.suppressor": "Заглушує звук вистрілу",
   "irons_artifice.modifier.flash_hider": "Приховує спалах вистрілу",
