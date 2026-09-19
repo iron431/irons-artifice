@@ -18,12 +18,10 @@ import java.util.function.Consumer;
 
 /**
  * Turns the catalog into the framework's own {@link TestFunction}s. NeoForge finds this class through
- * {@link GameTestHolder} in the mod's scan data and calls the generator once, so a test is one object
- * rather than a registered body plus a registered contract, and there is no registry to seal.
+ * {@link GameTestHolder} in the mod's scan data and calls the generator once.
  */
 @GameTestHolder(IronsArtifice.MODID)
 public final class ArtificeGameTests {
-    /** The suite has no per-batch setup, so every test shares the framework's default batch. */
     private static final String BATCH = "defaultBatch";
 
     @GameTestGenerator

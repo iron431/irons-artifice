@@ -159,9 +159,6 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        // A gun bakes to a BuiltInModel, which draws nothing on its own: the item has to hand the item
-        // renderer a BlockEntityWithoutLevelRenderer, and GeckoLib's is reached through the render provider
-        // that registerRenderers installed on the item. One extension per gun, since the renderer differs.
         for (GunItem gun : guns()) {
             event.registerItem(gunExtension(gun), gun);
         }

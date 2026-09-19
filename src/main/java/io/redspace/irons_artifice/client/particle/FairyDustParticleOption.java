@@ -12,9 +12,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public class FairyDustParticleOption implements ParticleOptions {
-    /**
-     * {@code Vec3} carries no stream codec of its own, so the three components are written by hand.
-     */
     private static final StreamCodec<ByteBuf, Vec3> VEC3_STREAM_CODEC = StreamCodec.of(
             (buf, value) -> {
                 buf.writeDouble(value.x);

@@ -153,8 +153,6 @@ public final class ClientHelper {
         if (!(controller instanceof GunItem.OffsetableAnimationController<?> actionController)) {
             return;
         }
-        // Re-triggering an animation that is already loaded is a no-op unless the controller is told to reload it
-        actionController.forceAnimationReset();
         actionController.tryTriggerAnimation(animName);
         actionController.setAnimationSpeed(speed);
         // IMPORTANT: set even if zero (controller workaround doesn't handle context-free transitions)
@@ -184,8 +182,9 @@ public final class ClientHelper {
         if (!(controller instanceof GunItem.OffsetableAnimationController<?> actionController)) {
             return;
         }
-        actionController.stopTriggeredAnimation();
-        actionController.reset();
+        actionController.cancelTriggeredAnimation();
+        actionController.forceAnimationReset();
+        actionController.stop();
     }
 
     public static void handleGunshotSound(ClientboundGunshotSoundPacket msg) {

@@ -30,6 +30,7 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
         super(menu, inventory, menu.gunstack.getHoverName().copy().setStyle(Style.EMPTY.withColor(ChatFormatting.WHITE).withUnderlined(true)));
         this.imageWidth = 176;
         this.imageHeight = 183;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -44,16 +45,23 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
     }
 
     @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.render(graphics, mouseX, mouseY, partialTick);
+        // AbstractContainerScreen#render does not draw the hovered slot's tooltip; every vanilla subclass does.
+        this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int xo = (this.width - this.imageWidth) / 2;
         int yo = (this.height - this.imageHeight) / 2;
         graphics.blit(BG_TEXTURE, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
-        this.renderGunPreview(graphics);
+        this.renderGunPreview(graphics, partialTick);
     }
 
-    private void renderGunPreview(GuiGraphics graphics) {
+    private void renderGunPreview(GuiGraphics graphics, float partialTick) {
         ItemStack gun = this.menu.gunstack;
-        if (gun.isEmpty()) {
+        if (gun.isEmpty() || this.minecraft == null || this.minecraft.player == null) {
             return;
         }
 
@@ -62,7 +70,8 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
 
         float itemX = this.width / 2.0F;
         float itemY = this.topPos + 93 - 24 - PREVIEW_SCALE * .6f;
-        float yRot = 15 + Mth.sin(Minecraft.getInstance().player.tickCount * Mth.DEG_TO_RAD * 2) * 5;
+        float swayTicks = this.minecraft.player.tickCount + partialTick;
+        float yRot = 15 + Mth.sin(swayTicks * Mth.DEG_TO_RAD * 2) * 5;
 
         graphics.enableScissor(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight);
         PoseStack poseStack = graphics.pose();

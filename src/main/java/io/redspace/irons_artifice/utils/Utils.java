@@ -25,10 +25,7 @@ import java.text.DecimalFormat;
 public class Utils {
     public static final DecimalFormat DECIMAL_FORMAT = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT;
 
-    /**
-     * The inverse of {@link Vec3#directionFromRotation(float, float)}. {@code Vec3} carries no
-     * {@code rotation()} of its own at this version.
-     */
+    /** The inverse of {@link Vec3#directionFromRotation(float, float)}. */
     public static Vec2 rotationFromDirection(Vec3 direction) {
         Vec3 n = direction.normalize();
         float pitch = (float) (-Math.asin(Mth.clamp(n.y, -1.0, 1.0)) * Mth.RAD_TO_DEG);

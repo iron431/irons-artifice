@@ -121,9 +121,6 @@ public final class GunArmPoses {
         }
     }
 
-    /**
-     * {@link HumanoidModel#getArm} is protected, so the arm is picked off the model's own public parts instead.
-     */
     private static ModelPart getArm(HumanoidModel<?> model, HumanoidArm arm) {
         return arm == HumanoidArm.LEFT ? model.leftArm : model.rightArm;
     }
@@ -137,9 +134,6 @@ public final class GunArmPoses {
         return entity.isUsingItem() && usingInThisArm ? entity.getTicksUsingItem() : 0f;
     }
 
-    /**
-     * The arm pose hook is handed the live entity and no frame time, so the partial tick is read off the client.
-     */
     private static float partialTick() {
         return Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
     }

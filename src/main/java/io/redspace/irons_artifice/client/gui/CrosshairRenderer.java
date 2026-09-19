@@ -93,8 +93,8 @@ public final class CrosshairRenderer {
     }
 
     /**
-     * The camera carries no field of view and {@link net.minecraft.client.renderer.GameRenderer}'s own accessor is
-     * private, so the vertical FOV is recomposed from the video setting and the player's own modifier -- which is
+     * The camera carries no field of view and {@link net.minecraft.client.renderer.GameRenderer}'s accessor is
+     * private, so the vertical FOV is recomposed from the video setting and the player's own modifier, which is
      * where the scope zoom already lives.
      */
     private static float currentFovDegrees(Minecraft minecraft, LocalPlayer player) {

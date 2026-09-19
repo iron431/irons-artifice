@@ -32,8 +32,8 @@ public class CowboyHatItem extends BaseGeoArmorItem {
     private static final int DURABILITY_MULTIPLIER = 37;
 
     /**
-     * Held directly rather than registered: the armour layers are empty because GeckoLib draws the hat,
-     * and nothing here reads the material back through {@code BuiltInRegistries.ARMOR_MATERIAL}.
+     * Held directly rather than registered: the armor layers are empty because GeckoLib draws the hat, and nothing
+     * reads the material back through {@code BuiltInRegistries.ARMOR_MATERIAL}.
      */
     public static final Holder<ArmorMaterial> COWBOY_HAT_MATERIAL = Holder.direct(new ArmorMaterial(
             Map.of(ArmorItem.Type.HELMET, 3),

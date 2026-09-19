@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_redstone": {
+    "has_blackpowder": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:redstone"
+            "items": "irons_artifice:blackpowder"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_redstone"
+      "has_blackpowder"
     ]
   ],
   "rewards": {

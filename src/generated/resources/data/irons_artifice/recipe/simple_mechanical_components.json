@@ -2,20 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "minecraft:chain"
+    "B": {
+      "item": "irons_artifice:blackpowder"
     },
     "I": {
       "tag": "c:ingots/copper"
-    },
-    "N": {
-      "tag": "c:nuggets/copper"
     }
   },
   "pattern": [
-    "CIC",
-    "INI",
-    "CIC"
+    "III",
+    "IBI",
+    "III"
   ],
   "result": {
     "count": 1,

@@ -31,7 +31,7 @@ public final class DataAttachmentTests {
         helper.assertValueEqual(RecentShots.count(player), 0, "recent shots defaults to zero");
 
         // ShotCombatTracker's default is ShotCombatTracker::new, a fresh mutable instance rather
-        // than a shared sentinel, so assert on behaviour rather than identity.
+        // than a shared sentinel, so assert on behavior rather than identity.
         ShotCombatTracker tracker = player.getData(DataAttachmentRegistry.SHOT_COMBAT.get());
         helper.assertFalse(tracker.instaReloaded(now), "shot combat tracker starts without an insta-reload");
 

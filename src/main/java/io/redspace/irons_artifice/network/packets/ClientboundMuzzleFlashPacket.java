@@ -22,9 +22,6 @@ public record ClientboundMuzzleFlashPacket(
     public static final Type<ClientboundMuzzleFlashPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "muzzle_flash"));
 
-    /**
-     * {@code Vec3} carries no stream codec of its own, so the three components are written by hand.
-     */
     private static final StreamCodec<ByteBuf, Vec3> VEC3_STREAM_CODEC = StreamCodec.of(
             (buf, value) -> {
                 buf.writeDouble(value.x);

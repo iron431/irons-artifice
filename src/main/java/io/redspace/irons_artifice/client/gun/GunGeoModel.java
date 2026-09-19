@@ -21,9 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * Bone adjustments have to land after the animation processor has ticked and before the model is drawn, which is
- * exactly what {@link #setCustomAnimations} is for. Everything the adjusters read is put on the
- * {@link AnimationState} here, since that is the only object that reaches them.
+ * The adjusters read everything off the {@link AnimationState}, which is the only object that reaches them.
  */
 public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
 
@@ -33,17 +31,16 @@ public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
 
     @Override
     public void setCustomAnimations(GunItem animatable, long instanceId, AnimationState<GunItem> animationState) {
-        super.setCustomAnimations(animatable, instanceId, animationState);
-        captureAnimationData(animatable, instanceId, animationState);
-        handlePerspectiveAdjustments(animationState);
-        handleGunAdjustments(animatable, animationState);
-    }
-
-    protected void captureAnimationData(GunItem animatable, long instanceId, AnimationState<GunItem> animationState) {
         ItemStack stack = animationState.getData(DataTickets.ITEMSTACK);
         if (stack == null) {
             return;
         }
+        captureAnimationData(animatable, instanceId, stack, animationState);
+        handlePerspectiveAdjustments(animationState);
+        handleGunAdjustments(animatable, animationState);
+    }
+
+    protected void captureAnimationData(GunItem animatable, long instanceId, ItemStack stack, AnimationState<GunItem> animationState) {
         if (MagazineContents.has(stack)) {
             animationState.setData(GunItem.MAGAZINE_ANIMATION_TICKET, MagazineContents.get(stack));
         }
@@ -85,11 +82,13 @@ public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
     }
 
     protected void silenceBone(GeoBone bone) {
+        // A bone's rotation is its rest rotation plus the animation delta, so silencing it means restoring the
+        // initial snapshot, not zeroing it.
         BoneSnapshot rest = bone.getInitialSnapshot();
         bone.updatePosition(rest.getOffsetX(), rest.getOffsetY(), rest.getOffsetZ());
         bone.updateRotation(rest.getRotX(), rest.getRotY(), rest.getRotZ());
-        bone.updateScale(rest.getScaleX(), rest.getScaleY(), rest.getScaleZ());
-        // The bones are shared model-wide; leaving the changed markers set would make the next pass skip their reset
+        // Both setters mark the bone transformed, after the processor cleared those marks. Left set, they make
+        // the next pass skip restoring the bone, and the silenced render leaks into the hand renders.
         bone.resetStateChanges();
     }
 
@@ -99,12 +98,7 @@ public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
         if (GunInHandRenderer.isFirstPersonPerspective(perspective)) {
             return;
         }
-        getBone(GunBones.ROOT).ifPresent(bone -> {
-            BoneSnapshot rest = bone.getInitialSnapshot();
-            bone.updatePosition(rest.getOffsetX(), rest.getOffsetY(), rest.getOffsetZ());
-            bone.updateRotation(rest.getRotX(), rest.getRotY(), rest.getRotZ());
-            bone.resetStateChanges();
-        });
+        getBone(GunBones.ROOT).ifPresent(this::silenceBone);
     }
 
     protected void handleGunAdjustments(GunItem animatable, AnimationState<GunItem> animationState) {

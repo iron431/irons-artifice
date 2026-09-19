@@ -21,8 +21,7 @@ public final class ChainLightningModifier implements GunModifier {
     public static final int LIGHTNING_FADE_COLOR = 0x00f8ff;
     public static final int MUZZLE_FLASH_COLOR = 0x00f8ff;
     private static final int coolColor = LIGHTNING_COLOR << 4;
-    // Resolved on first use: this class is loaded while the item registry is being filled, and the
-    // particle registry is not bound yet at that point.
+    // Resolved on first use: this class loads while the item registry fills, before particles are bound.
     public static final Supplier<ParticleOptions> LIGHTNING_EMITTER = Suppliers.memoize(() ->
             new ColorTransitionParticleOption(ParticleRegistry.LIGHTNING_TRAIL.get(), LIGHTNING_COLOR, LIGHTNING_FADE_COLOR, 1f, 0f, 1f, 1f, 0.5f, 0f, 0));
     public static final Supplier<ParticleOptions> LIGHTNING_TRAIL = Suppliers.memoize(() ->

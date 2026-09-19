@@ -130,11 +130,8 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     /**
-     * Run {@code action} with the pose stack sitting on the given bone's pivot.
-     * <p>
-     * {@code renderRecursively} has already popped back to the parent bone by the time this is reached, so the bone's
-     * own matrix has to be re-prepped; and prepping ends back at the model origin, so the pivot has to be re-applied
-     * or everything hung off the bone is displaced by the pivot vector.
+     * Runs {@code action} with the pose stack on the bone's pivot. {@code renderRecursively} has already popped back
+     * to the parent, and prepping the bone ends at the model origin, so both matrix and pivot go back on here.
      */
     protected void atBonePivot(@NotNull PoseStack poseStack, @NotNull GeoBone bone, @NotNull Consumer<PoseStack> action) {
         poseStack.pushPose();
@@ -155,8 +152,8 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     /**
-     * The item renderer is handed a stack and nothing else, so the only holder that can be identified is the local
-     * player. Shots fired by anyone else fall back to the muzzle flash's own broadcast position.
+     * The renderer gets a stack and nothing else, so only the local player can be identified. Everyone else's shots
+     * fall back to the muzzle flash's broadcast position.
      */
     protected @Nullable LivingEntity currentItemOwner() {
         AbstractClientPlayer player = Minecraft.getInstance().player;

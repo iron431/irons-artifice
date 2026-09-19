@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.item;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationProcessor;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -49,8 +50,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GunItem extends BaseGeoItem {
-    // Only the values the render-time animation adjusters read travel on a DataTicket; the attachments, the holder
-    // and its hand occupancy are read straight off the rendered stack, which is all the item renderer is handed.
+    // Only what the animation adjusters read travels on a DataTicket. The attachments, the holder and its hand
+    // occupancy come straight off the rendered stack.
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = new DataTicket<>(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
     public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = new DataTicket<>(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
     public static final DataTicket<Float> RELOAD_PERCENT_TICKET = new DataTicket<>(IronsArtifice.id("reload_percent").toString(), Float.class);
@@ -72,10 +73,8 @@ public class GunItem extends BaseGeoItem {
     public static final int SCOPE_USE_DURATION = 1200;
 
     /**
-     * The same 72000 ticks vanilla's {@code Item.getUseDuration} returns for a kinetic stack once the
-     * component is vanilla's own. The charge ends on its conditions running out or on letting go, never
-     * on the duration elapsing -- and {@link KineticWeaponHandler} counts ticks up from it, so the value
-     * is load-bearing beyond keeping the use alive.
+     * A charge ends when its conditions run out or the player lets go, never on the duration elapsing, and
+     * {@link KineticWeaponHandler} counts ticks up from this value.
      */
     public static final int KINETIC_USE_DURATION = 72000;
 
@@ -91,11 +90,7 @@ public class GunItem extends BaseGeoItem {
         return entity instanceof LivingEntity living && living.isUsingItem() && KineticWeapon.has(living.getUseItem());
     }
 
-    /**
-     * Whether this stack's arm pose is the mod's own rather than vanilla's. A charging kinetic stack
-     * declares {@link UseAnim#SPEAR}, which 1.21.1 turns into {@code ArmPose.THROW_SPEAR} ahead of
-     * NeoForge's item extension; {@code PlayerRendererMixin} asks this before hoisting the extension.
-     */
+    /** Whether this stack's arm pose is the mod's own rather than vanilla's. {@code PlayerRendererMixin} asks. */
     public static boolean posedAsKineticWeapon(ItemStack stack) {
         return stack.getItem() instanceof GunItem && KineticWeapon.has(stack);
     }
@@ -110,15 +105,12 @@ public class GunItem extends BaseGeoItem {
             player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
-        // Vanilla starts the charge from Item#use once the component is its own; here the item does it,
-        // and only once the gun has finished cycling its action.
+        // The charge starts only once the gun has finished cycling its action.
         KineticWeapon kineticWeapon = KineticWeapon.get(stack);
         if (kineticWeapon != null && !FireDelayState.isActive(player, stack)) {
             player.startUsingItem(hand);
-            // Server-authoritative, with a null excluded listener so the charging player hears it too:
-            // Level.playSound's Player argument is the listener to EXCLUDE, and ServerLevel skips it
-            // where ClientLevel plays only for it. Item.use runs on both sides for a right click, so the
-            // guard is what stops the sound doubling.
+            // playSound's Player argument is the listener to EXCLUDE, so pass null and the charging player
+            // hears it too. Item.use runs on both sides, and the guard is what stops the sound doubling.
             if (!level.isClientSide()) {
                 kineticWeapon.sound().ifPresent(sound -> level.playSound(
                         null, player.getX(), player.getY(), player.getZ(),
@@ -138,20 +130,14 @@ public class GunItem extends BaseGeoItem {
     }
 
     /**
-     * {@link UseAnim#SPEAR} is what vanilla answers for a kinetic stack, so keeping the value keeps the
-     * first-person timing. {@code ItemInHandRendererMixin} replaces the trident pose 1.21.1 would
-     * otherwise draw for it, and {@code PlayerRendererMixin} the third-person one.
+     * {@link UseAnim#SPEAR} keeps the first-person timing. {@code ItemInHandRendererMixin} replaces the trident pose
+     * that would otherwise go with it, and {@code PlayerRendererMixin} the third-person one.
      */
     @Override
     public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
         return KineticWeapon.has(stack) ? UseAnim.SPEAR : super.getUseAnimation(stack);
     }
 
-    /**
-     * Vanilla intercepts this a level higher, in {@code ItemStack.onUseTick}; at 1.21.1 that method only
-     * forwards here, so the interception happens here. The return matters: falling through to super
-     * would run the item's ordinary use tick on top of the charge.
-     */
     @Override
     public void onUseTick(@NotNull Level level, @NotNull LivingEntity entity, @NotNull ItemStack stack, int remainingUseDuration) {
         if (!level.isClientSide() && KineticWeapon.has(stack)) {
@@ -243,8 +229,6 @@ public class GunItem extends BaseGeoItem {
         Consumer<Component> builder = tooltipComponents::add;
         Consumer<Component> statBuilder = (component) -> builder.accept(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
-        // Item.TooltipContext carries no holder at this version, so the stat lines are composed off the
-        // stack alone -- the modifiers still apply, the holder-scoped ComposeShotEvent does not.
         ShotProfile shotProfile = GunplayManager.compose(null, this.gunProfile, itemStack);
         String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
         int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
@@ -345,89 +329,97 @@ public class GunItem extends BaseGeoItem {
     }
 
     /**
-     * The controller has no timeline of its own; it only exposes a tick that restarts whenever an animation does.
-     * This subclass shifts that tick so an action animation can be joined part-way through, and so a stretch of it
-     * can be skipped over, and it surfaces the resulting position for the render-time animation adjusters.
+     * The controller has no seekable timeline, so joining an animation part-way through means moving
+     * {@code tickOffset} once. Adding a constant to every {@link AnimationController#adjustTick} instead would
+     * shift the queue's own progress along with the keyframe lookup, and drift further the longer it plays.
      */
     public static class OffsetableAnimationController<T extends GeoAnimatable> extends AnimationController<T> {
-        private static final double TICKS_PER_SECOND = 20;
-
-        private double offsetTicks;
+        private double pendingOffsetTicks;
         private double skipAtTicks;
         private double skipToTicks;
-        private double skipShiftTicks;
         private boolean skipped;
+        private boolean offsetArmed;
         private double currentAnimationTicks;
+        private AnimationProcessor.QueuedAnimation lastObservedAnimation;
 
         public OffsetableAnimationController(T animatable, String name, AnimationStateHandler<T> stateHandler) {
             super(animatable, name, stateHandler);
         }
 
-        /**
-         * Join the animation this many seconds in. Applies to whatever animation is playing or triggered next.
-         */
         public void setTimelineTime(double offsetSeconds) {
-            this.offsetTicks = Math.max(offsetSeconds, 0) * TICKS_PER_SECOND;
+            this.pendingOffsetTicks = offsetSeconds * 20;
         }
 
         public void setTimelineSkip(double skipAtSeconds, double skipToSeconds) {
-            this.skipAtTicks = skipAtSeconds * TICKS_PER_SECOND;
-            this.skipToTicks = skipToSeconds * TICKS_PER_SECOND;
-            this.skipShiftTicks = 0;
+            this.skipAtTicks = skipAtSeconds * 20;
+            this.skipToTicks = skipToSeconds * 20;
             this.skipped = false;
         }
 
-        /**
-         * Seconds into the animation currently playing, or zero when the controller is stopped.
-         */
         public double getCurrentAnimationTime() {
-            return getAnimationState() == State.STOPPED ? 0 : this.currentAnimationTicks / TICKS_PER_SECOND;
+            return this.currentAnimationTicks / 20;
         }
 
-        /**
-         * Whether the named triggerable animation is the one currently loaded on this controller.
-         */
         public boolean isTriggeredAnimation(String animName) {
-            RawAnimation animation = this.triggerableAnimations.get(animName);
-            return animation != null && animation.equals(this.currentRawAnimation);
+            return this.triggeredAnimation != null && this.triggeredAnimation == this.triggerableAnimations.get(animName);
         }
 
-        @Override
-        public boolean stopTriggeredAnimation() {
-            return super.stopTriggeredAnimation();
+        /** Exposes {@link AnimationController#stopTriggeredAnimation()}, which is protected. */
+        public boolean cancelTriggeredAnimation() {
+            return stopTriggeredAnimation();
         }
 
         /**
-         * Stop the controller and drop everything the offset and skip state was carrying.
+         * {@link AnimationController#tryTriggerAnimation} rewinds only a stopped controller, and
+         * {@link AnimationController#setAnimation} ignores an animation already loaded, so re-triggering the one
+         * playing does nothing. Forcing the reload is what lets rapid fire cancel the running animation.
          */
-        public void reset() {
-            stop();
+        @Override
+        public boolean tryTriggerAnimation(String animName) {
+            if (!this.triggerableAnimations.containsKey(animName)) {
+                return false;
+            }
             forceAnimationReset();
-            this.offsetTicks = 0;
-            this.skipAtTicks = 0;
-            this.skipToTicks = 0;
-            this.skipShiftTicks = 0;
-            this.skipped = false;
-            this.currentAnimationTicks = 0;
+
+            return super.tryTriggerAnimation(animName);
         }
 
         @Override
         protected double adjustTick(double tick) {
+            boolean wasResetting = this.shouldResetTick;
             double adjusted = super.adjustTick(tick);
-            if (getAnimationState() != State.RUNNING) {
-                // Transitions poll the animation queue off a zeroed tick; shifting it there would stall them.
-                return adjusted;
+            AnimationProcessor.QueuedAnimation current = getCurrentAnimation();
+
+            if (current != this.lastObservedAnimation) {
+                this.lastObservedAnimation = current;
+                this.offsetArmed = current != null && this.pendingOffsetTicks > 0;
             }
-            adjusted += this.offsetTicks;
-            if (!this.skipped && this.skipToTicks > this.skipAtTicks
-                    && adjusted >= this.skipAtTicks && adjusted < this.skipToTicks) {
-                this.skipShiftTicks = this.skipToTicks - adjusted;
+            // The offset can only be applied once the controller has stopped resetting its tick for the new animation
+            if (this.offsetArmed && wasResetting && getAnimationState() == State.RUNNING) {
+                adjusted = seekTo(tick, this.pendingOffsetTicks);
+                this.pendingOffsetTicks = 0;
+                this.offsetArmed = false;
+            }
+            if (!this.skipped && this.skipToTicks > this.skipAtTicks && adjusted >= this.skipAtTicks && adjusted < this.skipToTicks) {
+                adjusted = seekTo(tick, this.skipToTicks);
                 this.skipped = true;
             }
-            adjusted += this.skipShiftTicks;
             this.currentAnimationTicks = adjusted;
 
             return adjusted;
+        }
+
+        /** Shifts the tick offset so the current animation reads as {@code targetTicks} in. */
+        private double seekTo(double tick, double targetTicks) {
+            double speed = getAnimationSpeed();
+
+            if (speed <= 0) {
+                return targetTicks;
+            }
+
+            this.tickOffset = tick - targetTicks / speed;
+
+            return targetTicks;
         }
     }
 }

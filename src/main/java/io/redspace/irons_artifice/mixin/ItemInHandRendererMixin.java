@@ -32,10 +32,7 @@ public class ItemInHandRendererMixin {
         }
     }
 
-    /**
-     * The 1.21.1 method carries no parameter names, so the equip offset is addressed by its local slot rather than
-     * by name.
-     */
+    /** The method carries no parameter names, so the equip offset is addressed by its local slot. */
     @ModifyVariable(
             method = "renderArmWithItem",
             at = @At("HEAD"),
@@ -84,12 +81,8 @@ public class ItemInHandRendererMixin {
     }
 
     /**
-     * Neutralises 1.21.1's {@code case SPEAR} branch for a charging kinetic stack. The stack declares
-     * {@link UseAnim#SPEAR} because that is what vanilla answers for a kinetic weapon from 1.21.11 on,
-     * but the trident pose that goes with it here is not the one the mod wants. Reporting
-     * {@link UseAnim#NONE} leaves {@code case NONE}'s bare {@code applyItemArmTransform} standing, which
-     * -- with the arm height already zeroed above for a {@link GunItem} -- is 26.1's literal
-     * {@code poseStack.translate(invert * 0.56F, -0.52F, -0.72F)}.
+     * A charging kinetic stack declares {@link UseAnim#SPEAR}, but the trident pose that goes with it is not the one
+     * the mod wants. Reporting {@link UseAnim#NONE} leaves the bare {@code applyItemArmTransform} standing instead.
      */
     @WrapOperation(
             method = "renderArmWithItem",
@@ -104,11 +97,9 @@ public class ItemInHandRendererMixin {
     }
 
     /**
-     * The mod's own charge pose, applied on top of that translate and just before the item is rendered.
-     * This stands in for 26.1's {@code SpearAnimations.firstPersonUse} call, which has no counterpart at
-     * 1.21.1. The use-state guard also makes the injection point unambiguous without an ordinal: the
-     * earlier {@code renderItem} call in this method belongs to the crossbow branch, which a kinetic
-     * stack never enters.
+     * The mod's own charge pose, applied on top of that translate and just before the item renders. The use-state
+     * guard also picks the injection point without an ordinal: the earlier {@code renderItem} call is the crossbow
+     * branch, which a kinetic stack never enters.
      */
     @Inject(
             method = "renderArmWithItem",

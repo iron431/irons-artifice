@@ -35,7 +35,6 @@ public final class DataComponentRegistry {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> GUN_SPYGLASS =
             COMPONENTS.registerComponentType("gun_spyglass", builder -> builder
                     .persistent(Unit.CODEC)
-                    // Unit carries no STREAM_CODEC of its own at this version.
                     .networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttachmentMap>> ATTACHMENT =
             COMPONENTS.registerComponentType("attachment", builder -> builder

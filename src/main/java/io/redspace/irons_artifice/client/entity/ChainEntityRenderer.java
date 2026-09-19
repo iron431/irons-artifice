@@ -125,10 +125,6 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity> {
         return CHAIN_TEXTURE;
     }
 
-    /**
-     * The chain's own bounding box is the entity's, but the geometry is drawn all the way out to whatever it is
-     * anchored to, so the frustum test is skipped and only the render distance is honoured.
-     */
     @Override
     public boolean shouldRender(ChainEntity entity, Frustum frustum, double camX, double camY, double camZ) {
         return entity.shouldRender(camX, camY, camZ);

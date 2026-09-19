@@ -38,10 +38,6 @@ public class ItemModelDataGenerator extends ItemModelProvider {
         }
     }
 
-    /**
-     * Writes {@code models/item/<item>.json} from vanilla's {@code item/generated} template with the given layer0
-     * texture. That one file is the whole item model at this version; there is no {@code items/<item>.json}.
-     */
     public ItemModelBuilder generateTemplatedItem(ResourceLocation item, ResourceLocation layer0Texture) {
         return getBuilder(item.toString())
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
@@ -49,9 +45,8 @@ public class ItemModelDataGenerator extends ItemModelProvider {
     }
 
     /**
-     * A GeckoLib gun reaches its renderer through the display parent's {@code builtin/entity} root, which bakes the
-     * item to a {@code BuiltInModel} and hands rendering to the item's {@code BlockEntityWithoutLevelRenderer}. The
-     * display model is the item's own model file here, not the {@code base} of a separate client item definition.
+     * A gun reaches its renderer through the display parent's {@code builtin/entity} root, which bakes the item to
+     * a {@code BuiltInModel} and hands rendering to the item's {@code BlockEntityWithoutLevelRenderer}.
      */
     public ItemModelBuilder gunModel(ResourceLocation item, ResourceLocation displayParent) {
         return withExistingParent(item.toString(), displayParent);

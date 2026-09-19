@@ -23,12 +23,6 @@ public interface IGunslingerMob {
      * Static Handlers
      ********************** */
 
-    /**
-     * Dispatch for {@link ComposeShotEvent}. Subscribed from
-     * {@link io.redspace.irons_artifice.events.GunslingerMobEvents}: this interface cannot carry the
-     * {@code @SubscribeEvent} itself, because the event bus refuses to register any listener object
-     * whose supertype declares one.
-     */
     static void modifyMobGunshots(ComposeShotEvent event) {
         if (!(event.getEntity() instanceof Mob mob)) {
             return;

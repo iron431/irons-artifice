@@ -44,10 +44,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ItemRegistry {
-    /** The grey vanilla gives every illager spawn egg, and the illificer's own brass highlight. */
-    private static final int ILLAGER_EGG_BASE = 0x959B9B;
-    private static final int ILLAGER_EGG_SPOTS = 0xB08D57;
-
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(IronsArtifice.MODID);
 
     public static void register(IEventBus modEventBus) {
@@ -144,10 +140,9 @@ public final class ItemRegistry {
     public static final DeferredItem<Item> MECHANICAL_COMPONENTS = ITEMS.registerSimpleItem("mechanical_components");
     public static final DeferredItem<Item> CLOCKWORK_COMPONENTS = ITEMS.registerSimpleItem("clockwork_components");
 
-    // Item.Properties carries no spawnEgg() at this version; the type and the two egg tints ride on the
-    // item itself, and the deferred variant defers the EntityType lookup past item registration.
+    // The deferred variant holds the EntityType lookup back until after item registration.
     public static final DeferredItem<SpawnEggItem> ILLIFICER_SPAWN_EGG = ITEMS.registerItem(
             "illificer_spawn_egg",
-            properties -> new DeferredSpawnEggItem(EntityRegistry.ILLIFICER, ILLAGER_EGG_BASE, ILLAGER_EGG_SPOTS, properties)
+            properties -> new DeferredSpawnEggItem(EntityRegistry.ILLIFICER, 0xFFFFFF, 0xFFFFFF, properties)
     );
 }

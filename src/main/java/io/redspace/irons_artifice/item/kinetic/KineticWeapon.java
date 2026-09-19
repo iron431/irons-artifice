@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Mod-owned stand-in for vanilla's {@code minecraft:kinetic_weapon} item component. 1.21.1 has no spear,
- * so the component and the charge attack it drives do not exist; this carries the same data, in the
- * same field order and with the same defaults, so the values a 26.1 item declared carry over
- * unchanged and the first person animation keeps its timings.
+ * Mod-owned stand-in for vanilla's {@code minecraft:kinetic_weapon} item component and the charge attack it
+ * drives, with the same fields, order and defaults.
  */
 public record KineticWeapon(
         int contactCooldownTicks,
@@ -51,7 +49,7 @@ public record KineticWeapon(
     private static final StreamCodec<RegistryFriendlyByteBuf, Optional<Holder<SoundEvent>>> OPTIONAL_SOUND_STREAM_CODEC =
             SoundEvent.STREAM_CODEC.apply(ByteBufCodecs::optional);
 
-    /** Written by hand because {@link StreamCodec#composite} only reaches six components at this version. */
+    /** Written by hand because {@link StreamCodec#composite} reaches only six components. */
     public static final StreamCodec<RegistryFriendlyByteBuf, KineticWeapon> STREAM_CODEC = StreamCodec.of(
             (buffer, kineticWeapon) -> {
                 ByteBufCodecs.VAR_INT.encode(buffer, kineticWeapon.contactCooldownTicks());

@@ -1,11 +1,13 @@
 package io.redspace.irons_artifice.client.gui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
@@ -59,10 +61,12 @@ public final class GunScopeOverlay {
         int top = (graphics.guiHeight() - height) / 2;
         int right = left + width;
         int bottom = top + height;
-        graphics.blit(SCOPE_TEXTURE, left, top, 0.0F, 0.0F, width, height, width, height);
-        graphics.fill(0, bottom, graphics.guiWidth(), graphics.guiHeight(), -16777216);
-        graphics.fill(0, 0, graphics.guiWidth(), top, -16777216);
-        graphics.fill(0, top, left, bottom, -16777216);
-        graphics.fill(right, top, graphics.guiWidth(), bottom, -16777216);
+        RenderSystem.enableBlend();
+        graphics.blit(SCOPE_TEXTURE, left, top, -90, 0.0F, 0.0F, width, height, width, height);
+        RenderSystem.disableBlend();
+        graphics.fill(RenderType.guiOverlay(), 0, bottom, graphics.guiWidth(), graphics.guiHeight(), -90, -16777216);
+        graphics.fill(RenderType.guiOverlay(), 0, 0, graphics.guiWidth(), top, -90, -16777216);
+        graphics.fill(RenderType.guiOverlay(), 0, top, left, bottom, -90, -16777216);
+        graphics.fill(RenderType.guiOverlay(), right, top, graphics.guiWidth(), bottom, -90, -16777216);
     }
 }

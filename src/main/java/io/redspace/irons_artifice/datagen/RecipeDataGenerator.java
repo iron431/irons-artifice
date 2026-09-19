@@ -87,13 +87,12 @@ public class RecipeDataGenerator extends RecipeProvider {
          * Mechanical Components
          ********************************** */
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS.get())
-                .pattern("CIC")
-                .pattern("INI")
-                .pattern("CIC")
-                .define('N', commonTag("nuggets/copper"))
-                .define('C', Items.CHAIN)
+                .pattern("III")
+                .pattern("IBI")
+                .pattern("III")
+                .define('B', ItemRegistry.BLACKPOWDER)
                 .define('I', commonTag("ingots/copper"))
-                .unlockedBy("has_redstone", has(Items.REDSTONE))
+                .unlockedBy("has_blackpowder", has(ItemRegistry.BLACKPOWDER))
                 .save(output);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.MECHANICAL_COMPONENTS.get())
                 .pattern("BCR")

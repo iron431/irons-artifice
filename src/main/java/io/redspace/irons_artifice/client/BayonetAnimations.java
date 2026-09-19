@@ -104,10 +104,6 @@ public class BayonetAnimations {
         }
     }
 
-    /**
-     * The easing curves this animation uses, copied from vanilla's {@code net.minecraft.util.Ease}, which does
-     * not exist at this version. Same bodies, except that {@code Mth.cube} is inlined (also absent here).
-     */
     static class Ease {
         public static float outQuart(float x) {
             return 1.0F - Mth.square(Mth.square(1.0F - x));

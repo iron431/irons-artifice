@@ -19,17 +19,9 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import java.util.function.Supplier;
 
 /**
- * Client-only holder for the hats' armour renderers, the counterpart of the per-gun render providers
- * {@code IronsArtificeClient.registerRenderers} installs.
- * <p>
- * A {@link GeoArmorRenderer} extends {@code HumanoidModel}, so naming one anywhere the item class can
- * reach -- an anonymous {@link GeoRenderProvider} in the item's constructor, say -- makes a dedicated
- * server load a client class while it is registering items, and the dist cleaner kills mod loading.
- * <p>
- * Armour at this GeckoLib version is reached through {@link GeoRenderProvider} rather than
- * {@code IClientItemExtensions}: GeckoLib's own armour layer looks the renderer up through the provider
- * and calls {@code prepForRender} on it first, and {@code GeoArmorRenderer#renderToBuffer} logs an error
- * and draws nothing for a renderer it was handed any other way.
+ * Client-only holder for the hats' armor renderers. A {@link GeoArmorRenderer} extends {@code HumanoidModel}, so
+ * naming one where the item class can reach it makes a dedicated server load a client class while registering
+ * items, and the dist cleaner kills mod loading.
  */
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public class ArmorRenderProviders {

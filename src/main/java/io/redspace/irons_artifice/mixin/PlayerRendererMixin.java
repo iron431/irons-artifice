@@ -13,22 +13,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Makes the mod's own arm pose authoritative for a kinetic stack, whatever use animation it declares.
+ * Makes the mod's own arm pose win for a kinetic stack, whatever use animation it declares.
  * <p>
- * NeoForge's {@code PlayerRenderer} patch appends its
- * {@code IClientItemExtensions.of(stack).getArmPose(...)} call <em>after</em> vanilla's branches, so
- * vanilla wins every tie. One of those branches turns {@code UseAnim.SPEAR} into
- * {@link HumanoidModel.ArmPose#THROW_SPEAR}, and {@code HumanoidModel.poseRightArm} then sets
- * {@code xRot = xRot * 0.5F - PI} -- the arm swings about ninety degrees up. A charging kinetic weapon
- * declares SPEAR (vanilla's own animation for a kinetic stack), so the mod's own arm pose was being
- * bypassed for exactly as long as the charge lasted.
- * <p>
- * Hoisting the extension call to the head changes only that one case, and only for the stacks
- * {@link GunItem#posedAsKineticWeapon} accepts: for every other state such an item can be in, vanilla's
- * method already fell through to the extension (the stack is not empty, is not {@code Items.CROSSBOW},
- * and reports no use animation but SPEAR), so the pose it returns is unchanged. A side effect worth
- * knowing: the pose's two-handed flag now holds during a charge too, which suppresses the off-hand
- * item the way it does at rest.
+ * NeoForge appends its {@code IClientItemExtensions.of(stack).getArmPose(...)} call after vanilla's branches, one
+ * of which turns {@code UseAnim.SPEAR} into {@link HumanoidModel.ArmPose#THROW_SPEAR} and swings the arm ninety
+ * degrees up. Hoisting the call to the head changes only the stacks {@link GunItem#posedAsKineticWeapon} accepts;
+ * every other state already fell through to the extension. One side effect: the pose's two-handed flag now holds
+ * during a charge, suppressing the off-hand item the way it does at rest.
  */
 @Mixin(PlayerRenderer.class)
 public class PlayerRendererMixin {

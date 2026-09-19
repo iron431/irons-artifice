@@ -13,7 +13,7 @@
   },
   "display": {
     "announce_to_chat": false,
-    "background": "minecraft:block/stripped_dark_oak_log",
+    "background": "minecraft:textures/block/stripped_dark_oak_log.png",
     "description": {
       "translate": "advancements.irons_artifice.blackpowder_heart.description"
     },

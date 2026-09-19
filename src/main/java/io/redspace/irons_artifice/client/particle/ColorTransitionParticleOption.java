@@ -94,9 +94,6 @@ public class ColorTransitionParticleOption implements ParticleOptions {
         return vector3fFromRGB24(this.toColor);
     }
 
-    /**
-     * {@code ARGB.vector3fFromRGB24} has no counterpart here, so the packed colour is unpacked by hand.
-     */
     private static Vector3f vector3fFromRGB24(int packed) {
         return new Vector3f(
                 FastColor.ARGB32.red(packed) / 255.0F,

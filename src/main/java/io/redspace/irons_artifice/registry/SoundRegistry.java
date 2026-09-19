@@ -30,7 +30,6 @@ public class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> INFINITY_BULLET = registerSoundEvent("modifier.enchanted_bullet.proc");
     public static final DeferredHolder<SoundEvent, SoundEvent> PIRATE_AMBUSH = registerSoundEvent("entity.drowned_pirate.ambush");
 
-    // Vanilla's SoundEvents.SPEAR_USE / SPEAR_HIT do not exist at this version; the bayonet carries its own.
     public static final DeferredHolder<SoundEvent, SoundEvent> BAYONET_USE = registerSoundEvent("item.bayonet.use");
     public static final DeferredHolder<SoundEvent, SoundEvent> BAYONET_HIT = registerSoundEvent("item.bayonet.hit");
 

@@ -73,7 +73,6 @@ public class GunModifierMenu extends AbstractContainerMenu {
         addStandardInventorySlots(playerInventory, 8, 101);
     }
 
-    /** {@code AbstractContainerMenu} grows this helper only after this version; this is its body. */
     private void addStandardInventorySlots(Inventory playerInventory, int x, int y) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {

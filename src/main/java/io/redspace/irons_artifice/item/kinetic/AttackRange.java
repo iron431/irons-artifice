@@ -13,13 +13,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Mod-owned stand-in for vanilla's {@code minecraft:attack_range} item component. 1.21.1 reach is
- * attribute driven, so there is nowhere for a weapon to declare a reach of its own; the kinetic weapon
- * needs one, because {@link KineticWeaponHandler} marches a segment from the attacker's eye and the
- * length of that segment is the whole point of a kinetic weapon.
+ * Mod-owned stand-in for vanilla's {@code minecraft:attack_range} item component. Reach is otherwise attribute
+ * driven, with nowhere for a weapon to declare its own, and the length of the segment
+ * {@link KineticWeaponHandler} marches from the attacker's eye is the whole point of a kinetic weapon.
  * <p>
- * Same fields and same semantics as the vanilla record: the creative pair only applies to players,
- * and {@code mobFactor} scales a mob's reach so a charging mob does not get a player's.
+ * The creative pair applies only to players, and {@code mobFactor} keeps a charging mob off a player's reach.
  */
 public record AttackRange(
         float minReach,
@@ -55,10 +53,8 @@ public record AttackRange(
     );
 
     /**
-     * The reach for an entity that carries no {@code ENTITY_INTERACTION_RANGE} attribute. At 1.21.1
-     * that attribute is registered as {@code player.entity_interaction_range} and only players are
-     * built with it, where the vanilla record can read it off any {@code LivingEntity}; this is that
-     * attribute's own default value.
+     * The reach for an entity carrying no {@code ENTITY_INTERACTION_RANGE} attribute. Only players are built with
+     * it, so everything else lands here; the value is that attribute's own default.
      */
     public static final float DEFAULT_MELEE_REACH = 3.0F;
 
@@ -69,7 +65,6 @@ public record AttackRange(
         return new AttackRange(0.0F, interactionRange, 0.0F, interactionRange, 0.0F, 1.0F);
     }
 
-    /** The reach {@code stack} gives {@code entity}, falling back to {@link #defaultFor}. */
     public static AttackRange of(LivingEntity entity, ItemStack stack) {
         AttackRange attackRange = stack.get(DataComponentRegistry.ATTACK_RANGE);
         return attackRange != null ? attackRange : defaultFor(entity);

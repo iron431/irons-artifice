@@ -26,10 +26,13 @@ public class IllificerModel extends IllagerModel<Illificer> {
     protected final ModelPart rightArm;
     protected final ModelPart leftArm;
     /**
-     * The arm poses are written against a {@link HumanoidModel}, which an illager model is not. The proxy owns no
-     * geometry of its own: it is a humanoid-shaped view over this model's own parts, so posing it poses this model.
+     * The arm poses want a {@link HumanoidModel}, which an illager model is not. The proxy owns no geometry: it is a
+     * humanoid-shaped view over this model's parts, so posing it poses this model.
      */
     private final HumanoidModel<Illificer> humanoidProxy;
+    /** Where the arms sit before anything animates them. See {@link #restoreArmOffsets()}. */
+    private final float rightArmX, rightArmY, rightArmZ;
+    private final float leftArmX, leftArmY, leftArmZ;
     private MobGunPose mobGunPose = MobGunPose.NONE;
     private HumanoidArm mainArm = HumanoidArm.RIGHT;
 
@@ -37,8 +40,28 @@ public class IllificerModel extends IllagerModel<Illificer> {
         super(root);
         this.leftArm = root.getChild("left_arm");
         this.rightArm = root.getChild("right_arm");
+        this.rightArmX = this.rightArm.x;
+        this.rightArmY = this.rightArm.y;
+        this.rightArmZ = this.rightArm.z;
+        this.leftArmX = this.leftArm.x;
+        this.leftArmY = this.leftArm.y;
+        this.leftArmZ = this.leftArm.z;
         this.humanoidProxy = new HumanoidModel<>(humanoidView(root));
         this.getHat().visible = true;
+    }
+
+    /**
+     * {@link HumanoidModel#setupAnim} reassigns both arms' x, y and z every frame, which is why a pose transformer
+     * may offset them with {@code +=}. {@link IllagerModel#setupAnim} reassigns only the rotations, so without this
+     * the offsets pile up frame on frame and the arms walk away from the body.
+     */
+    private void restoreArmOffsets() {
+        this.rightArm.x = this.rightArmX;
+        this.rightArm.y = this.rightArmY;
+        this.rightArm.z = this.rightArmZ;
+        this.leftArm.x = this.leftArmX;
+        this.leftArm.y = this.leftArmY;
+        this.leftArm.z = this.leftArmZ;
     }
 
     private static ModelPart humanoidView(ModelPart root) {
@@ -57,6 +80,7 @@ public class IllificerModel extends IllagerModel<Illificer> {
     @Override
     public void setupAnim(Illificer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        restoreArmOffsets();
         this.mainArm = entity.getMainArm();
         this.mobGunPose = MobGunPose.NONE;
         ItemStack weapon = entity.getWeaponItem();

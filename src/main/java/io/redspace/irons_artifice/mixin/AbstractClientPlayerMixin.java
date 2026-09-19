@@ -9,13 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * 1.21.1's {@code getFieldOfViewModifier()} takes no arguments: the first-person test that 26.1 passes
- * in is made inside the method, off the camera type, exactly as vanilla's own spyglass branch does it.
- * <p>
- * Returning at the head skips vanilla's {@code fovEffectScale} lerp, which is also what that spyglass
- * branch does -- a scope's zoom is not an effect the player may dial down.
- */
 @Mixin(AbstractClientPlayer.class)
 public class AbstractClientPlayerMixin {
     @Inject(method = "getFieldOfViewModifier", at = @At("HEAD"), cancellable = true)

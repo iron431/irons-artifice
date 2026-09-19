@@ -15,10 +15,9 @@ public interface AnimationAdjuster {
     void adjust(AnimationState<GunItem> animationState, GeoModel<GunItem> model);
 
     /**
-     * Put a bone back on the rotation the geo json baked into it, cancelling whatever the animation wrote.
-     * <p>
-     * A bone holds its absolute rotation, so zeroing one throws the model's own pose away instead of silencing
-     * the animation. The flags have to be cleared too, or the next render pass skips this bone's reset lerp.
+     * Puts a bone back on the rotation the geo json baked into it. A bone holds its absolute rotation, so zeroing
+     * one throws the pose away instead of silencing the animation, and the flags have to be cleared too or the next
+     * render pass skips this bone's reset lerp.
      */
     static void restoreRestRotation(GeoBone bone) {
         BoneSnapshot rest = bone.getInitialSnapshot();
@@ -26,9 +25,7 @@ public interface AnimationAdjuster {
         bone.resetStateChanges();
     }
 
-    /**
-     * Seconds into the reload animation, or zero when no reload is playing.
-     */
+    /** Seconds into the reload animation, or zero when no reload is playing. */
     static double reloadProgressSeconds(AnimationState<GunItem> animationState) {
         Double progress = animationState.getData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET);
         return progress != null ? progress : 0.0;

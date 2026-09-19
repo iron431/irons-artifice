@@ -45,10 +45,8 @@ public final class TestFixtures {
     public static final Vec3 FORWARD = new Vec3(0.0, 0.0, 1.0);
 
     /**
-     * The pitch and yaw that {@link Vec3#directionFromRotation(float, float)} turns back into
-     * {@code direction}: the inverse half of that round trip, which this Minecraft version does not
-     * carry on {@link Vec3} itself. Same arithmetic vanilla uses where it needs it, so a test can
-     * still build an aim by rotating one it already has.
+     * The pitch and yaw {@link Vec3#directionFromRotation(float, float)} turns back into {@code direction}, so a
+     * test can build an aim by rotating one it already has.
      */
     public static Vec2 rotationOf(Vec3 direction) {
         float yaw = (float) Math.atan2(-direction.x, direction.z) * 57.295776F;
@@ -350,7 +348,7 @@ public final class TestFixtures {
      * @param reachAtTarget             how far off the aim line the widest shot in that cone can be
      *                                  by the time it arrives
      * @param targetVerticalHalfExtent  how far the hitbox reaches above the point aimed at, which
-     *                                  {@link #aimAtHitbox} makes its centre
+     *                                  {@link #aimAtHitbox} makes its center
      */
     private record ShotGeometry(boolean onGround,
                                 double movedSinceLastTick,
