@@ -8,6 +8,7 @@ import software.bernie.geckolib.util.RenderUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.redspace.irons_artifice.api.GunBones;
+import io.redspace.irons_artifice.client.HeldItemRenderContext;
 import io.redspace.irons_artifice.client.MuzzleFlashEmitter;
 import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.item.AttachmentMap;
@@ -151,17 +152,8 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         return stack == null ? null : GunItem.currentOccupancy(owner, stack);
     }
 
-    /**
-     * The renderer gets a stack and nothing else, so only the local player can be identified. Everyone else's shots
-     * fall back to the muzzle flash's broadcast position.
-     */
     protected @Nullable LivingEntity currentItemOwner() {
-        AbstractClientPlayer player = Minecraft.getInstance().player;
-        ItemStack stack = this.currentItemStack;
-        if (player == null || stack == null) {
-            return null;
-        }
-        return stack == player.getMainHandItem() || stack == player.getOffhandItem() ? player : null;
+        return HeldItemRenderContext.holder();
     }
 
     public static boolean isHandPerspective(@Nullable ItemDisplayContext perspective) {

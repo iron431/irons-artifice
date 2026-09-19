@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.client.BayonetAnimations;
+import io.redspace.irons_artifice.client.HeldItemRenderContext;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.KineticHitFeedback;
 import io.redspace.irons_artifice.item.GunItem;
@@ -13,7 +14,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import org.spongepowered.asm.mixin.Mixin;
@@ -120,4 +123,14 @@ public class ItemInHandRendererMixin {
         BayonetAnimations.firstPersonUse(KineticHitFeedback.ticksSinceHit(player, frameInterp), poseStack, timeHeld, arm, itemStack);
     }
 
+    /** Every held item renders through here, first person and third, and it is the last point that knows the holder. */
+    @Inject(method = "renderItem", at = @At("HEAD"))
+    private void irons_artifice$pushHeldItemHolder(LivingEntity holder, ItemStack itemStack, ItemDisplayContext perspective, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int lightCoords, CallbackInfo ci) {
+        HeldItemRenderContext.push(holder);
+    }
+
+    @Inject(method = "renderItem", at = @At("RETURN"))
+    private void irons_artifice$popHeldItemHolder(LivingEntity holder, ItemStack itemStack, ItemDisplayContext perspective, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int lightCoords, CallbackInfo ci) {
+        HeldItemRenderContext.pop();
+    }
 }
