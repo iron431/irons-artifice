@@ -1,10 +1,28 @@
 {
   "sources": [
     {
-      "type": "neoforge:directory_paletted_permutations",
-      "textures": "muzzle_flash/particle",
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "irons_artifice:muzzle_flash/particle/explosion_1",
+        "irons_artifice:muzzle_flash/particle/explosion_2",
+        "irons_artifice:muzzle_flash/particle/explosion_3",
+        "irons_artifice:muzzle_flash/particle/explosion_4",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_large_1",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_large_2",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_large_3",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_small_star_1",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_small_star_2",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_small_star_3",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_triangle_1",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_triangle_2",
+        "irons_artifice:muzzle_flash/particle/muzzle_flash_triangle_3"
+      ],
       "palette_key": "irons_artifice:muzzle_flash/palettes/tinted",
-      "palettes": "muzzle_flash/palettes"
+      "permutations": {
+        "fire": "irons_artifice:muzzle_flash/palettes/fire",
+        "tinted_masked": "irons_artifice:muzzle_flash/palettes/tinted_masked",
+        "white_mask": "irons_artifice:muzzle_flash/palettes/white_mask"
+      }
     }
   ]
 }
