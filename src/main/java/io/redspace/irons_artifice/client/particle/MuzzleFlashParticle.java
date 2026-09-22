@@ -32,7 +32,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
     public MuzzleFlashParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet sprites,
                                float tintR, float tintG, float tintB) {
-        super(level, x, y, z, xa, ya, za, sprites.first());
+        super(level, x, y, z, xa, ya, za, sprites.get(0));
         this.sprites = sprites;
         this.tinted = !(tintR < 0f || tintG < 0 || tintB < 0);
         this.lifetime = 3;
@@ -143,7 +143,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
         @Override
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
         }
     }

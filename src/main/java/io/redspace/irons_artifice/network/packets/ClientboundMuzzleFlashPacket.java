@@ -27,11 +27,11 @@ public record ClientboundMuzzleFlashPacket(
                     ClientboundMuzzleFlashPacket::visuals,
                     ByteBufCodecs.VAR_INT,
                     ClientboundMuzzleFlashPacket::entityId,
-                    Vec3.STREAM_CODEC,
+                    ByteBufCodecs.fromCodecWithRegistries(Vec3.CODEC),
                     ClientboundMuzzleFlashPacket::entityMotion,
                     ByteBufCodecs.FLOAT,
                     ClientboundMuzzleFlashPacket::extraForwardOffset,
-                    Vec3.STREAM_CODEC,
+                    ByteBufCodecs.fromCodecWithRegistries(Vec3.CODEC),
                     ClientboundMuzzleFlashPacket::backupPos,
                     ClientboundMuzzleFlashPacket::new
             );

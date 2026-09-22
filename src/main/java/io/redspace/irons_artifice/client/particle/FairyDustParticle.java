@@ -26,7 +26,7 @@ public class FairyDustParticle extends TextureSheetParticle {
 
     public FairyDustParticle(ClientLevel level, double x, double y, double z,
                              double xa, double ya, double za, SpriteSet spriteSet, FairyDustParticleOption options) {
-        super(level, x, y, z, 0, 0, 0, spriteSet.first());
+        super(level, x, y, z, 0, 0, 0, spriteSet.get(0));
         this.spriteSet = spriteSet;
         this.phase = options.getPhase();
         this.radius = options.getRadius();
@@ -138,7 +138,7 @@ public class FairyDustParticle extends TextureSheetParticle {
         @Override
         public @Nullable Particle createParticle(FairyDustParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new FairyDustParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

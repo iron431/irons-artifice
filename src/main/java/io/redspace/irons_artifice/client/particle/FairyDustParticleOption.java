@@ -23,7 +23,7 @@ public class FairyDustParticleOption implements ParticleOptions {
         return StreamCodec.composite(
                 ByteBufCodecs.FLOAT, o -> o.phase,
                 ByteBufCodecs.FLOAT, o -> o.radius,
-                Vec3.STREAM_CODEC, o -> o.axis,
+                ByteBufCodecs.fromCodecWithRegistries(Vec3.CODEC), o -> o.axis,
                 (phase, radius, axis) -> new FairyDustParticleOption(type, phase, radius, axis)
         );
     }

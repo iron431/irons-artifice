@@ -39,7 +39,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -439,7 +439,7 @@ public class Bullet extends Projectile {
         BlockPos pos = hitResult.getBlockPos();
         level().playSound(null, pos, level().getBlockState(pos).getSoundType(level(), pos, null).getBreakSound(), SoundSource.BLOCKS, .75f, 1f);
         if (level() instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), Vec3.atLowerCornerOf(hitResult.getDirection().getUnitVec3i()), this.resolveDamage()));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), Vec3.atLowerCornerOf(hitResult.getDirection().getNormal()), this.resolveDamage()));
         }
     }
 
@@ -456,7 +456,7 @@ public class Bullet extends Projectile {
         }
 
         if (getOwner() instanceof Mob
-                && !serverLevel.getGameRules().get(GameRules.MOB_GRIEFING)) {
+                && !serverLevel.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
             return false;
         }
 
@@ -480,7 +480,7 @@ public class Bullet extends Projectile {
     }
 
     private void reflectMotion(Direction face) {
-        setDeltaMovement(Utils.reflect(getDeltaMovement(), Vec3.atLowerCornerOf(face.getUnitVec3i())));
+        setDeltaMovement(Utils.reflect(getDeltaMovement(), Vec3.atLowerCornerOf(face.getNormal())));
         this.piercedEntities.clear();
         if (shotRecord != null) {
             shotRecord.markRicocheted();

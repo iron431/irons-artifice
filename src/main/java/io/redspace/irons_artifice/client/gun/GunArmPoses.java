@@ -41,7 +41,7 @@ public final class GunArmPoses {
             animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(0), holdingInRightArm);
         } else {
             var head = model.head;
-            ModelPart armModel = model.getArm(arm);
+            ModelPart armModel = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
             armModel.yRot = head.yRot;
             armModel.xRot = -1.5F + head.xRot;
             counteractCrouch(armModel, entity);

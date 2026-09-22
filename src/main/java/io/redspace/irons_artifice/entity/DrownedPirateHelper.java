@@ -35,9 +35,9 @@ public class DrownedPirateHelper {
         for (int i = 0; i < 18; i++) {
             Vec3 pos = center.add(new Vec3(0, 0, distance).yRot(i * 60 * ((float) Math.PI / 180))).add(Utils.randomVec3(3));
             BlockPos heightSamplePos = BlockPos.containing(pos);
-            int waterHeight = level.getHeight(Heightmap.Types.WORLD_SURFACE, heightSamplePos);
+            int waterHeight = level.getHeight(Heightmap.Types.WORLD_SURFACE, heightSamplePos.getX(), heightSamplePos.getZ());
             if (pos.y > waterHeight - 3) {
-                int y = (int) Math.min((pos.y + pos.y + level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, heightSamplePos)) / 3, waterHeight - 5);
+                int y = (int) Math.min((pos.y + pos.y + level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, heightSamplePos.getX(), heightSamplePos.getZ())) / 3, waterHeight - 5);
                 pos = new Vec3(pos.x, y, pos.z);
             }
             AABB box = AABB.ofSize(pos, 5, 3, 5);

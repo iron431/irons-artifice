@@ -41,7 +41,7 @@ public class ImpactBlockParticle extends TerrainParticle {
         @Override
         public @Nullable Particle createParticle(BlockParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             BlockState state = options.getState();
             if (state.isAir() || state.is(Blocks.MOVING_PISTON) || !state.shouldSpawnTerrainParticles()) {
                 return null;

@@ -28,6 +28,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -84,17 +85,17 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public @Nonnull InteractionResult use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
+    public @Nonnull InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (GunItem.isReloading(stack)) {
-            return InteractionResult.FAIL;
+            return InteractionResultHolder.fail(stack);
         }
         if (hasGunSpyglass(stack)) {
             player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
         if (stack.has(DataComponentRegistry.BAYONET.get())) {
-            player.playSound(SoundEvents.TRIDENT_THROW, 0.4F, 1.2F);
+            player.playSound(SoundEvents.TRIDENT_THROW.value(), 0.4F, 1.2F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
         return super.use(level, player, hand);
@@ -135,15 +136,15 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public boolean releaseUsing(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity, int remainingTime) {
+    public void releaseUsing(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity, int remainingTime) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-            return true;
+            return;
         }
         if (stack.has(DataComponentRegistry.BAYONET.get())) {
-            return true;
+            return;
         }
-        return super.releaseUsing(stack, level, entity, remainingTime);
+        super.releaseUsing(stack, level, entity, remainingTime);
     }
 
     public GunProfile getGun() {
@@ -199,7 +200,7 @@ public class GunItem extends BaseGeoItem {
         super.appendHoverText(itemStack, context, tooltip, tooltipFlag);
         Consumer<Component> statBuilder = (component) -> tooltip.add(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
-        ShotProfile shotProfile = GunplayManager.compose(context.player(), this.gunProfile, itemStack);
+        ShotProfile shotProfile = GunplayManager.compose(null, this.gunProfile, itemStack);
         String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
         int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
         int bulletSpeedPercent = (int) (100 * shotProfile.value(ShotComponents.BULLET_SPEED) / Bullet.BASE_SPEED);

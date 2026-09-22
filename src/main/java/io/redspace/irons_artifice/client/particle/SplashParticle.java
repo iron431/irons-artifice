@@ -61,7 +61,7 @@ public class SplashParticle extends Particle {
         @Override
         public @Nullable Particle createParticle(ColorParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new SplashParticle(level, x, y, z, xa, ya, za, options);
         }
     }

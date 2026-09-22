@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 public class BulletImpactParticle extends TextureSheetParticle {
     public BulletImpactParticle(ClientLevel level, double x, double y, double z,
                                 double xa, double ya, double za, SpriteSet spriteSet, ColorTransitionParticleOption particleOptions) {
-        super(level, x, y, z, xa, ya, za, spriteSet.first());
+        super(level, x, y, z, xa, ya, za, spriteSet.get(0));
         this.setParticleSpeed(xa, ya, za);
         this.quadSize = 1;
         this.particleOptions = particleOptions;
@@ -109,7 +109,7 @@ public class BulletImpactParticle extends TextureSheetParticle {
         @Override
         public @Nullable Particle createParticle(ColorTransitionParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new BulletImpactParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }
