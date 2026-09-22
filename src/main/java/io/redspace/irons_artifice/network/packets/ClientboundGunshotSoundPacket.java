@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -18,7 +18,7 @@ public record ClientboundGunshotSoundPacket(SoundSource source, double x, double
         implements CustomPacketPayload {
 
     public static final Type<ClientboundGunshotSoundPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "gunshot_sound"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "gunshot_sound"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundGunshotSoundPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundGunshotSoundPacket::encode, ClientboundGunshotSoundPacket::decode);

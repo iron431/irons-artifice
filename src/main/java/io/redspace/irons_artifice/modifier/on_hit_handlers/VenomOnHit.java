@@ -74,7 +74,7 @@ public class VenomOnHit implements OnHitEffect {
         Vec3 bias = impactMotion.lengthSqr() > 1.0E-6 ? impactMotion.normalize().scale(0.15) : Vec3.ZERO;
 
         for (int i = 0; i < 7; i++) {
-            double angle = random.nextDouble() * Mth.TWO_PI;
+            double angle = random.nextDouble() * ((float) (Math.PI * 2));
             double speed = 0.15 + random.nextDouble() * 0.35;
             double vx = Math.cos(angle) * speed + bias.x;
             double vy = 0.2 + random.nextDouble() * 0.35;

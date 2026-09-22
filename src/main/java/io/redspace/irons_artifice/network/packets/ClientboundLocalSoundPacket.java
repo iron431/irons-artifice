@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.data.PlayableSound;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -14,7 +14,7 @@ public record ClientboundLocalSoundPacket(SoundSource source, PlayableSound soun
         implements CustomPacketPayload {
 
     public static final Type<ClientboundLocalSoundPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "playable_sound"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "playable_sound"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundLocalSoundPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundLocalSoundPacket::encode, ClientboundLocalSoundPacket::decode);

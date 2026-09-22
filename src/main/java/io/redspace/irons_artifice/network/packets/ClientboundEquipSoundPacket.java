@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -16,7 +16,7 @@ public record ClientboundEquipSoundPacket(SoundSource source, Item item)
         implements CustomPacketPayload {
 
     public static final Type<ClientboundEquipSoundPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "equip_sound"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "equip_sound"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundEquipSoundPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundEquipSoundPacket::encode, ClientboundEquipSoundPacket::decode);

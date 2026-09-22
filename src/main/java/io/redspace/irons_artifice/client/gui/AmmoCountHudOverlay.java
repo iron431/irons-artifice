@@ -11,7 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ import org.joml.Matrix3x2fStack;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class AmmoCountHudOverlay {
-    private static final Identifier BULLET_ICON = IronsArtifice.id("textures/gui/bullet_icon.png");
+    private static final ResourceLocation BULLET_ICON = IronsArtifice.id("textures/gui/bullet_icon.png");
 
     private static int previousAmmoCount = -1;
     private static int flashTicksRemaining;

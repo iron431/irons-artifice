@@ -13,10 +13,10 @@ public record LastHitTarget(@Nullable UUID uuid) {
     public static final LastHitTarget NONE = new LastHitTarget(null);
 
     public static LastHitTarget get(LivingEntity entity) {
-        return entity.getData(DataAttachmentRegistry.LAST_HIT_TARGET);
+        return entity.getData(DataAttachmentRegistry.LAST_HIT_TARGET.get());
     }
 
     public static void set(LivingEntity entity, @Nullable UUID uuid) {
-        entity.setData(DataAttachmentRegistry.LAST_HIT_TARGET, uuid == null ? NONE : new LastHitTarget(uuid));
+        entity.setData(DataAttachmentRegistry.LAST_HIT_TARGET.get(), uuid == null ? NONE : new LastHitTarget(uuid));
     }
 }

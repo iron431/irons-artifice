@@ -8,11 +8,11 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -20,8 +20,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntityRenderer.ChainRenderState> {
-    public static final Identifier CHAIN_TEXTURE = IronsArtifice.id("textures/entity/entity_chain.png");
-    private static final RenderType RENDER_TYPE = RenderTypes.entityCutoutCull(CHAIN_TEXTURE);
+    public static final ResourceLocation CHAIN_TEXTURE = IronsArtifice.id("textures/entity/entity_chain.png");
+    private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(CHAIN_TEXTURE);
 
     public ChainEntityRenderer(EntityRendererProvider.Context context) {
         super(context);

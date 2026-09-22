@@ -4,46 +4,59 @@ import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 import net.neoforged.neoforge.client.IArmPoseTransformer;
 
 public final class GunArmPoses {
     private static float QUARTER_PI = Mth.PI * 0.25f;
     public static final EnumProxy<HumanoidModel.ArmPose> PISTOL = new EnumProxy<>(
-            HumanoidModel.ArmPose.class, false, false, (IArmPoseTransformer) GunArmPoses::applyPistolPose
+            HumanoidModel.ArmPose.class, false, (IArmPoseTransformer) GunArmPoses::applyPistolPose
     );
 
     public static final EnumProxy<HumanoidModel.ArmPose> RIFLE = new EnumProxy<>(
-            HumanoidModel.ArmPose.class, true, true, (IArmPoseTransformer) GunArmPoses::applyRiflePose
+            HumanoidModel.ArmPose.class, true, (IArmPoseTransformer) GunArmPoses::applyRiflePose
     );
 
-    private static <T extends HumanoidRenderState> void applyPistolPose(HumanoidModel<?> model, T renderState, HumanoidArm arm) {
+    private static InteractionHand handForArm(LivingEntity entity, HumanoidArm arm) {
+        return arm == entity.getMainArm() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+    }
+
+    private static ItemStack stackForArm(LivingEntity entity, HumanoidArm arm) {
+        return entity.getItemInHand(handForArm(entity, arm));
+    }
+
+    private static int ticksUsingForArm(LivingEntity entity, HumanoidArm arm) {
+        return entity.getUsedItemHand() == handForArm(entity, arm) ? entity.getTicksUsingItem() : 0;
+    }
+
+    public static void applyPistolPose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm) {
         boolean holdingInRightArm = arm == HumanoidArm.RIGHT;
-        ReloadState reloadState = ReloadState.get(renderState.getUseItemStackForArm(arm));
+        ReloadState reloadState = ReloadState.get(stackForArm(entity, arm));
         if (reloadState != null && !reloadState.isFinished()) {
-            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(renderState.partialTick), holdingInRightArm);
+            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(0), holdingInRightArm);
         } else {
             var head = model.head;
             ModelPart armModel = model.getArm(arm);
             armModel.yRot = head.yRot;
             armModel.xRot = -1.5F + head.xRot;
-            counteractCrouch(armModel, renderState);
-            handleUseAnimation(renderState, arm, armModel, holdingInRightArm);
+            counteractCrouch(armModel, entity);
+            handleUseAnimation(entity, arm, armModel, holdingInRightArm);
         }
     }
 
-    private static <T extends HumanoidRenderState> void handleUseAnimation(T renderState, HumanoidArm arm, ModelPart armModel, boolean holdingInRightArm) {
-        float ticksUsingItem = renderState.ticksUsingItem(arm);
+    private static void handleUseAnimation(LivingEntity entity, HumanoidArm arm, ModelPart armModel, boolean holdingInRightArm) {
+        float ticksUsingItem = ticksUsingForArm(entity, arm);
         if (ticksUsingItem > 0) {
-            var stack = renderState.getUseItemStackForArm(arm);
+            var stack = stackForArm(entity, arm);
             // todo: addon hook for this?
-            if (stack.has(DataComponents.KINETIC_WEAPON)) {
+            if (stack.has(DataComponentRegistry.BAYONET.get())) {
                 handleBayonetPose(armModel, holdingInRightArm);
-            } else if (stack.has(DataComponentRegistry.GUN_SPYGLASS)) {
+            } else if (stack.has(DataComponentRegistry.GUN_SPYGLASS.get())) {
                 handleScopingPose(armModel, holdingInRightArm);
             }
         }
@@ -60,13 +73,13 @@ public final class GunArmPoses {
         arm.y += -1;
     }
 
-    private static <T extends HumanoidRenderState> void applyRiflePose(HumanoidModel<?> model, T renderState, HumanoidArm arm) {
+    public static void applyRiflePose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm) {
         boolean holdingInRightArm = arm == HumanoidArm.RIGHT;
-        ReloadState reloadState = ReloadState.get(renderState.getUseItemStackForArm(arm));
+        ReloadState reloadState = ReloadState.get(stackForArm(entity, arm));
         ModelPart shootingArm = holdingInRightArm ? model.rightArm : model.leftArm;
         ModelPart supportArm = holdingInRightArm ? model.leftArm : model.rightArm;
         if (reloadState != null && !reloadState.isFinished()) {
-            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(renderState.partialTick), holdingInRightArm);
+            animateCrossbowCharge(model.rightArm, model.leftArm, 1f, reloadState.percent(0), holdingInRightArm);
         } else {
             var head = model.head;
             shootingArm.z += 1;
@@ -83,16 +96,16 @@ public final class GunArmPoses {
             } else {
                 supportArm.z += f * 4;
             }
-            counteractCrouch(supportArm, renderState);
-            counteractCrouch(shootingArm, renderState);
-            handleUseAnimation(renderState, arm, shootingArm, holdingInRightArm);
+            counteractCrouch(supportArm, entity);
+            counteractCrouch(shootingArm, entity);
+            handleUseAnimation(entity, arm, shootingArm, holdingInRightArm);
         }
         supportArm.y += 1;
         shootingArm.y += 2;
     }
 
-    private static void counteractCrouch(ModelPart arm, HumanoidRenderState state) {
-        if (state.isCrouching) {
+    private static void counteractCrouch(ModelPart arm, LivingEntity entity) {
+        if (entity.isCrouching()) {
             arm.xRot -= 0.4f;
         }
     }
@@ -105,7 +118,7 @@ public final class GunArmPoses {
         pullingArm.xRot = holdingArm.xRot;
         float useTicks = Mth.clamp(ticksUsingItem, 0.0F, maxCrossbowChargeDuration);
         float lerpAlpha = useTicks / maxCrossbowChargeDuration;
-        lerpAlpha = Mth.sin(lerpAlpha * Mth.TWO_PI) * 0.5f + 0.5f;
+        lerpAlpha = Mth.sin(lerpAlpha * ((float) (Math.PI * 2))) * 0.5f + 0.5f;
         pullingArm.yRot = Mth.lerp(lerpAlpha, 0.4F, 0.85F) * (float) (holdingInRightArm ? 1 : -1);
         pullingArm.xRot = Mth.lerp(lerpAlpha, pullingArm.xRot, (-(float) Math.PI / 2F));
     }

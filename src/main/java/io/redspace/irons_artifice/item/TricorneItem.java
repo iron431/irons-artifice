@@ -1,9 +1,6 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.renderer.GeoArmorRenderer;
 import com.google.common.base.Suppliers;
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.client.armor.GenericArmorModel;
 import io.redspace.irons_artifice.data.ShotComponents;
@@ -11,39 +8,45 @@ import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.equipment.ArmorMaterial;
-import net.minecraft.world.item.equipment.ArmorType;
-import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 @EventBusSubscriber
-public class TricorneItem extends BaseGeoItem {
-    public static final ArmorMaterial TRICORNE_MATERIAL = new ArmorMaterial(37, Map.of(ArmorType.HELMET, 3),
+public class TricorneItem extends BaseGeoArmorItem {
+    public static final ArmorMaterial TRICORNE_MATERIAL = new ArmorMaterial(37, new EnumMap<>(Map.of(Type.HELMET, 3)),
             15,
-            SoundEvents.ARMOR_EQUIP_LEATHER,
+            Holder.direct(SoundEvents.ARMOR_EQUIP_LEATHER),
             0,
             0,
-            ItemTags.REPAIRS_LEATHER_ARMOR, ResourceKey.create(EquipmentAssets.ROOT_ID, IronsArtifice.id("empty")));
+            () -> Ingredient.of(Items.LEATHER), List.of());
 
     public TricorneItem(Properties properties) {
-        super(properties.humanoidArmor(TRICORNE_MATERIAL, ArmorType.HELMET));
+        super(Holder.direct(TRICORNE_MATERIAL), Type.HELMET, properties);
         geoRenderProvider.setValue(new GeoRenderProvider() {
-            private final Supplier<GeoArmorRenderer<?, ?>> renderer =
+            private final Supplier<GeoArmorRenderer<TricorneItem>> renderer =
                     Suppliers.memoize(() -> new GeoArmorRenderer<>(new GenericArmorModel<>("tricorne")));
 
             @Override
-            public @org.jspecify.annotations.Nullable GeoArmorRenderer<?, ?> getGeoArmorRenderer(ItemStack itemStack, EquipmentSlot equipmentSlot) {
+            public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
                 return renderer.get();
             }
         });
@@ -52,9 +55,9 @@ public class TricorneItem extends BaseGeoItem {
     public static final double DAMAGE_BUFF_PERCENT = 0.25;
 
     @SubscribeEvent
-    public static void attributeTooltip(AddAttributeTooltipsEvent event) {
-        if (event.getStack().is(ItemRegistry.TRICORNE_HAT)) {
-            event.addTooltipLines(
+    public static void attributeTooltip(ItemTooltipEvent event) {
+        if (event.getItemStack().is(ItemRegistry.TRICORNE_HAT.get())) {
+            event.getToolTip().add(
                     Component.literal(" ").append(Component.translatable("item.irons_artifice.tricorne.ability", (int) (DAMAGE_BUFF_PERCENT * 100)))
                             .withStyle(ChatFormatting.GOLD));
         }
@@ -62,7 +65,7 @@ public class TricorneItem extends BaseGeoItem {
 
     @SubscribeEvent
     public static void handleTricorneAbility(ComposeShotEvent event) {
-        if (!event.getEntity().getItemBySlot(EquipmentSlot.HEAD).is(ItemRegistry.TRICORNE_HAT)) {
+        if (!event.getEntity().getItemBySlot(EquipmentSlot.HEAD).is(ItemRegistry.TRICORNE_HAT.get())) {
             return;
         }
         ShotProfile shotProfile = event.getShotProfile();

@@ -8,12 +8,8 @@ import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.KineticWeapon;
-import net.minecraft.world.item.component.UseEffects;
+import net.minecraft.util.Unit;
 
 import java.util.Map;
 import java.util.Optional;
@@ -33,41 +29,10 @@ public class BayonetAttachmentModifier implements GunModifier {
     @Override
     public Optional<DataComponentPatch> getPatch() {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        AttackRange defaultSpearAttackRange = new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F);
-        builder.set(DataComponents.ATTACK_RANGE, defaultSpearAttackRange);
-        builder.set(DataComponents.KINETIC_WEAPON,
-                createVanillaSpear(
-                        1f,
-                        0.5f,
-                        2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F
-                ));
-        builder.set(DataComponents.USE_EFFECTS, new UseEffects(true, false, 1));
+        builder.set(DataComponentRegistry.BAYONET.get(), Unit.INSTANCE);
         builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
                 GunBones.SOCKET_BAYONET, IronsArtifice.id("iron_bayonet")
         )));
         return Optional.of(builder.build());
-    }
-
-    public KineticWeapon createVanillaSpear(
-            float damageMultiplier,
-            float delay,
-            float dismountTime,
-            float dismountThreshold,
-            float knockbackTime,
-            float knockbackThreshold,
-            float damageTime,
-            float damageThreshold
-    ) {
-        return new KineticWeapon(
-                10,
-                (int) (delay * 20.0F),
-                KineticWeapon.Condition.ofAttackerSpeed((int) (dismountTime * 20.0F), dismountThreshold),
-                KineticWeapon.Condition.ofAttackerSpeed((int) (knockbackTime * 20.0F), knockbackThreshold),
-                KineticWeapon.Condition.ofRelativeSpeed((int) (damageTime * 20.0F), damageThreshold),
-                0.38F,
-                damageMultiplier,
-                Optional.of(SoundEvents.SPEAR_USE),
-                Optional.of(SoundEvents.SPEAR_HIT)
-        );
     }
 }

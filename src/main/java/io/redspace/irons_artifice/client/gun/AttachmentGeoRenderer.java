@@ -1,44 +1,29 @@
 package io.redspace.irons_artifice.client.gun;
 
-import com.geckolib.animatable.GeoAnimatable;
-import com.geckolib.animatable.instance.AnimatableInstanceCache;
-import com.geckolib.animatable.manager.AnimatableManager;
-import com.geckolib.constant.DataTickets;
-import com.geckolib.model.GeoModel;
-import com.geckolib.renderer.GeoObjectRenderer;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
-import com.geckolib.util.GeckoLibUtil;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import org.jspecify.annotations.NonNull;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoObjectRenderer;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.util.RenderUtil;
 
-public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable, Void, GeoRenderState> {
+public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable> {
     private final GeoAnimatable animatable = new StaticAttachment();
 
     public AttachmentGeoRenderer(GeoModel<GeoAnimatable> model) {
         super(model);
     }
 
-    public void performRenderPass(@NonNull RenderPassInfo<?> parentPass, @NonNull SubmitNodeCollector renderTasks) {
-        performRenderPass(
-                this.animatable,
-                null,
-                parentPass.poseStack(),
-                renderTasks,
-                parentPass.cameraState(),
-                parentPass.packedLight(),
-                parentPass.getOrDefaultGeckolibData(DataTickets.PARTIAL_TICK, 0f)
-        );
-    }
-
-    @Override
-    public void adjustRenderPose(@NonNull RenderPassInfo<GeoRenderState> renderPassInfo) {
-        return;
-    }
-
-    @Override
-    public long getInstanceId(GeoAnimatable animatable, Void relatedObject) {
-        return 0L;
+    public void renderAttachment(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, float partialTick) {
+        RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
+        if (renderType == null) {
+            return;
+        }
+        render(poseStack, this.animatable, bufferSource, renderType, bufferSource.getBuffer(renderType), packedLight, partialTick);
     }
 
     private static class StaticAttachment implements GeoAnimatable {
@@ -51,6 +36,11 @@ public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable, Void
         @Override
         public AnimatableInstanceCache getAnimatableInstanceCache() {
             return this.cache;
+        }
+
+        @Override
+        public double getTick(Object object) {
+            return RenderUtil.getCurrentTick();
         }
     }
 }

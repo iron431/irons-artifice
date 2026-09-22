@@ -9,9 +9,9 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
@@ -46,7 +46,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         this.bCol = tinted ? tintB : 1f;
         this.mirrorHorizontal = level.getRandom().nextBoolean();
         this.mirrorVertical = level.getRandom().nextBoolean();
-        this.roll = level.getRandom().nextInt(4) * Mth.HALF_PI;
+        this.roll = level.getRandom().nextInt(4) * ((float) (Math.PI / 2));
         this.oRoll = roll;
         updateSprites();
     }
@@ -85,7 +85,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
             return;
         }
 
-        Identifier fireName = fireSprite.contents().name();
+        ResourceLocation fireName = fireSprite.contents().name();
         String path = fireName.getPath();
         if (!path.endsWith(FIRE_SUFFIX)) {
             setSprite(fireSprite);
@@ -94,7 +94,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         }
 
         String basePath = path.substring(0, path.length() - FIRE_SUFFIX.length());
-        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(Identifier.withDefaultNamespace("particles"));
+        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(ResourceLocation.withDefaultNamespace("particles"));
         setSprite(atlas.getSprite(fireName.withPath(basePath + TINTED_MASKED_SUFFIX)));
         whiteMaskSprite = atlas.getSprite(fireName.withPath(basePath + WHITE_MASK_SUFFIX));
     }
@@ -133,7 +133,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
 
     @Override
     protected int getLightCoords(float a) {
-        return LightCoordsUtil.FULL_BRIGHT;
+        return LightTexture.FULL_BRIGHT;
     }
 
     @Override

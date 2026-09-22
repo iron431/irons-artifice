@@ -25,6 +25,6 @@ public class FairyDustParticleType extends ParticleType<FairyDustParticleOption>
     @Override
     public ParticleOptions applyTrailInterpolation(ParticleOptions base, float percent) {
         if (!(base instanceof FairyDustParticleOption trail)) return base;
-        return new FairyDustParticleOption(trail.getType(), trail.getPhase() + Mth.TWO_PI * percent, trail.getRadius(), trail.getAxis());
+        return new FairyDustParticleOption(trail.getType(), trail.getPhase() + ((float) (Math.PI * 2)) * percent, trail.getRadius(), trail.getAxis());
     }
 }

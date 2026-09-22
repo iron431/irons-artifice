@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.registry.EntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.PatrollingMonster;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,16 +24,16 @@ public class IllagerPatrolMixin {
             if (!NaturalSpawner.isValidEmptySpawnBlock(level, pos, state, state.getFluidState(), EntityRegistry.ILLIFICER.get())) {
                 return;
             }
-            if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(EntityRegistry.ILLIFICER.get(), level, EntitySpawnReason.PATROL, pos, random)) {
+            if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(EntityRegistry.ILLIFICER.get(), level, MobSpawnType.PATROL, pos, random)) {
                 return;
             }
-            PatrollingMonster mob = EntityRegistry.ILLIFICER.get().create(level, EntitySpawnReason.PATROL);
+            PatrollingMonster mob = EntityRegistry.ILLIFICER.get().create(level, MobSpawnType.PATROL);
             if (mob != null) {
                 mob.setPatrolLeader(true);
                 mob.findPatrolTarget();
 
                 mob.setPos(pos.getX(), pos.getY(), pos.getZ());
-                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.PATROL, null);
+                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.PATROL, null);
                 level.addFreshEntityWithPassengers(mob);
                 cir.setReturnValue(true);
             }

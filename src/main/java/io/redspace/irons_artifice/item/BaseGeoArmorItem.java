@@ -1,21 +1,23 @@
 package io.redspace.irons_artifice.item;
 
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import org.apache.commons.lang3.mutable.MutableObject;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import org.apache.commons.lang3.mutable.MutableObject;
-import net.minecraft.world.item.Item;
 
 import java.util.function.Consumer;
 
-public class BaseGeoItem extends Item implements GeoItem {
+public class BaseGeoArmorItem extends ArmorItem implements GeoItem {
     public final MutableObject<GeoRenderProvider> geoRenderProvider = new MutableObject<>();
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    public BaseGeoItem(Item.Properties properties) {
-        super(properties);
+    public BaseGeoArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
+        super(material, type, properties);
         GeoItem.registerSyncedAnimatable(this);
     }
 
@@ -25,7 +27,7 @@ public class BaseGeoItem extends Item implements GeoItem {
     }
 
     @Override
-    public void registerControllers(final AnimatableManager.ControllerRegistrar controllers) {
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
     }
 
     @Override

@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class GunScopeOverlay {
-    private static final Identifier SCOPE_TEXTURE = Identifier.withDefaultNamespace("textures/misc/spyglass_scope.png");
+    private static final ResourceLocation SCOPE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/spyglass_scope.png");
     public static final float FOV_MODIFIER = 0.125F;
 
     private static float scopeScale = 0.5F;

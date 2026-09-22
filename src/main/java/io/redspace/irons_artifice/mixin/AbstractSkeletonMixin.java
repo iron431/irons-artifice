@@ -40,7 +40,7 @@ public abstract class AbstractSkeletonMixin extends Monster implements RangedAtt
             irons_artifice$gunGoal = new RangedGunAttackGoal<>((AbstractSkeleton) (Object) this, 32, 20, 40, 60, 100);
         }
         this.goalSelector.removeGoal(irons_artifice$gunGoal);
-        if (this.getWeaponItem().getItem() instanceof GunItem) {
+        if (this.getMainHandItem().getItem() instanceof GunItem) {
             this.goalSelector.removeGoal(bowGoal);
             this.goalSelector.removeGoal(meleeGoal);
             this.goalSelector.addGoal(4, irons_artifice$gunGoal);

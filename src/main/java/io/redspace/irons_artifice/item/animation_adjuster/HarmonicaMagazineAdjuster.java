@@ -1,29 +1,28 @@
 package io.redspace.irons_artifice.item.animation_adjuster;
 
-import com.geckolib.animation.state.BoneSnapshot;
-import com.geckolib.renderer.base.BoneSnapshots;
-import com.geckolib.renderer.base.GeoRenderState;
-import com.geckolib.renderer.base.RenderPassInfo;
 import io.redspace.irons_artifice.api.GunBones;
-import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.MagazineContents;
+import software.bernie.geckolib.cache.object.GeoBone;
 
 import java.util.Optional;
 
 public final class HarmonicaMagazineAdjuster implements AnimationAdjuster {
     @Override
-    public void adjust(RenderPassInfo<GeoRenderState> renderPassInfo, BoneSnapshots snapshots) {
-        double reloadProgress = renderPassInfo.getOrDefaultGeckolibData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET, 0.0);
-        MagazineContents magazineContents = renderPassInfo.getGeckolibData(GunItem.MAGAZINE_ANIMATION_TICKET);
-        Optional<BoneSnapshot> magazineOpt = snapshots.get(GunBones.MAGAZINE);
+    public void adjust(AdjustContext context) {
+        MagazineContents magazineContents = context.magazine();
+        Optional<GeoBone> magazineOpt = context.bone(GunBones.MAGAZINE);
         if (magazineOpt.isEmpty() || magazineContents == null) {
             return;
         }
-        boolean ignoreForReload = reloadProgress > 0.42;
+        boolean ignoreForReload = context.reloadProgressSeconds() > 0.42;
         if (!ignoreForReload) {
             float percent = 1 - magazineContents.count() / 10f;
-            BoneSnapshot magazine = magazineOpt.get();
-            magazine.setTranslation(4 * percent, 0, 0);
+            GeoBone magazine = magazineOpt.get();
+            var initial = magazine.getInitialSnapshot();
+            if (initial == null) {
+                return;
+            }
+            magazine.updatePosition(initial.getOffsetX() + 4 * percent, initial.getOffsetY(), initial.getOffsetZ());
         }
     }
 }

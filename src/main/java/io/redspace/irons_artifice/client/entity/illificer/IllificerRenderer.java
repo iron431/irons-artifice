@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.IllagerRenderState;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.illager.AbstractIllager;
 
 public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRenderer.GunIllagerRenderState> {
@@ -28,7 +28,7 @@ public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRende
         HumanoidModel.ArmPose humanoidPose;
     }
 
-    private static final Identifier TEXTURE = IronsArtifice.id("textures/entity/illificer.png");
+    private static final ResourceLocation TEXTURE = IronsArtifice.id("textures/entity/illificer.png");
 
     public IllificerRenderer(EntityRendererProvider.Context context) {
         super(context, new IllificerModel(context.bakeLayer(ModelLayers.EVOKER)), 0.5F);
@@ -36,7 +36,7 @@ public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRende
     }
 
     @Override
-    public Identifier getTextureLocation(GunIllagerRenderState state) {
+    public ResourceLocation getTextureLocation(GunIllagerRenderState state) {
         return TEXTURE;
     }
 
@@ -54,9 +54,9 @@ public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRende
         if (entity.isUsingItem()) {
             state.isUsingItem = true;
         }
-        if (entity.getWeaponItem().getItem() instanceof GunItem gun) {
+        if (entity.getMainHandItem().getItem() instanceof GunItem gun) {
             state.armPose = AbstractIllager.IllagerArmPose.NEUTRAL;
-            if (entity.isAggressive() || FireDelayState.isActive(entity, entity.getWeaponItem()) || GunItem.isReloading(entity.getWeaponItem())) {
+            if (entity.isAggressive() || FireDelayState.isActive(entity, entity.getMainHandItem()) || GunItem.isReloading(entity.getMainHandItem())) {
                 state.mobGunPose = MobGunPose.HUMANOID;
                 state.humanoidPose = gun.getGun().armPoseKind() == ArmPoseKind.PISTOL ? GunArmPoses.PISTOL.getValue() : GunArmPoses.RIFLE.getValue();
             } else {

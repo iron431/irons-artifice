@@ -18,19 +18,19 @@ public record MagazineContents(int count) {
             ByteBufCodecs.VAR_INT.map(MagazineContents::new, MagazineContents::count);
 
     public static @Nullable MagazineContents get(ItemStack stack) {
-        return stack.get(DataComponentRegistry.MAGAZINE);
+        return stack.get(DataComponentRegistry.MAGAZINE.get());
     }
 
     public static void set(ItemStack stack, MagazineContents magazine) {
-        stack.set(DataComponentRegistry.MAGAZINE, magazine);
+        stack.set(DataComponentRegistry.MAGAZINE.get(), magazine);
     }
 
     public static boolean has(ItemStack stack) {
-        return stack.has(DataComponentRegistry.MAGAZINE);
+        return stack.has(DataComponentRegistry.MAGAZINE.get());
     }
 
     public static void remove(ItemStack stack) {
-        stack.remove(DataComponentRegistry.MAGAZINE);
+        stack.remove(DataComponentRegistry.MAGAZINE.get());
     }
 
     public boolean isEmpty() {

@@ -66,12 +66,12 @@ public class Utils {
         Vec3 v = n.cross(u).normalize();
 
         // use dot product manipulation to limit range via cosine of the half angle
-        float cosHalf = Mth.cos(degreeRadius * Mth.DEG_TO_RAD);
+        float cosHalf = Mth.cos(degreeRadius * ((float) Math.PI / 180));
         // uniformly distribute distance from axis (1 == perfectly aligned, as per dot product)
         float z = Mth.lerp(random.nextFloat(), cosHalf, 1f);
         // trig identity to get sine from sin^2
         float r = Mth.sqrt(1f - z * z);
-        float phi = random.nextFloat() * Mth.TWO_PI;
+        float phi = random.nextFloat() * ((float) (Math.PI * 2));
         float cosPhi = Mth.cos(phi);
         float sinPhi = Mth.sin(phi);
         // apply random directionality

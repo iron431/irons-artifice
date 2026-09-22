@@ -37,25 +37,25 @@ public record RecentShots(List<Long> ticks) {
     }
 
     public static int count(LivingEntity entity) {
-        if (!entity.hasData(DataAttachmentRegistry.RECENT_SHOTS)) {
+        if (!entity.hasData(DataAttachmentRegistry.RECENT_SHOTS.get())) {
             return 0;
         }
-        RecentShots current = entity.getData(DataAttachmentRegistry.RECENT_SHOTS);
+        RecentShots current = entity.getData(DataAttachmentRegistry.RECENT_SHOTS.get());
         RecentShots pruned = current.pruned(entity.level().getGameTime());
         if (pruned.isEmpty()) {
-            entity.removeData(DataAttachmentRegistry.RECENT_SHOTS);
+            entity.removeData(DataAttachmentRegistry.RECENT_SHOTS.get());
             return 0;
         }
         if (pruned != current) {
-            entity.setData(DataAttachmentRegistry.RECENT_SHOTS, pruned);
+            entity.setData(DataAttachmentRegistry.RECENT_SHOTS.get(), pruned);
         }
         return pruned.size();
     }
 
     public static void trackShot(LivingEntity entity) {
-        RecentShots current = entity.hasData(DataAttachmentRegistry.RECENT_SHOTS)
-                ? entity.getData(DataAttachmentRegistry.RECENT_SHOTS)
+        RecentShots current = entity.hasData(DataAttachmentRegistry.RECENT_SHOTS.get())
+                ? entity.getData(DataAttachmentRegistry.RECENT_SHOTS.get())
                 : NONE;
-        entity.setData(DataAttachmentRegistry.RECENT_SHOTS, current.withShot(entity.level().getGameTime()));
+        entity.setData(DataAttachmentRegistry.RECENT_SHOTS.get(), current.withShot(entity.level().getGameTime()));
     }
 }
