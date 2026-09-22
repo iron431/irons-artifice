@@ -43,7 +43,7 @@ public class FrozenShrapnelOnHit implements OnHitEffect {
         }
         Vec3 axis = incoming.normalize();
         if (hitResult instanceof BlockHitResult blockHit) {
-            axis = Utils.reflect(incoming, Vec3.atLowerCornerOf(blockHit.getDirection().getUnitVec3i())).normalize();
+            axis = Utils.reflect(incoming, Vec3.atLowerCornerOf(blockHit.getDirection().getNormal())).normalize();
             if (axis.lengthSqr() < 1.0E-8) {
                 return;
             }

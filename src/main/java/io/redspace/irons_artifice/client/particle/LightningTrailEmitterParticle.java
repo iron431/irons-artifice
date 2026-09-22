@@ -55,7 +55,7 @@ public class LightningTrailEmitterParticle extends BulletTrailParticle {
         @Override
         public @Nullable Particle createParticle(ColorTransitionParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new LightningTrailEmitterParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

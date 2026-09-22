@@ -27,7 +27,7 @@ public class GunModifierMenu extends AbstractContainerMenu {
     private final List<Slot> modifierSlots;
 
     public GunModifierMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, new GunContainer(playerInventory.getSelectedItem()));
+        this(containerId, playerInventory, new GunContainer(playerInventory.getSelected()));
     }
 
     public GunModifierMenu(int containerId, Inventory playerInventory, Container gunInventory) {
@@ -38,7 +38,7 @@ public class GunModifierMenu extends AbstractContainerMenu {
         gunInventory.startOpen(playerInventory.player);
         this.size = gunInventory.getContainerSize();
         // fixme: mainhand only
-        this.gunstack = playerInventory.getSelectedItem();
+        this.gunstack = playerInventory.getSelected();
 
         int maxPerRow = 8;
         if (size % maxPerRow == 1) {
@@ -70,7 +70,15 @@ public class GunModifierMenu extends AbstractContainerMenu {
             }));
         }
 
-        this.addStandardInventorySlots(playerInventory, 8, 101);
+        // vanilla 1.21.1 has no addStandardInventorySlots helper: 3 rows + hotbar
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, 101 + row * 18));
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 101 + 3 * 18 + 4));
+        }
     }
 
     private void notifyGunModified() {

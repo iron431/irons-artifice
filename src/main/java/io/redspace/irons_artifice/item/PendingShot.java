@@ -18,15 +18,15 @@ public record PendingShot(Vec3 direction, long queuedAtGameTime) {
     public static final long MAX_AGE_TICKS = 2;
 
     public static PendingShot get(LivingEntity living) {
-        return living.getData(DataAttachmentRegistry.PENDING_SHO.get()T.get());
+        return living.getData(DataAttachmentRegistry.PENDING_SHOT.get());
     }
 
     public static void set(LivingEntity living, PendingShot shot) {
-        living.setData(DataAttachmentRegistry.PENDING_SHO.get()T.get(), shot);
+        living.setData(DataAttachmentRegistry.PENDING_SHOT.get(), shot);
     }
 
     public static void clear(LivingEntity living) {
-        living.setData(DataAttachmentRegistry.PENDING_SHO.get()T.get(), NONE);
+        living.setData(DataAttachmentRegistry.PENDING_SHOT.get(), NONE);
     }
 
     public boolean isEmpty() {

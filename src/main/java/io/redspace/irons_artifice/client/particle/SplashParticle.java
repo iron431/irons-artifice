@@ -1,5 +1,7 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -49,6 +51,11 @@ public class SplashParticle extends Particle {
     }
 
     @Override
+    public void render(VertexConsumer vertexConsumer, Camera camera, float partialTick) {
+        // NO_RENDER particle: nothing to draw
+    }
+
+    @Override
     public @Nonnull ParticleRenderType getRenderType() {
         return ParticleRenderType.NO_RENDER;
     }
@@ -61,7 +68,7 @@ public class SplashParticle extends Particle {
         @Override
         public @Nullable Particle createParticle(ColorParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new SplashParticle(level, x, y, z, xa, ya, za, options);
         }
     }

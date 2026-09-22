@@ -43,7 +43,7 @@ public final class EnchantedBulletModifier extends ValueStackModifier {
             event.setCanceled(true);
             PlayableSound.of(SoundRegistry.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
             if (shooter instanceof Player player) {
-                player.sendOverlayMessage(Component.translatable("irons_artifice.tooltip.refunded_ammo", event.getAmmoToConsume()).withStyle(ChatFormatting.LIGHT_PURPLE));
+                player.displayClientMessage(Component.translatable("irons_artifice.tooltip.refunded_ammo", event.getAmmoToConsume()).withStyle(ChatFormatting.LIGHT_PURPLE), true);
             }
         }
     }

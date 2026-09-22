@@ -23,7 +23,7 @@ public final class DebugCommands {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         dispatcher.register(Commands.literal("irons_artifice")
                 .then(Commands.literal("debug")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.literal("shoot")
                                 .executes(DebugCommands::shoot))));
     }

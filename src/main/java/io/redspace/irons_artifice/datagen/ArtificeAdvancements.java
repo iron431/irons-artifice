@@ -11,14 +11,14 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.criterion.DamageSourcePredicate;
-import net.minecraft.advancements.criterion.EntityEquipmentPredicate;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.advancements.criterion.ItemPredicate;
-import net.minecraft.advancements.criterion.KilledTrigger;
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.advancements.criterion.TagPredicate;
+import net.minecraft.advancements.critereon.DamageSourcePredicate;
+import net.minecraft.advancements.critereon.EntityEquipmentPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
@@ -84,7 +84,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
 
         child(writer, arms, "peer_review", ItemRegistry.ILLIFICER_SPAWN_EGG.get(), AdvancementType.TASK, true,
                 KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity()
-                                .of(registries.lookupOrThrow(Registries.ENTITY_TYPE), EntityRegistry.ILLIFICER.get()),
+                                .of(EntityRegistry.ILLIFICER.get()),
                         DamageSourcePredicate.Builder.damageType()
                                 .tag(TagPredicate.is(TagKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("bullet"))))));
 
@@ -101,7 +101,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
         child(writer, root, "pistols_at_dawn", ItemRegistry.TRICORNE_HAT.get(), AdvancementType.CHALLENGE, true,
                 GunCombatTrigger.TriggerInstance.fullMagazineKill(EntityPredicate.wrap(
                         EntityPredicate.Builder.entity().equipment(EntityEquipmentPredicate.Builder.equipment()
-                                .head(ItemPredicate.Builder.item().of(registries.lookupOrThrow(Registries.ITEM), ItemRegistry.TRICORNE_HAT.get()))))));
+                                .head(ItemPredicate.Builder.item().of(ItemRegistry.TRICORNE_HAT.get()))))));
         child(writer, root, "fistful_of_lead", ItemRegistry.COWBOY_HAT.get(), AdvancementType.CHALLENGE, true,
                 GunCombatTrigger.TriggerInstance.instaReloadKill());
         AdvancementHolder overOverOverkill = child(writer, wholeArsenal, "over_over_overkill", ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get(), AdvancementType.CHALLENGE, true,

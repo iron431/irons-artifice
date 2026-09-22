@@ -50,7 +50,7 @@ public class SuppressorAttachmentModifier implements GunModifier {
     @Override
     public Optional<DataComponentPatch> getPatch() {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        builder.set(DataComponentRegistry.ATTACHMEN.get()T.get(), new AttachmentMap(Map.of(
+        builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
                 GunBones.SOCKET_MUZZLE, IronsArtifice.id("suppressor")
         )));
         return Optional.of(builder.build());

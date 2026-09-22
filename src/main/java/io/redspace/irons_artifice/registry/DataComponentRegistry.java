@@ -6,6 +6,7 @@ import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Unit;
 import net.neoforged.bus.api.IEventBus;
@@ -31,11 +32,11 @@ public final class DataComponentRegistry {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> GUN_SPYGLASS =
             COMPONENTS.registerComponentType("gun_spyglass", builder -> builder
                     .persistent(Unit.CODEC)
-                    .networkSynchronized(Unit.STREAM_CODEC));
+                    .networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BAYONET =
             COMPONENTS.registerComponentType("bayonet", builder -> builder
                     .persistent(Unit.CODEC)
-                    .networkSynchronized(Unit.STREAM_CODEC));
+                    .networkSynchronized(StreamCodec.unit(Unit.INSTANCE)));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttachmentMap>> ATTACHMENT =
             COMPONENTS.registerComponentType("attachment", builder -> builder
                     .persistent(AttachmentMap.CODEC)

@@ -24,7 +24,7 @@ public class BlockDustParticle extends TextureSheetParticle {
                              double xa, double ya, double za,
                              float r, float g, float b,
                              SpriteSet sprites) {
-        super(level, x, y, z, xa, ya, za, sprites.first());
+        super(level, x, y, z, xa, ya, za);
         this.setParticleSpeed(xa, ya, za);
         this.setColor(r, g, b);
         this.sprites = sprites;
@@ -70,7 +70,7 @@ public class BlockDustParticle extends TextureSheetParticle {
         @Override
         public @Nullable Particle createParticle(BlockParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             BlockState blockState = options.getState();
             if (!blockState.isAir() && blockState.getRenderShape() == RenderShape.INVISIBLE) {
                 return null;
@@ -91,7 +91,7 @@ public class BlockDustParticle extends TextureSheetParticle {
                     }
                 }
 
-                float intensity = random.nextIntBetweenInclusive(5, 7) * 0.1f;
+                float intensity = level.getRandom().nextIntBetweenInclusive(5, 7) * 0.1f;
                 float r = (tintColor >> 16 & 0xFF) / 255.0F * intensity;
                 float g = (tintColor >> 8 & 0xFF) / 255.0F * intensity;
                 float b = (tintColor & 0xFF) / 255.0F * intensity;

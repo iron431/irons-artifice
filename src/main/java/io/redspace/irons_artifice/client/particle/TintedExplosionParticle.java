@@ -26,7 +26,7 @@ public class TintedExplosionParticle extends MuzzleFlashParticle {
         @Override
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new TintedExplosionParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
         }
     }

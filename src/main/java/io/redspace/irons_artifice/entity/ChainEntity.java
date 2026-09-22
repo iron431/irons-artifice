@@ -163,7 +163,7 @@ public class ChainEntity extends Entity {
 
     private void breakWithEffects(Vec3 from, Vec3 to) {
         playSound(SoundEvents.ITEM_BREAK, 1f, 1.2f);
-        BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_CHAIN.defaultBlockState());
+        BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.CHAIN.defaultBlockState());
         int count = 12;
         for (int i = 0; i < count; i++) {
             Vec3 pos = from.lerp(to, i / (float) (count - 1));

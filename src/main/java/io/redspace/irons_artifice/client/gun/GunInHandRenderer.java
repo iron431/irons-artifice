@@ -49,7 +49,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     public void preRender(PoseStack poseStack, GunItem animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         this.adjustmentsApplied = false;
-        if (this.renderPerspective != null && this.renderPerspective.leftHand()) {
+        if (this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
             poseStack.last().pose().scale(-1f, 1f, 1f);
             // compensate for weird lighting
             poseStack.last().normal().scale(-1, -1, 1);

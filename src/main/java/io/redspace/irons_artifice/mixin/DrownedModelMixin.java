@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.client.gun.GunArmPoses;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.client.model.DrownedModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.monster.Zombie;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,11 +17,11 @@ public class DrownedModelMixin {
     private void irons_artifice$drownedGunAnimation(Zombie entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (entity.getMainHandItem().getItem() instanceof GunItem gunItem) {
             var pose = gunItem.getGun().armPoseKind() == ArmPoseKind.PISTOL ? GunArmPoses.PISTOL.getValue() : GunArmPoses.RIFLE.getValue();
-            pose.applyTransform((DrownedModel<?>) (Object) this, entity, entity.getMainArm());
+            pose.applyTransform((HumanoidModel<Zombie>) (Object) this, entity, entity.getMainArm());
         }
         if (entity.getOffhandItem().getItem() instanceof GunItem gunItem) {
             var pose = gunItem.getGun().armPoseKind() == ArmPoseKind.PISTOL ? GunArmPoses.PISTOL.getValue() : GunArmPoses.RIFLE.getValue();
-            pose.applyTransform((DrownedModel<?>) (Object) this, entity, entity.getMainArm().getOpposite());
+            pose.applyTransform((HumanoidModel<Zombie>) (Object) this, entity, entity.getMainArm().getOpposite());
         }
     }
 }

@@ -27,7 +27,7 @@ public class IllagerPatrolMixin {
             if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(EntityRegistry.ILLIFICER.get(), level, MobSpawnType.PATROL, pos, random)) {
                 return;
             }
-            PatrollingMonster mob = EntityRegistry.ILLIFICER.get().create(level, MobSpawnType.PATROL);
+            PatrollingMonster mob = EntityRegistry.ILLIFICER.get().create(level);
             if (mob != null) {
                 mob.setPatrolLeader(true);
                 mob.findPatrolTarget();

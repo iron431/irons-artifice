@@ -17,7 +17,8 @@ import javax.annotation.Nullable;
 public class BulletTrailParticle extends TextureSheetParticle {
     public BulletTrailParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet spriteSet, ColorTransitionParticleOption particleOptions) {
-        super(level, x, y, z, xa, ya, za, spriteSet.first());
+        super(level, x, y, z, xa, ya, za);
+        this.setSprite(spriteSet.get(0, 1));
         this.setParticleSpeed(xa, ya, za);
         this.quadSize = 1;
         this.particleOptions = particleOptions;
@@ -88,7 +89,7 @@ public class BulletTrailParticle extends TextureSheetParticle {
         @Override
         public @Nullable Particle createParticle(ColorTransitionParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
-                                                 double xa, double ya, double za, RandomSource random) {
+                                                 double xa, double ya, double za) {
             return new BulletTrailParticle(level, x, y, z, xa, ya, za, this.sprite, options);
         }
     }

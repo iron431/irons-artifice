@@ -32,12 +32,13 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber
 public class TricorneItem extends BaseGeoArmorItem {
-    public static final ArmorMaterial TRICORNE_MATERIAL = new ArmorMaterial(37, new EnumMap<>(Map.of(Type.HELMET, 3)),
+    public static final ArmorMaterial TRICORNE_MATERIAL = new ArmorMaterial(new EnumMap<>(Map.of(Type.HELMET, 3)),
             15,
-            Holder.direct(SoundEvents.ARMOR_EQUIP_LEATHER),
+            SoundEvents.ARMOR_EQUIP_LEATHER /* already a Holder<SoundEvent> on 1.21.1 */,
+            () -> Ingredient.of(Items.LEATHER),
+            List.of(),
             0,
-            0,
-            () -> Ingredient.of(Items.LEATHER), List.of());
+            0);
 
     public TricorneItem(Properties properties) {
         super(Holder.direct(TRICORNE_MATERIAL), Type.HELMET, properties);
