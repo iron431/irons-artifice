@@ -47,7 +47,8 @@ public final class ModifierPatchHandler {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
         Map<String, ResourceLocation> attachments = new LinkedHashMap<>();
         boolean empty = true;
-        for (ItemStack stack : modifiers) {
+        for (int i = 0; i < modifiers.getContainerSize(); i++) {
+            ItemStack stack = modifiers.getItem(i);
             if (stack.isEmpty() || !(stack.getItem() instanceof ModifierItem modifierItem)) {
                 continue;
             }

@@ -13,7 +13,7 @@ public class GunslingerRenderer extends IllagerRenderer<Gunslinger> {
 
     public GunslingerRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.PILLAGER)), 0.5F);
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
+        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
 
     @Override

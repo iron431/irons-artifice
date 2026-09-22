@@ -1,5 +1,7 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -46,6 +48,11 @@ public class SplashParticle extends Particle {
 
     private static int as8BitChannel(float value) {
         return Mth.clamp((int) (value * 255.0F), 0, 255);
+    }
+
+    @Override
+    public void render(VertexConsumer vertexConsumer, Camera camera, float partialTick) {
+        // NO_RENDER particle: nothing to draw
     }
 
     @Override

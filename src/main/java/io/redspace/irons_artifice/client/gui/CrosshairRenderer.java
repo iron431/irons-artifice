@@ -1,5 +1,7 @@
 package io.redspace.irons_artifice.client.gui;
 
+import io.redspace.irons_artifice.mixin.GameRendererAccessor;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -82,7 +84,7 @@ public final class CrosshairRenderer {
 
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
         float degreesSpread = localCrosshairGap(partialTick);
-        float gap = Math.max(GAP_BASE + degreesToGuiPixels(degreesSpread, graphics.guiHeight(), minecraft.gameRenderer.getFov(minecraft.gameRenderer.getMainCamera(), partialTick, true)), 0);
+        float gap = Math.max(GAP_BASE + degreesToGuiPixels(degreesSpread, graphics.guiHeight(), (float) ((GameRendererAccessor) minecraft.gameRenderer).irons_artifice$getFov(minecraft.gameRenderer.getMainCamera(), partialTick, true)), 0);
         PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
         poseStack.translate(graphics.guiWidth() / 2 - 1, graphics.guiHeight() / 2, 0);

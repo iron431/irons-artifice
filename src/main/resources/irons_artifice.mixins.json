@@ -3,6 +3,7 @@
   "minVersion": "0.8.5",
   "package": "io.redspace.irons_artifice.mixin",
   "client": [
+        "GameRendererAccessor",
     "AbstractClientPlayerMixin",
     "DrownedModelMixin",
     "GuiCrosshairMixin",

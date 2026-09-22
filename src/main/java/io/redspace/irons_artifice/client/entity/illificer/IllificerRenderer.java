@@ -13,7 +13,7 @@ public class IllificerRenderer extends IllagerRenderer<Illificer> {
 
     public IllificerRenderer(EntityRendererProvider.Context context) {
         super(context, new IllificerModel(context.bakeLayer(ModelLayers.EVOKER)), 0.5F);
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
+        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
 
     @Override

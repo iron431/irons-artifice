@@ -26,7 +26,8 @@ public class FairyDustParticle extends TextureSheetParticle {
 
     public FairyDustParticle(ClientLevel level, double x, double y, double z,
                              double xa, double ya, double za, SpriteSet spriteSet, FairyDustParticleOption options) {
-        super(level, x, y, z, 0, 0, 0, spriteSet.get(0));
+        super(level, x, y, z, 0, 0, 0);
+        this.setSprite(spriteSet.get(0, 1));
         this.spriteSet = spriteSet;
         this.phase = options.getPhase();
         this.radius = options.getRadius();

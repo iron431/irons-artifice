@@ -94,9 +94,10 @@ public final class GunplayManager {
         //  - fire shot from fixed direction
         //  - then apply character motion
         RecoilState offset = RecoilState.current(shooter, now);
-        Vec2 rotation = direction.rotation();
-        float pitch = rotation.x - offset.pitch();
-        float yaw = rotation.y + offset.yaw();
+        float basePitch = (float) (Mth.atan2(-direction.y, direction.horizontalDistance()) * Mth.RAD_TO_DEG);
+        float baseYaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+        float pitch = basePitch - offset.pitch();
+        float yaw = baseYaw + offset.yaw();
         depleteMagazine(shooter, profile, stack, magazine, ammoToConsume);
         profile.peek(ShotComponents.GUNSHOT_SOUND).playGunShotSound(level, shooter.position());
         RecoilState.addImpulse(shooter, now, profile);

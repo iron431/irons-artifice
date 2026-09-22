@@ -84,7 +84,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
 
         child(writer, arms, "peer_review", ItemRegistry.ILLIFICER_SPAWN_EGG.get(), AdvancementType.TASK, true,
                 KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity()
-                                .of(registries.lookupOrThrow(Registries.ENTITY_TYPE), EntityRegistry.ILLIFICER.get()),
+                                .of(EntityRegistry.ILLIFICER.get()),
                         DamageSourcePredicate.Builder.damageType()
                                 .tag(TagPredicate.is(TagKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("bullet"))))));
 
@@ -101,7 +101,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
         child(writer, root, "pistols_at_dawn", ItemRegistry.TRICORNE_HAT.get(), AdvancementType.CHALLENGE, true,
                 GunCombatTrigger.TriggerInstance.fullMagazineKill(EntityPredicate.wrap(
                         EntityPredicate.Builder.entity().equipment(EntityEquipmentPredicate.Builder.equipment()
-                                .head(ItemPredicate.Builder.item().of(registries.lookupOrThrow(Registries.ITEM), ItemRegistry.TRICORNE_HAT.get()))))));
+                                .head(ItemPredicate.Builder.item().of(ItemRegistry.TRICORNE_HAT.get()))))));
         child(writer, root, "fistful_of_lead", ItemRegistry.COWBOY_HAT.get(), AdvancementType.CHALLENGE, true,
                 GunCombatTrigger.TriggerInstance.instaReloadKill());
         AdvancementHolder overOverOverkill = child(writer, wholeArsenal, "over_over_overkill", ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get(), AdvancementType.CHALLENGE, true,

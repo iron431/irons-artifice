@@ -21,7 +21,7 @@ public final class EntityRegistry {
                     .build("bullet"));
 
     public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = ENTITY_TYPES.register("chain",
-            () -> EntityType.Builder.of(ChainEntity::new, MobCategory.MISC)
+            () -> EntityType.Builder.<ChainEntity>of(ChainEntity::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f).clientTrackingRange(64).updateInterval(1)
                     .build("chain"));
 

@@ -205,7 +205,7 @@ public final class ClientHelper {
         PlayableSound sound = msg.sound();
         RandomSource random = SoundInstance.createUnseededRandom();
         Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
-                sound.soundEventHolder().value().location(),
+                sound.soundEventHolder().value().getLocation(),
                 msg.source(),
                 sound.volume(),
                 sound.samplePitch(random),

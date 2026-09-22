@@ -32,7 +32,8 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
     public MuzzleFlashParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet sprites,
                                float tintR, float tintG, float tintB) {
-        super(level, x, y, z, xa, ya, za, sprites.get(0));
+        super(level, x, y, z, xa, ya, za);
+        this.setSprite(sprites.get(0, 1));
         this.sprites = sprites;
         this.tinted = !(tintR < 0f || tintG < 0 || tintB < 0);
         this.lifetime = 3;

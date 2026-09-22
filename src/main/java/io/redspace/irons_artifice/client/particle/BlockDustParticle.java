@@ -24,7 +24,7 @@ public class BlockDustParticle extends TextureSheetParticle {
                              double xa, double ya, double za,
                              float r, float g, float b,
                              SpriteSet sprites) {
-        super(level, x, y, z, xa, ya, za, sprites.get(0));
+        super(level, x, y, z, xa, ya, za);
         this.setParticleSpeed(xa, ya, za);
         this.setColor(r, g, b);
         this.sprites = sprites;

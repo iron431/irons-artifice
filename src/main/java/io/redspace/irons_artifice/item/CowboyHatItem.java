@@ -36,12 +36,13 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber
 public class CowboyHatItem extends BaseGeoArmorItem {
-    public static final ArmorMaterial COWBOY_HAT_MATERIAL = new ArmorMaterial(37, new EnumMap<>(Map.of(Type.HELMET, 3)),
+    public static final ArmorMaterial COWBOY_HAT_MATERIAL = new ArmorMaterial(new EnumMap<>(Map.of(Type.HELMET, 3)),
             15,
             Holder.direct(SoundEvents.ARMOR_EQUIP_LEATHER),
+            () -> Ingredient.of(Items.LEATHER),
+            List.of(),
             0,
-            0,
-            () -> Ingredient.of(Items.LEATHER), List.of());
+            0);
 
     public CowboyHatItem(Properties properties) {
         super(Holder.direct(COWBOY_HAT_MATERIAL), Type.HELMET, properties);

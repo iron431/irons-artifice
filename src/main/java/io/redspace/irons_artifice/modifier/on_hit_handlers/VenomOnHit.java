@@ -50,7 +50,7 @@ public class VenomOnHit implements OnHitEffect {
         Vec3 spawn = level.clip(new ClipContext(center, center.add(0, -5, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, CollisionContext.empty())).getLocation().add(0, 0.05, 0);
         int duration = Math.max(1, durationTicks);
         int amp = Math.max(0, amplifier);
-        int poisonColor = MobEffects.POISON.getColor();
+        int poisonColor = MobEffects.POISON.value().getColor();
 
         AreaEffectCloud cloud = new AreaEffectCloud(level, spawn.x, spawn.y, spawn.z);
         if (bullet.getOwner() instanceof LivingEntity owner) {
