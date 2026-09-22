@@ -141,7 +141,7 @@ public final class ClientHelper {
         lastBayonetHitFeedbackTime = level.getGameTime();
         RandomSource random = SoundInstance.createUnseededRandom();
         Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
-                SoundEvents.TRIDENT_HIT.value().getLocation(),
+                SoundEvents.TRIDENT_HIT.getLocation(),
                 SoundSource.PLAYERS,
                 0.6F,
                 1.0F,

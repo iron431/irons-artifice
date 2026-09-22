@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.client.RenderingEntityTracker;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
