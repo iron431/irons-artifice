@@ -31,7 +31,7 @@ public class ItemInHandRendererMixin {
             method = "renderArmWithItem",
             at = @At("HEAD"),
             argsOnly = true,
-            name = "inverseArmHeight")
+            ordinal = 3)
     private float irons_artifice$zeroGunEquipOffset(
             float inverseArmHeight,
             AbstractClientPlayer player,

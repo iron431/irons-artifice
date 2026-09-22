@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ 'arena/01a0c7d3-irons-artifice' ]
+    branches: [ 'arena/*', 'main' ]
   pull_request:
   workflow_dispatch:
 
@@ -29,6 +29,30 @@ jobs:
         run: |
           set -o pipefail
           ./gradlew build --stacktrace 2>&1 | tee build.log
+
+      - name: Upload mod jar
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: irons_artifice-jar
+          path: build/libs/*.jar
+          if-no-files-found: error
+
+      - name: Verify jar contains valid neoforge.mods.toml
+        if: success()
+        run: |
+          echo "=== Checking generated neoforge.mods.toml ==="
+          cat build/generated/sources/modMetadata/META-INF/neoforge.mods.toml || echo "not found"
+          echo "=== Checking jar contents ==="
+          jar tf build/libs/*.jar | grep -E "neoforge.mods.toml|irons_artifice" | head -n 50
+          echo "=== Extracted neoforge.mods.toml from jar ==="
+          unzip -p build/libs/*.jar META-INF/neoforge.mods.toml || echo "MISSING FROM JAR!"
+          # fail if modLoader missing
+          if ! unzip -p build/libs/*.jar META-INF/neoforge.mods.toml | grep -q 'modLoader'; then
+            echo "::error::modLoader missing in jar!"
+            exit 1
+          fi
+          echo "✓ modLoader present"
 
       - name: Emit error annotations
         if: failure()
