@@ -1,15 +1,11 @@
 package io.redspace.irons_artifice.entity;
 
-import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import net.minecraft.world.entity.Mob;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import org.jetbrains.annotations.NotNull;
 
-@EventBusSubscriber
 public interface IGunslingerMob {
     default void customizeMobShot(@NotNull Mob mob, @NotNull ShotProfile shotProfile) {
         applyDefaultMobNerfs(mob, shotProfile);
@@ -20,21 +16,6 @@ public interface IGunslingerMob {
     }
 
     default void onVolleyStart() {
-    }
-
-    /* **********************
-     * Static Handlers
-     ********************** */
-    @SubscribeEvent
-    static void modifyMobGunshots(ComposeShotEvent event) {
-        if (!(event.getEntity() instanceof Mob mob)) {
-            return;
-        }
-        if (event.getEntity() instanceof IGunslingerMob gunslinger) {
-            gunslinger.customizeMobShot(mob, event.getShotProfile());
-        } else {
-            applyDefaultMobNerfs(mob, event.getShotProfile());
-        }
     }
 
     static void applyDefaultMobNerfs(@NotNull Mob mob, @NotNull ShotProfile profile) {
