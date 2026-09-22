@@ -59,7 +59,7 @@ public final class ModifierPatchHandler {
             applyPatchToBuilder(builder, patch.get(), attachments);
         }
         if (!attachments.isEmpty()) {
-            builder.set(DataComponentRegistry.ATTACHMEN.get()T.get(), new AttachmentMap(attachments));
+            builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(attachments));
         }
         return empty ? DataComponentPatch.EMPTY : builder.build();
     }
@@ -75,7 +75,7 @@ public final class ModifierPatchHandler {
             if (entry.getValue().isEmpty()) {
                 return;
             }
-            if (entry.getKey() == DataComponentRegistry.ATTACHMEN.get()T.get()) {
+            if (entry.getKey() == DataComponentRegistry.ATTACHMENT.get()) {
                 attachments.putAll(((AttachmentMap) entry.getValue().get()).attachments());
                 return;
             }
