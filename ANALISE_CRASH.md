@@ -1,4 +1,141 @@
-# Análise do Crash — Irons Artifice `Missing ModLoader`
+# Análise do Crash — Irons Artifice (Atualizado 22/09 05:25)
+
+**Branch:** `arena/01a0c828-irons-artifice` — fix `f684d2d` ✅ CI `35705282896` (2m59s, 2.1 MB)  
+**Data do log mais novo:** 22/09/2026 05:25:00 UTC-03:00 (Prism 11.1.0, Java 21.0.7, 15465 MiB RAM)  
+**Minecraft:** 1.21.1 + NeoForge **21.1.251** (você atualizou de 21.1.247, ótimo)  
+**Jar testado:** `irons_artifice-1.21.1-1.0.0.jar` do artifact `35703635414`
+
+> **TL;DR:** O `Missing ModLoader` foi **100% corrigido** (o jar novo já aparece em `Mod List: Iron's Arms 'n Artifice`). O crash novo de 05:25 é **outro bug, agora em código Java/Mixin**, não no `neoforge.mods.toml`. Fix `f684d2d` já no GitHub corrige os 2 gatilhos abaixo. Baixe o artifact `35705282896` e substitua o jar.
+
+---
+
+## 0. O que mudou entre 04:52 e 05:25
+
+| Log | Estado |
+|-----|--------|
+| **04:52** | `Missing ModLoader in file (irons_artifice-...)` → loader nem carregava o mod |
+| **05:25** | `Found mod file "irons_artifice-..."` + `Mod List: irons_artifice 1.21.1-1.0.0` → **jar agora é válido** (`modLoader="javafml"`+`loaderVersion="[4,)"` presente). Erro novo é em runtime: `Failed to register automatic subscribers` + `MixinTransformerError` |
+
+Ou seja: **nosso fix anterior funcionou**. O jogo passou da fase `SCAN`/`LOADING` e quebrou só no `Mod Construction` (inicialização das classes).
+
+---
+
+## 1. Crash novo — leitura do log 05:25 (3 falhas encadeadas, 1 raiz)
+
+### 1.1 Erro #1 — `Illificer` / `IGunslingerMob` (bloqueia `irons_artifice`)
+```
+[05:25:36] [modloading-worker-0/FATAL] Failed to register class ...Illificer: Attempting to register a listener object of type class ...Illificer,
+ however its supertype interface ...IGunslingerMob has a @SubscribeEvent method modifyMobGunshots(ComposeShotEvent)
+  at net.neoforged.bus.EventBus.checkSupertypes(EventBus.java:151)
+  at ...FMLModContainer.constructMod:134
+  -> ModLoader/LOADING Failed to wait for future Mod Construction, 3 errors found
+  -> Cowardly refusing to send event ... to a broken mod state
+```
+
+**O que é:** No NeoForge 21.1 com EventBus 8.x, a checagem `checkSupertypes` **proíbe** que uma classe anotada `@EventBusSubscriber` implemente uma interface/superclasse que também tem método `@SubscribeEvent`. `Illificer extends AbstractIllager implements IGunslingerMob` e estava assim:
+
+```java
+// IGunslingerMob.java (interface)
+@EventBusSubscriber
+public interface IGunslingerMob {
+  @SubscribeEvent static void modifyMobGunshots(ComposeShotEvent e) { ... }
+}
+
+// Illificer.java (entidade)
+@EventBusSubscriber
+public class Illificer extends AbstractIllager implements IGunslingerMob {
+  @SubscribeEvent static void dropLoadoutModifier(LivingDropsEvent e) { ... }
+}
+```
+
+Antes (NeoForge <21.1.250) isso passava batido; agora o loader rejeita na hora de registrar `Illificer` e marca **3 erros** (irons_artifice + 2 mods que dependem do mixin).
+
+**Fix `f684d2d`:**
+- `IGunslingerMob.java` → removido `@EventBusSubscriber` e `@SubscribeEvent` (virou só API `customizeMobShot`/`applyDefaultMobNerfs`)
+- Criado `GunslingerMobEvents.java` (`@EventBusSubscriber`) com o método `modifyMobGunshots` movido para lá — nenhuma interface é mais subscriber, então `Illificer` pode continuar como subscriber do seu próprio `dropLoadoutModifier` sem conflito.
+
+### 1.2 Erro #2 — `ItemInHandRendererMixin` (bloqueia `eternalnether` + `sable_schematic_api` e derruba `Minecraft.<init>`)
+```
+[05:25:36] [modloading-worker-0/ERROR] Mixin apply for mod irons_artifice failed irons_artifice.mixins.json:ItemInHandRendererMixin
+  -> Variable modifier method irons_artifice$zeroGunEquipOffset(...)F
+     failed injection check, (0/1) succeeded. Scanned 0 target(s). No refMap loaded.
+     at MixinProcessor.applyMixins:392 -> MixinTransformer.transformClass
+  -> Failed to create mod instance. ModID: eternalnether (21.1.3), sable_schematic_api (1.0.1)
+  -> MixinTransformerError An unexpected critical error was encountered (MixinTransformer)
+  -> at net.minecraft.client.gui.screens.TitleScreen.<init> -> EntityRenderDispatcher.<init>
+```
+
+**O que é:** O `@ModifyVariable` tentava injetar na variável `inverseArmHeight` de `ItemInHandRenderer.renderArmWithItem`:
+
+```java
+@ModifyVariable(method="renderArmWithItem", at=@At("HEAD"), argsOnly=true, name="inverseArmHeight")
+```
+
+`name="inverseArmHeight"` exige **LVN (Local Variable Name) via refmap** (`irons_artifice.refmap.json`). Como o projeto usa `moddev 1.0.21` sem `refmap` no `irons_artifice.mixins.json`, o Mixin escaneia **0 alvos** e, com `defaultRequire=1`, entra em `Critical injection failure (0/1)` e aborta a transformação da classe `ItemInHandRenderer`. Como a mesma classe é mixada por `eternalnether` e `sable_schematic_api`, todos falham em cascata, e finalmente `Minecraft.<init> -> EntityRenderDispatcher` não consegue iniciar → tela preta.
+
+Repare que o `@Inject(renderArmWithItem)` e o `@WrapOperation(renderHandsWithItems)` do mesmo arquivo **passaram** — só o `ModifyVariable` com `name=` quebrou, porque `Inject` não precisa de nome de variável.
+
+**Fix `f684d2d`:**
+```diff
+- @ModifyVariable(..., name="inverseArmHeight")
++ @ModifyVariable(..., ordinal=3)
+```
+`ordinal=3` mira o **4º `float` entre os args** (`frameInterp[0], xRot[1], attack[2], inverseArmHeight[3]`) — não precisa de refmap/LVN e funciona tanto em dev quanto em jar ofuscado (Mojang mappings já são o runtime em 1.21.1). Assinatura da target confirmada no `WrapOperation`:
+
+```
+Lnet/minecraft/client/renderer/ItemInHandRenderer;renderArmWithItem(
+  Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;
+  FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;
+  Lnet/minecraft/client/renderer/MultiBufferSource;I)V
+```
+
+### 1.3 Erros #3 e #4 — secundários (somem sozinhos)
+```
+Cowardly refusing to send event SelectablePacketPhaseAlteredEvent to a broken mod state
+Sodium cannot continue! Could not find render region initialization ...
+eternalnether ERROR Failed to create mod instance (ReportType.CONSTRUCT)
+sable_schematic_api ERROR Failed to create mod instance
+```
+São **efeito**, não causa. O loader já está em `broken mod state` por causa de `Illificer`+`ItemInHandRendererMixin`; ele recusa enviar qualquer evento seguinte. Sodium reclama porque o renderer nem chegou a inicializar.
+
+---
+
+## 2. Correção `f684d2d` — o que foi alterado
+
+**3 arquivos, BUILD SUCCESSFUL ✅**
+
+- `src/main/java/io/redspace/irons_artifice/entity/IGunslingerMob.java` — removido `@EventBusSubscriber`/`@SubscribeEvent`, método estático `modifyMobGunshots` deletado da interface (mantido só `customizeMobShot`/`applyDefaultMobNerfs`)
+- `src/main/java/io/redspace/irons_artifice/entity/GunslingerMobEvents.java` — **novo** `@EventBusSubscriber` com `modifyMobGunshots(ComposeShotEvent)` (mesma lógica, chama `gunslinger.customizeMobShot` ou `applyDefaultMobNerfs`)
+- `src/main/java/io/redspace/irons_artifice/mixin/ItemInHandRendererMixin.java` — `name="inverseArmHeight"` → `ordinal=3`
+
+Diff completo no commit `f684d2d` em `arena/01a0c828-irons-artifice` e CI `35705282896` (2m59s, `Build with Gradle` ✅, `Upload mod jar` 2.1 MB ✅, `Verify jar contains valid neoforge.mods.toml` ✅ `✓ modLoader present`).
+
+---
+
+## 3. Como obter o jar corrigido (segunda leva)
+
+### Opção A — GitHub Actions (recomendado, já compilado)
+1. https://github.com/rafaelkb/irons-artifice/actions/runs/35705282896
+2. Role até **Artifacts** → **`irons_artifice-jar`** (2 117 840 bytes, `irons_artifice-1.21.1-1.0.0.jar`)
+3. Baixe, extraia e **substitua** o arquivo em `PrismLauncher/instances/1.21.1/minecraft/mods/` (apague o antigo 05:25)
+4. Não precisa limpar `sources.jar` (`irons_artifice-1.21.1-1.0.0-sources.jar` não vai em `mods/`, é só fontes)
+
+### Opção B — Compilar local
+```bash
+git fetch origin
+git checkout arena/01a0c828-irons-artifice
+git pull
+./gradlew build
+# jar em build/libs/irons_artifice-1.21.1-1.0.0.jar
+unzip -p build/libs/*.jar META-INF/neoforge.mods.toml | head -n5
+# deve mostrar modLoader="javafml"
+```
+
+Teste esperado no próximo launch: **não** deve mais aparecer `Failed to register class ...Illificer` nem `irons_artifice$zeroGunEquipOffset failed injection`. O `Mod List` deve listar `irons_artifice`, `eternalnether` e `sable_schematic_api` sem `Failed to create mod instance`.
+
+---
+
+# Histórico — Crash anterior (Missing ModLoader) 04:52
 
 **Data do log:** 22/09/2026 04:52:44 UTC-03:00  
 **Minecraft:** 1.21.1 + NeoForge 21.1.247 + PrismLauncher 11.1.0  
