@@ -187,5 +187,32 @@
   "advancements.irons_artifice.ultrakill.title": "Ультракилл",
   "advancements.irons_artifice.ultrakill.description": "(1000+) Ты вообще играл в ванилу?",
 
-  "fml.menu.mods.info.description.irons_artifice": "Исследуйте игру в роли изобретателя: создавайте, экспериментируйте и конструируйте оружейные сборки в историко-фэнтезийном стиле!"
+  "fml.menu.mods.info.description.irons_artifice": "Исследуйте игру в роли изобретателя: создавайте, экспериментируйте и конструируйте оружейные сборки в историко-фэнтезийном стиле!",
+
+  "irons_artifice.configuration.Ammo-Counter": "Счётчик патронов",
+  "irons_artifice.configuration.anchor": "Положение счётчика патронов",
+  "irons_artifice.configuration.enabled": "Включение",
+  "irons_artifice.configuration.offsetX": "Смещение по X",
+  "irons_artifice.configuration.offsetY": "Смещение по Y",
+  "irons_artifice.configuration.showIcon": "Показать иконку",
+  "irons_artifice.configuration.showMagazine": "Показать ёмкость магазина",
+  "irons_artifice.configuration.showReserve": "Показать запасные патроны",
+  "irons_artifice.configuration.loadedScale": "Масштаб счетчика патронов",
+  "irons_artifice.configuration.iconSize": "Размер иконки",
+  "irons_artifice.configuration.textShadow": "Тень от текста",
+  "irons_artifice.configuration.colorFull": "Цвет полного магазина",
+  "irons_artifice.configuration.colorLow": "Цвет почти пустого магазина",
+  "irons_artifice.configuration.colorEmpty": "Цвет пустого магазина",
+  "irons_artifice.configuration.colorReserve": "Цвет запасных патронов",
+  "irons_artifice.configuration.colorIcon": "Цвет иконки",
+  "irons_artifice.configuration.flashEnabled": "Вспышка",
+  "irons_artifice.configuration.flashDurationTicks": "Длительность вспышки в тиках",
+  "irons_artifice.configuration.flashScale": "Масштаб вспышки",
+  "irons_artifice.configuration.flashTravel": "Смещение вспышки",
+  "irons_artifice.configuration.colorFlash": "Цвет вспышки",
+  "irons_artifice.configuration.toolbar": "Цвет вспышки",
+  "irons_artifice.configuration.illificer": "Оружейник",
+  "irons_artifice.configuration.replacePatrolLeader": "Шанс заменить командира патруля на оружейника",
+  "irons_artifice.configuration.drowned-pirates": "Утонувшие пираты",
+  "irons_artifice.configuration.drownedPirateAmbush": "Шанс засады утонувших пиратов"
 }
