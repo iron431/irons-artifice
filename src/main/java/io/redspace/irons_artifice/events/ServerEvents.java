@@ -6,6 +6,7 @@ import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.DrownedPirateHelper;
+import io.redspace.irons_artifice.item.BayonetLunge;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -81,6 +83,30 @@ public class ServerEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onUseItemStart(LivingEntityUseItemEvent.Start event) {
+        if (GunItem.hasBayonet(event.getItem())) {
+            BayonetLunge.useStarted(event.getEntity());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onUseItemTick(LivingEntityUseItemEvent.Tick event) {
+        if (GunItem.hasBayonet(event.getItem())) {
+            BayonetLunge.tick(event.getEntity(), event.getItem());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onUseItemStop(LivingEntityUseItemEvent.Stop event) {
+        BayonetLunge.useStopped(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void onUseItemFinish(LivingEntityUseItemEvent.Finish event) {
+        BayonetLunge.useStopped(event.getEntity());
     }
 
     @SubscribeEvent

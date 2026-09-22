@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -67,7 +67,7 @@ public class BayonetAnimations {
     }
 
     public static void firstPersonUse(float ticksSinceHitFeedback, PoseStack poseStack, float timeHeld, HumanoidArm arm, ItemStack itemStack) {
-        if (!itemStack.has(DataComponentRegistry.BAYONET.get())) {
+        if (!GunItem.hasBayonet(itemStack)) {
             return;
         }
         BayonetAnimations.UseParams params = BayonetAnimations.UseParams.forTimeHeld(timeHeld);

@@ -8,6 +8,8 @@
     "DrownedModelMixin",
     "GuiCrosshairMixin",
     "ItemInHandRendererMixin",
+    "ItemRendererMixin",
+    "LocalPlayerMixin",
     "MinecraftMixin"
   ],
   "injectors": {

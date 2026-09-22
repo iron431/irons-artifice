@@ -183,7 +183,13 @@ public class IronsArtificeClient {
             @Override
             public boolean applyForgeHandTransform(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, ItemStack itemInHand, float partialTick, float equipProcess, float swingProcess) {
                 if (GunItem.isChargingBayonet(player)) {
-                    BayonetAnimations.firstPersonUse(1000f, poseStack, player.getTicksUsingItem() + partialTick, arm, itemInHand);
+                    BayonetAnimations.firstPersonUse(
+                            ClientHelper.ticksSinceBayonetHitFeedback(partialTick),
+                            poseStack,
+                            player.getTicksUsingItem() + partialTick,
+                            arm,
+                            itemInHand
+                    );
                     return true;
                 }
                 return false;

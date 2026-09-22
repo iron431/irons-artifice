@@ -31,6 +31,8 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -46,6 +48,7 @@ import java.util.List;
 public final class ClientHelper {
 
     private static long localDryFireTime;
+    private static long lastBayonetHitFeedbackTime = -1000;
 
     public static void handleLocalDryFire(Player player, PlayableSound sound) {
         if (player.level().getGameTime() > localDryFireTime + 8) {
@@ -109,25 +112,60 @@ public final class ClientHelper {
         ), true, pos.x, pos.y, pos.z, direction.x, direction.y, direction.z);
         BlockPos impactedBlock = BlockPos.containing(pos.add(direction.scale(0.1)));
         BlockState blockState = level.getBlockState(impactedBlock);
-        float particleSpeed = (10 + speed) * 0.02f;
+        double particleSpeed = (10 + speed) * 0.02f;
         int particleCount = 3 + (int) (msg.damage() / 2);
-        for (int i = 0; i < particleCount; i++) {
-            Vec3 motion = new Vec3(level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1).subtract(direction.scale(0.25)).normalize();
-            motion = motion.scale(particleSpeed);
+        spawnImpactBurst(level, blockState, pos, direction.scale(-0.25), particleSpeed, particleCount, true);
+        spawnImpactBurst(level, blockState, pos, reflected.scale(3), particleSpeed * 2, particleCount, false);
+    }
+
+    private static void spawnImpactBurst(ClientLevel level, BlockState blockState, Vec3 pos, Vec3 bias, double speed, int count, boolean withDust) {
+        for (int i = 0; i < count; i++) {
+            Vec3 motion = Utils.randomUnitVector(level.getRandom()).add(bias).normalize().scale(speed);
             level.addParticle(new BlockParticleOption(ParticleRegistry.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
-            motion = motion.scale(0.25);
-            level.addParticle(new BlockParticleOption(ParticleRegistry.BLOCK_DUST.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
-        }
-        for (int i = 0; i < particleCount; i++) {
-            Vec3 motion = new Vec3(level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1)
-                    .add(reflected.scale(3)).normalize();
-            motion = motion.scale(particleSpeed * 2);
-            level.addParticle(new BlockParticleOption(ParticleRegistry.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
+            if (withDust) {
+                Vec3 dustMotion = motion.scale(0.25);
+                level.addParticle(new BlockParticleOption(ParticleRegistry.BLOCK_DUST.get(), blockState), pos.x, pos.y, pos.z, dustMotion.x, dustMotion.y, dustMotion.z);
+            }
         }
     }
 
     public static void handleMuzzleFlash(ClientboundMuzzleFlashPacket msg) {
         MuzzleFlashEmitter.enqueue(msg);
+    }
+
+    public static void handleBayonetHitFeedback() {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            return;
+        }
+        lastBayonetHitFeedbackTime = level.getGameTime();
+        RandomSource random = SoundInstance.createUnseededRandom();
+        Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
+                SoundEvents.TRIDENT_HIT.value().getLocation(),
+                SoundSource.PLAYERS,
+                0.6F,
+                1.0F,
+                random,
+                false,
+                0,
+                SoundInstance.Attenuation.NONE,
+                0.0,
+                0.0,
+                0.0,
+                true
+        ));
+    }
+
+    /**
+     * Ticks since the local player's bayonet charge last connected (interpolated), for the first
+     * person animation feedback. Large when no hit was registered recently.
+     */
+    public static float ticksSinceBayonetHitFeedback(float partialTick) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || lastBayonetHitFeedbackTime < 0) {
+            return 1000.0F;
+        }
+        return level.getGameTime() - lastBayonetHitFeedbackTime + partialTick;
     }
 
     public static void handleGunAnimationPacket(ClientboundGunAnimationPacket msg) {
@@ -243,6 +281,8 @@ public final class ClientHelper {
 
     public static void reset() {
         localDryFireTime = 0;
+        lastBayonetHitFeedbackTime = -1000;
+        MuzzleFlashEmitter.reset();
     }
 
     public static InteractionHand getHandHoldingTwoHandedGun(LocalPlayer player) {

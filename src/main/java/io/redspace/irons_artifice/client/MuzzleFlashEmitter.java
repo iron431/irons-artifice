@@ -5,6 +5,7 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.data.ParticleBurst;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
+import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -16,31 +17,47 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.joml.Vector3f;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class MuzzleFlashEmitter {
-    private static final Map<Integer, ClientboundMuzzleFlashPacket> PENDING = new HashMap<>();
+    /**
+     * Excess flashes for one entity within a single frame are extra shots; the queue only guards
+     * against pathological buildup (dropping in the oldest-first direction keeps the newest visuals).
+     */
+    private static final int MAX_PENDING_PER_ENTITY = 4;
+
+    private static final Map<Integer, Deque<ClientboundMuzzleFlashPacket>> PENDING = new HashMap<>();
+
+    private MuzzleFlashEmitter() {
+    }
 
     public static void enqueue(ClientboundMuzzleFlashPacket packet) {
         if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null) {
             return;
         }
-        PENDING.put(packet.entityId(), packet);
+        Deque<ClientboundMuzzleFlashPacket> queue = PENDING.computeIfAbsent(packet.entityId(), id -> new ArrayDeque<>());
+        if (queue.size() >= MAX_PENDING_PER_ENTITY) {
+            queue.pollFirst();
+        }
+        queue.addLast(packet);
     }
 
     public static void tryEmit(int entityId, PoseStack poseStack) {
-        ClientboundMuzzleFlashPacket packet = PENDING.remove(entityId);
-        if (packet == null) {
-            return;
-        }
+        Deque<ClientboundMuzzleFlashPacket> queue = PENDING.remove(entityId);
         ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) {
+        if (queue == null || level == null) {
             return;
         }
-        spawn(level, packet, worldPosFromBone(poseStack, packet.extraForwardOffset()));
+        // Every queued flash for this entity belongs at the muzzle that is being rendered right now;
+        // spawning them all avoids stale backup flashes for shots fired within the same frame.
+        for (ClientboundMuzzleFlashPacket packet : queue) {
+            spawn(level, packet, worldPosFromBone(poseStack, packet.extraForwardOffset()));
+        }
     }
 
     /**
@@ -55,12 +72,20 @@ public final class MuzzleFlashEmitter {
         if (level == null || PENDING.isEmpty() || Minecraft.getInstance().isPaused()) {
             return;
         }
-        Iterator<ClientboundMuzzleFlashPacket> iterator = PENDING.values().iterator();
+        Iterator<Deque<ClientboundMuzzleFlashPacket>> iterator = PENDING.values().iterator();
         while (iterator.hasNext()) {
-            ClientboundMuzzleFlashPacket packet = iterator.next();
-            spawn(level, packet, packet.backupPos());
+            Deque<ClientboundMuzzleFlashPacket> queue = iterator.next();
+            for (ClientboundMuzzleFlashPacket packet : queue) {
+                spawn(level, packet, packet.backupPos());
+            }
             iterator.remove();
         }
+    }
+
+    /** Drop leftover state (e.g. on logout) so flashes cannot leak into the next session. */
+    public static void reset() {
+        PENDING.clear();
+        RenderingEntityTracker.clear();
     }
 
     private static Vec3 worldPosFromBone(PoseStack poseStack, float extraForwardOffset) {
@@ -84,8 +109,7 @@ public final class MuzzleFlashEmitter {
             return;
         }
         visuals.flash().ifPresent(flash -> {
-            Vec3 random = new Vec3(level.getRandom().nextDouble() - 0.5, level.getRandom().nextDouble() - 0.5, level.getRandom().nextDouble() - 0.5).scale(2).scale(0.02);
-            Vec3 motion = msg.entityMotion().scale(0.5).add(random);
+            Vec3 motion = msg.entityMotion().scale(0.5).add(Utils.randomUnitVector(level.getRandom()).scale(0.02));
             level.addAlwaysVisibleParticle(flash, true, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
         });
         for (ParticleBurst burst : visuals.airBursts()) {
@@ -95,11 +119,7 @@ public final class MuzzleFlashEmitter {
 
     private static void spawnBurst(ClientLevel level, ParticleBurst burst, Vec3 pos) {
         for (int i = 0; i < burst.count(); i++) {
-            Vec3 motion = new Vec3(
-                    level.getRandom().nextDouble() - 0.5,
-                    level.getRandom().nextDouble() - 0.5,
-                    level.getRandom().nextDouble() - 0.5
-            ).scale(2).scale(burst.velocityScale());
+            Vec3 motion = Utils.randomUnitVector(level.getRandom()).scale(burst.velocityScale());
             level.addAlwaysVisibleParticle(burst.particle(), burst.force(), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
         }
     }

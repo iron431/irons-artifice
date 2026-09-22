@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.network;
 
+import io.redspace.irons_artifice.network.packets.ClientboundBayonetHitPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletImpactPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletTrailPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationPacket;
@@ -75,6 +76,11 @@ public final class PayloadRegistry {
                 ClientboundEquipSoundPacket.TYPE,
                 ClientboundEquipSoundPacket.STREAM_CODEC,
                 ClientboundEquipSoundPacket::handle
+        );
+        registrar.playToClient(
+                ClientboundBayonetHitPacket.TYPE,
+                ClientboundBayonetHitPacket.STREAM_CODEC,
+                ClientboundBayonetHitPacket::handle
         );
     }
 }

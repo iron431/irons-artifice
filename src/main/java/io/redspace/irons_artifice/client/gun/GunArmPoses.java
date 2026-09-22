@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.client.gun;
 
+import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.ReloadState;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -54,9 +54,9 @@ public final class GunArmPoses {
         if (ticksUsingItem > 0) {
             var stack = stackForArm(entity, arm);
             // todo: addon hook for this?
-            if (stack.has(DataComponentRegistry.BAYONET.get())) {
+            if (GunItem.hasBayonet(stack)) {
                 handleBayonetPose(armModel, holdingInRightArm);
-            } else if (stack.has(DataComponentRegistry.GUN_SPYGLASS.get())) {
+            } else if (GunItem.hasGunSpyglass(stack)) {
                 handleScopingPose(armModel, holdingInRightArm);
             }
         }

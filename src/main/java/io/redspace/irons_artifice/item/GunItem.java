@@ -71,6 +71,8 @@ public class GunItem extends BaseGeoItem {
     }
 
     public static final int SCOPE_USE_DURATION = 1200;
+    /** Effectively infinite charge duration, like bows (3600 … 72000 is vanilla's bow hold). */
+    public static final int BAYONET_USE_DURATION = 72000;
 
     public static boolean hasGunSpyglass(ItemStack stack) {
         return stack.has(DataComponentRegistry.GUN_SPYGLASS.get());
@@ -80,8 +82,12 @@ public class GunItem extends BaseGeoItem {
         return entity.isUsingItem() && hasGunSpyglass(entity.getUseItem());
     }
 
+    public static boolean hasBayonet(ItemStack stack) {
+        return stack.has(DataComponentRegistry.BAYONET.get());
+    }
+
     public static boolean isChargingBayonet(Entity entity) {
-        return entity instanceof LivingEntity living && living.isUsingItem() && living.getUseItem().has(DataComponentRegistry.BAYONET.get());
+        return entity instanceof LivingEntity living && living.isUsingItem() && hasBayonet(living.getUseItem());
     }
 
     @Override
@@ -94,7 +100,7 @@ public class GunItem extends BaseGeoItem {
             player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
-        if (stack.has(DataComponentRegistry.BAYONET.get())) {
+        if (hasBayonet(stack)) {
             player.playSound(SoundEvents.TRIDENT_THROW.value(), 0.4F, 1.2F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
@@ -106,7 +112,7 @@ public class GunItem extends BaseGeoItem {
         if (hasGunSpyglass(stack)) {
             return UseAnim.SPYGLASS;
         }
-        if (stack.has(DataComponentRegistry.BAYONET.get())) {
+        if (hasBayonet(stack)) {
             return UseAnim.SPEAR;
         }
         return super.getUseAnimation(stack);
@@ -114,11 +120,16 @@ public class GunItem extends BaseGeoItem {
 
     @Override
     public int getUseDuration(@Nonnull ItemStack stack, @Nonnull LivingEntity user) {
+        // Mobs only ever "use" a gun to charge the bayonet; players using one primarily scope when
+        // both behaviors are present (startUsing and the use animation follow that same priority).
+        if (hasBayonet(stack) && !(user instanceof Player)) {
+            return BAYONET_USE_DURATION;
+        }
         if (hasGunSpyglass(stack)) {
             return SCOPE_USE_DURATION;
         }
-        if (stack.has(DataComponentRegistry.BAYONET.get())) {
-            return 72000;
+        if (hasBayonet(stack)) {
+            return BAYONET_USE_DURATION;
         }
         return super.getUseDuration(stack, user);
     }
@@ -129,7 +140,7 @@ public class GunItem extends BaseGeoItem {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             return stack;
         }
-        if (stack.has(DataComponentRegistry.BAYONET.get())) {
+        if (hasBayonet(stack)) {
             return stack;
         }
         return super.finishUsingItem(stack, level, entity);
@@ -141,10 +152,16 @@ public class GunItem extends BaseGeoItem {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             return;
         }
-        if (stack.has(DataComponentRegistry.BAYONET.get())) {
+        if (hasBayonet(stack)) {
             return;
         }
         super.releaseUsing(stack, level, entity, remainingTime);
+    }
+
+    @Override
+    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
+        // NeoForge routes hard stops (item switch, mob goal, damage) here instead of the use-item Stop event
+        BayonetLunge.useStopped(entity);
     }
 
     public GunProfile getGun() {

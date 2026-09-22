@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.client.MuzzleFlashEmitter;
+import io.redspace.irons_artifice.client.RenderingEntityTracker;
 import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.item.AttachmentMap;
@@ -23,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
@@ -65,7 +65,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (!isReRender) {
             ItemStack stack = getCurrentItemStack();
             if (stack != null) {
-                handleMuzzleFlashEmission(bone, stack, poseStack);
+                handleMuzzleFlashEmission(bone, poseStack);
                 handleAttachmentRendering(bone, stack, poseStack, bufferSource, packedLight, partialTick);
                 handleFirstPersonHandRendering(bone, stack, poseStack, bufferSource, packedLight);
             }
@@ -119,24 +119,20 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         getGeoModel().getBone(GunBones.ROOT).ifPresent(AnimationAdjuster::restoreInitialTransform);
     }
 
-    protected void handleMuzzleFlashEmission(GeoBone bone, ItemStack stack, PoseStack poseStack) {
+    protected void handleMuzzleFlashEmission(GeoBone bone, PoseStack poseStack) {
         if (!bone.getName().equals(GunBones.SOCKET_MUZZLE) || !isHandPerspective()) {
             return;
         }
-        var player = Minecraft.getInstance().player;
-        if (player == null) {
+        // The flash belongs to the entity this gun is being rendered for (the upstream ITEM_OWNER_ID_TICKET).
+        // Item renders without an owner (gui, ground) can only be the local player's own hands in hand perspectives.
+        int ownerId = RenderingEntityTracker.currentEntityId().orElseGet(() -> {
+            var player = Minecraft.getInstance().player;
+            return player == null ? -1 : player.getId();
+        });
+        if (ownerId < 0) {
             return;
         }
-        // Only the shooter's own gun can be matched to a pending flash; other guns fall back to the packet position
-        long id = GeoItem.getId(stack);
-        if (id == Long.MAX_VALUE
-                || (GeoItem.getId(player.getMainHandItem()) != id && GeoItem.getId(player.getOffhandItem()) != id)) {
-            return;
-        }
-        poseStack.pushPose();
-        RenderUtil.prepMatrixForBone(poseStack, bone);
-        MuzzleFlashEmitter.tryEmit(player.getId(), poseStack);
-        poseStack.popPose();
+        withBonePose(poseStack, bone, () -> MuzzleFlashEmitter.tryEmit(ownerId, poseStack));
     }
 
     protected void handleAttachmentRendering(GeoBone bone, ItemStack stack, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, float partialTick) {
@@ -152,10 +148,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (renderer.isEmpty()) {
             return;
         }
-        poseStack.pushPose();
-        RenderUtil.prepMatrixForBone(poseStack, bone);
-        renderer.get().renderAttachment(poseStack, bufferSource, packedLight, partialTick);
-        poseStack.popPose();
+        withBonePose(poseStack, bone, () -> renderer.get().renderAttachment(poseStack, bufferSource, packedLight, partialTick));
     }
 
     protected void handleFirstPersonHandRendering(GeoBone bone, ItemStack stack, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
@@ -180,9 +173,14 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         }
         ModelPart modelPart = right ? renderer.getModel().rightArm : renderer.getModel().leftArm;
         RenderType renderType = RenderType.entityCutoutNoCull(player.getSkin().texture());
+        withBonePose(poseStack, bone, () -> renderFirstPersonHand(modelPart, poseStack, renderType, bufferSource, packedLight));
+    }
+
+    /** Runs {@code action} with the pose stack transformed into {@code bone}'s local space. */
+    protected void withBonePose(PoseStack poseStack, GeoBone bone, Runnable action) {
         poseStack.pushPose();
         RenderUtil.prepMatrixForBone(poseStack, bone);
-        renderFirstPersonHand(modelPart, poseStack, renderType, bufferSource, packedLight);
+        action.run();
         poseStack.popPose();
     }
 

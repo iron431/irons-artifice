@@ -1,3 +1,21 @@
+## Unofficial 1.21.1 port changes
+
+### Additions
+- Bayonet Charge (spear lunge) backported to 1.21.1: hold Use with a bayonet-equipped gun to charge. The charge hits entities along your view every tick, with effects based on your momentum (dismount riders when very fast early in the charge, knockback while engaged, damage based on relative speed). Charging does not slow your movement, and you can start/keep sprinting while charging — mounted charges work too.
+
+### Fixes
+- Fixed muzzle flashes anchoring only to the local player's gun: flashes from other players and gun-wielding mobs (pirates, illificers, etc.) now emit from the shooter's actual muzzle bone instead of always falling back to a stale eye-position approximation.
+- Fixed muzzle flashes being lost when several shots were fired by one entity within a single frame.
+
+### Port internals
+- Added `BayonetLunge`, a server-side reimplementation of the vanilla 26.x `KINETIC_WEAPON`/spear charge (upstream gets it from data components unavailable on 1.21.1), driven by `LivingEntityUseItemEvent`s. Mob bayonet AI now uses the same engine instead of its bespoke manual stab (matching upstream's `stabbedEntities` behavior).
+- Added `ItemRendererMixin` + `RenderingEntityTracker` so the in-hand gun renderer knows which entity it is rendering for (upstream's `ITEM_OWNER_ID_TICKET` equivalent).
+- Added `LocalPlayerMixin` replicating the vanilla spear's use effects (no 20% input slowdown, sprint allowed while charging).
+- Added `ClientboundBayonetHitPacket` for first person hit feedback (hit sound + animation flinch).
+- Consolidated duplicated helpers: `GunItem#hasBayonet`, `GunInHandRenderer#withBonePose`, `ClientHelper#spawnImpactBurst`, `Utils#randomUnitVector`.
+
+---
+
 ### Additions
 - Added Suppressor Attachment Modifier
 - Added Hook Shot Modifier

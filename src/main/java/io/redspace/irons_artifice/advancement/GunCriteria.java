@@ -7,7 +7,6 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -74,7 +73,7 @@ public final class GunCriteria {
             float damage = state.recordDamage(record.fireId(), event.getNewDamage());
             player.setData(DataAttachmentRegistry.SHOT_COMBAT.get(), state);
             triggerCombat(player, killed, damage, player.distanceTo(victim), pellets, totalKills, record, bullet.getProfile().itemStack(), victim, GunCombatSource.BULLET);
-        } else if (player.getMainHandItem().getItem() instanceof GunItem && player.getMainHandItem().has(DataComponentRegistry.BAYONET.get())) {
+        } else if (player.getMainHandItem().getItem() instanceof GunItem && GunItem.hasBayonet(player.getMainHandItem())) {
             boolean killed = victim.getHealth() <= 0;
             triggerCombat(player, killed, event.getNewDamage(), player.distanceTo(victim), 0, killed ? 1 : 0, null, player.getMainHandItem(), victim, GunCombatSource.BAYONET);
         }

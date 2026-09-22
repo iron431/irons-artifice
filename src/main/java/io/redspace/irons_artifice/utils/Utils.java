@@ -95,6 +95,14 @@ public class Utils {
         );
     }
 
+    /**
+     * Random vector with each component uniformly distributed in [-1, 1), and expected length ~0.75.
+     * Not normalized; call {@link Vec3#normalize()} if a direction is needed.
+     */
+    public static Vec3 randomUnitVector(RandomSource random) {
+        return new Vec3(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1);
+    }
+
     public static float triangleInterpolate(float x, float start, float peak, float end) {
         if (x <= start || x >= end) {
             return 0.0f;
