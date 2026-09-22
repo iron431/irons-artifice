@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 public class CowboyHatItem extends BaseGeoArmorItem {
     public static final ArmorMaterial COWBOY_HAT_MATERIAL = new ArmorMaterial(new EnumMap<>(Map.of(Type.HELMET, 3)),
             15,
-            Holder.direct(SoundEvents.ARMOR_EQUIP_LEATHER),
+            SoundEvents.ARMOR_EQUIP_LEATHER /* already a Holder<SoundEvent> on 1.21.1 */,
             () -> Ingredient.of(Items.LEATHER),
             List.of(),
             0,
