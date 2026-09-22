@@ -1,4 +1,7 @@
 
+modLoader="javafml" #mandatory
+loaderVersion="${loader_version_range}" #mandatory
+
 license="${mod_license}"
 
 [[mods]] #mandatory
