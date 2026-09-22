@@ -1,7 +1,117 @@
-# Análise do Crash — Irons Artifice (Atualizado 22/09 05:25)
+# Análise do Crash — Irons Artifice (Atualizado 22/09 05:37) — fix `ffa65ed` ✅ CI `35706366797` (2m36s)
+
+**Branch:** `arena/01a0c828-irons-artifice` — fix `ffa65ed` ✅ CI `35706366797` (2m36s, 2 117 894 bytes)  
+**Data do log mais novo:** 22/09/2026 **05:37:36** UTC-03:00 (Prism 11.1.0, Java 21.0.7, 15465 MiB RAM, NeoForge 21.1.251)  
+**Jar testado:** `irons_artifice-1.21.1-1.0.0.jar` do artifact `35705282896` (já com fix `f684d2d`)
+
+> **TL;DR 05:37:** O fix `f684d2d` **funcionou** — o `Failed to register class Illificer` e o `MixinTransformerError ItemInHandRendererMixin` **sumiram** (não aparecem mais no log; `Mod List: Iron's Arms 'n Artifice 1.21.1-1.0.0` presente e jogo chega em `GameData.postRegisterEvents`). O crash novo é **outro bug, agora em `RegistryEvent`**: `ExceptionInInitializerError` em `ItemRegistry.java:80` → `ChainLightningModifier.<clinit>:23` → `NullPointerException: Trying to access unbound value: lightning_trail`. Fix `ffa65ed` já no GitHub corrige o `DeferredHolder.get()` em `<clinit>` e o `SpawnEggItem`. Baixe o artifact **`35706366797`**.
+
+---
+
+## 0. O que mudou entre 05:25 e 05:37
+
+| Log | Estado |
+|-----|--------|
+| **05:25** | `Failed to register class Illificer` + `Mixin apply failed ItemInHandRendererMixin (0/1, No refMap)` → 3 erros, `eternalnether`/`sable_schematic_api` não constroem |
+| **05:37** | **Sem** `Failed to register class Illificer`, **sem** `MixinTransformerError` → `irons_artifice` agora passa por `Mod Construction` e chega em `RegisterEvent`. Quebra só em `GameData.postRegisterEvents:92` com **5 erros** `ModLoadingException` (ver §1). Prova que `f684d2d` resolveu a segunda leva. |
+
+> Confirmação no log 05:37: `Found mod file "irons_artifice-1.21.1-1.0.0.jar"` → `Mod List: ... irons_artifice 1.21.1-1.0.0` → **nenhum** `Failed to register automatic subscribers` → `RegisterEvent` para `irons_artifice:items` dispara, e só então explode em `ChainLightningModifier`.
+
+---
+
+## 1. Crash novo 05:37 — `DeferredHolder` acessado antes de `RegisterEvent` (5 mods, 1 raiz no irons_artifice)
+
+### 1.1 Erro #1 — `irons_artifice` (o que você precisa corrigir)
+
+```
+[05:37:38] [modloading-sync-worker/ERROR] Failed to register some entries, there were errors!
+ -> irons_artifice ERROR ExceptionInInitializerError at ItemRegistry.java:80 lambda$static$8
+    Caused by java.lang.ExceptionInInitializerError
+      at io.redspace.irons_artifice.registry.ItemRegistry.lambda$static$8(ItemRegistry.java:80)
+      at ... GameData.postRegisterEvents(GameData.java:92) -> RegisterEvent
+    Caused by java.lang.NullPointerException: Trying to access unbound value:
+      ResourceKey[minecraft:particle_type / irons_artifice:lightning_trail]
+      at net.neoforged.neoforge.registries.DeferredHolder.value(DeferredHolder.java:103)
+      at net.neoforged.neoforge.registries.DeferredHolder.get(DeferredHolder.java:117)
+      at io.redspace.irons_artifice.modifier.modifiers.ChainLightningModifier.<clinit>(ChainLightningModifier.java:23)
+```
+
+**Cadeia:**
+1. `ItemRegistry` tem `public static final DeferredItem<ModifierItem> CHAIN_LIGHTNING = ITEMS.registerItem("voltaic_core_modifier", p -> new ModifierItem(p, new ChainLightningModifier()))` na linha 80.
+2. Quando o `RegisterEvent` de `minecraft:item` dispara, o NeoForge executa a lambda `p -> new ModifierItem(..., new ChainLightningModifier())` para criar o item.
+3. `new ChainLightningModifier()` força o `<clinit>` (inicialização estática) de `ChainLightningModifier`.
+4. O `<clinit>` tinha:
+   ```java
+   public static final ParticleOptions LIGHTNING_EMITTER = new ColorTransitionParticleOption(ParticleRegistry.LIGHTNING_TRAIL.get(), ...);
+   public static final ParticleOptions LIGHTNING_TRAIL = new ColorTransitionParticleOption(ParticleRegistry.BULLET_TRAIL.get(), ...);
+   ```
+   `ParticleRegistry.LIGHTNING_TRAIL` é um `DeferredHolder<ParticleType<?>>` registrado com `PARTICLE_TYPES.register("lightning_trail", ...)`. Ele só fica **bound** *depois* que o `RegisterEvent` de `minecraft:particle_type` dispara — que acontece **depois** do evento de `minecraft:item`. Chamar `.get()` no `<clinit>` antes do bind lança `NullPointerException: unbound value`.
+5. `GameData.postRegisterEvents` captura como `ModLoadingException` e faz rollback para `VANILLA`, dai o `Sodium cannot continue` e `Entity ... has no attributes` são só cascata.
+
+**Fix `ffa65ed`:**
+- `ChainLightningModifier.java` → removidos os `static final ParticleOptions` inicializados no `<clinit>`. Substituídos por métodos lazy:
+  ```java
+  public static ParticleOptions getLightningEmitter() {
+      return new ColorTransitionParticleOption(ParticleRegistry.LIGHTNING_TRAIL.get(), LIGHTNING_COLOR, ...);
+  }
+  public static ParticleOptions getLightningTrail() {
+      return new ColorTransitionParticleOption(ParticleRegistry.BULLET_TRAIL.get(), LIGHTNING_COLOR, ...);
+  }
+  ```
+  Chamados só em `apply()` e `ChainLightningOnHit.onHit()` — **depois** que as partículas já estão registradas, nunca no `<clinit>`.
+- `ChainLightningOnHit.java:47` → `ChainLightningModifier.LIGHTNING_TRAIL` → `ChainLightningModifier.getLightningTrail()`.
+- `ItemRegistry.java:144` → `new SpawnEggItem(EntityRegistry.ILLIFICER.get(), ...)` → `new DeferredSpawnEggItem(EntityRegistry.ILLIFICER, ...)` (evita outro `.get()` precoce; `DeferredSpawnEggItem` existe em 21.1.251 e só resolve o `EntityType` quando o ovo é realmente usado, não no `RegisterEvent`).
+
+Build `35706366797` ✅ `BUILD SUCCESSFUL in 2m36s` `Verify jar contains valid neoforge.mods.toml` ✅ `irons_artifice-jar 2 117 894 bytes`.
+
+### 1.2 Erros #2–#5 — outros mods com o **mesmo padrão** (não são culpa do irons_artifice)
+
+O log 05:37 mostra **4 outros mods** com `Trying to access unbound value` diferente — todos são `DeferredHolder.get()` em `<clinit>` ou `CreativeModeTab` antes do bind:
+
+```
+knightlib:empty_grail at ...GreatChaliceRecipe.<clinit>:22/25
+mynethersdelight:nether_bricks_stove at ...MNDCreativeTab.lambda$static$1:20
+aeronautics/simulated:contraption_diagram at ...ItemProviderEntry.<init>:34 -> SimAdvancements:35 -> SimulatedAdvancement$Builder.icon
+```
+
+Mesmo que o `irons_artifice` passe, **esses 4 ainda vão quebrar o `postRegisterEvents` e deixar o jogo em `broken mod state`** até serem atualizados/removidos. Não é mais o `irons_artifice` que bloqueia, são incompatibilidades desses mods com NeoForge 21.1.251 (registro fora de ordem). Opções:
+- Atualizar `knightlib`, `MyNethersDelight`, `aeronautics/simulated` para builds de 21.1.251 (se houver), ou
+- Remover temporariamente esses 3 mods para testar só o `irons_artifice`, ou
+- Me avisar que eu documento workaround (ex.: downgrade NeoForge — não recomendado).
+
+O `eternalnether`/`sable_schematic_api` quebravam em 05:25 **não aparecem mais** em 05:37 — prova que o fix de Mixin funcionou.
+
+---
+
+## 2. Como obter o jar corrigido (terceira leva)
+
+### Opção A — GitHub Actions (recomendado)
+
+1. https://github.com/rafaelkb/irons-artifice/actions/runs/**35706366797**
+2. **Artifacts** → `irons_artifice-jar` (2 117 894 bytes)
+3. Substituir em `PrismLauncher/instances/1.21.1/minecraft/mods/` (apagar `irons_artifice-1.21.1-1.0.0.jar` antigo de 05:25/05:37)
+4. Se mantiver `knightlib`/`mynethersdelight`/`simulated`, espere que o jogo ainda mostre **4 erros** desses mods na tela de `ModLoadingException` — mas `irons_artifice` não deve mais estar na lista. Se quiser tela limpa, remova esses 3 temporariamente.
+
+### Opção B — Compilar local
+
+```bash
+git fetch origin
+git checkout arena/01a0c828-irons-artifice
+git pull # deve trazer ffa65ed
+./gradlew build
+# jar em build/libs/irons_artifice-1.21.1-1.0.0.jar (2.1 MB)
+unzip -p build/libs/*.jar META-INF/neoforge.mods.toml | grep modLoader
+# modLoader="javafml"
+```
+
+Teste esperado no próximo launch: **não** deve mais aparecer `ChainLightningModifier <clinit>` nem `lightning_trail unbound`. O `Mod List` deve mostrar `irons_artifice` sem `ModLoadingException`. Se ainda houver 4 erros, são dos outros mods (§1.2).
+
+---
+
+# Histórico — Crash 05:25 (AutomaticEventSubscriber + Mixin)
 
 **Branch:** `arena/01a0c828-irons-artifice` — fix `f684d2d` ✅ CI `35705282896` (2m59s, 2.1 MB)  
-**Data do log mais novo:** 22/09/2026 05:25:00 UTC-03:00 (Prism 11.1.0, Java 21.0.7, 15465 MiB RAM)  
+**Data do log:** 22/09/2026 05:25:00 UTC-03:00 (Prism 11.1.0, Java 21.0.7, 15465 MiB RAM)  
 **Minecraft:** 1.21.1 + NeoForge **21.1.251** (você atualizou de 21.1.247, ótimo)  
 **Jar testado:** `irons_artifice-1.21.1-1.0.0.jar` do artifact `35703635414`
 
