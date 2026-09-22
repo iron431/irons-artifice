@@ -39,6 +39,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -141,6 +142,6 @@ public final class ItemRegistry {
 
     public static final DeferredItem<SpawnEggItem> ILLIFICER_SPAWN_EGG = ITEMS.registerItem(
             "illificer_spawn_egg",
-            properties -> new SpawnEggItem(EntityRegistry.ILLIFICER.get(), 0x3B2D20, 0xC9A227, properties)
+            properties -> new DeferredSpawnEggItem(EntityRegistry.ILLIFICER, 0x3B2D20, 0xC9A227, properties)
     );
 }
