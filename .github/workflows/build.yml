@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,6 +26,28 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build with Gradle
-        run: ./gradlew build --stacktrace
-        env:
-          GRADLE_OPTS: '-Xmx3g'
+        run: |
+          set -o pipefail
+          ./gradlew build --stacktrace 2>&1 | tee build.log
+
+      - name: Emit error annotations
+        if: failure()
+        run: |
+          grep -E "error:|FAILURE: Build failed" build.log 2>/dev/null | head -50 | while IFS= read -r line; do
+            echo "::error::${line}"
+          done || true
+
+      - name: Publish build log to ci-logs branch
+        if: always()
+        run: |
+          if [ ! -f build.log ]; then echo "no build.log" > build.log; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B ci-logs-publish
+          git add -f build.log
+          git commit -m "run ${{ github.run_id }} (${{ github.sha }})" || echo "nothing to commit"
+          git push --force origin ci-logs-publish:ci-logs
+          # Also surface tail in the job summary as a fallback
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          tail -n 200 build.log >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
