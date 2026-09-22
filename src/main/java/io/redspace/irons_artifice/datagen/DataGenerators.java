@@ -12,21 +12,16 @@ public final class DataGenerators {
 
     @SubscribeEvent
     public static void gatherClientData(GatherDataEvent.Client event) {
-        event.createProvider(ItemModelDataGenerator::new);
-        event.createProvider(RecipeDataGenerator.Runner::new);
-        event.createProvider(ItemTagDataGenerator::new);
-        event.createProvider(BlockTagDataGenerator::new);
-//        event.createProvider(LootTableTagGenerator::new);
-        event.createProvider(EntityTypeTagDataGenerator::new);
-        event.createProvider(LootTableDataGenerator::new);
-        event.createProvider(AdvancementDataGenerator::new);
+        event.createProvider((output) -> new ItemModelDataGenerator(output, event.getExistingFileHelper()));
     }
 
     @SubscribeEvent
     public static void gatherServerData(GatherDataEvent.Server event) {
-        event.createProvider(BlockTagDataGenerator::new);
-        event.createProvider(EntityTypeTagDataGenerator::new);
-//        event.createProvider(LootTableTagGenerator::new);
-        event.createProvider(LootTableDataGenerator::new);
+        event.createProvider((output) -> new RecipeDataGenerator(output, event.getLookupProvider()));
+        event.createProvider((output) -> new ItemTagDataGenerator(output, event.getLookupProvider()));
+        event.createProvider((output) -> new BlockTagDataGenerator(output, event.getLookupProvider()));
+        event.createProvider((output) -> new EntityTypeTagDataGenerator(output, event.getLookupProvider()));
+        event.createProvider((output) -> new LootTableDataGenerator(output, event.getLookupProvider()));
+        event.createProvider((output) -> new AdvancementDataGenerator(output, event.getLookupProvider()));
     }
 }

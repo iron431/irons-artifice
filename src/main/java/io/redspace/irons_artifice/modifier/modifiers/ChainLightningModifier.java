@@ -8,10 +8,10 @@ import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainLightningOnHit;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.ARGB;
 
 import java.util.function.Consumer;
 
@@ -29,7 +29,7 @@ public final class ChainLightningModifier implements GunModifier {
         components.getOrCreate(ShotComponents.PARTICLE_TRAIL).add(LIGHTNING_EMITTER);
         components.getOrCreate(ShotComponents.IMPACT_SOUND).addGenericAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_IMPACT, 2f, .9f, 1.1f));
         components.getOrCreate(ShotComponents.GUNSHOT_SOUND).addAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_SHOOT, 3f, 1.6f, 1.8f));
-        components.getOrCreate(ShotComponents.MUZZLE_FLASH).addTint(ARGB.vector3fFromRGB24(MUZZLE_FLASH_COLOR));
+        components.getOrCreate(ShotComponents.MUZZLE_FLASH).addTint(Utils.vector3fFromRGB24(MUZZLE_FLASH_COLOR));
     }
 
     @Override

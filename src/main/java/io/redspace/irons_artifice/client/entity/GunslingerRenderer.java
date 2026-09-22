@@ -1,15 +1,14 @@
 package io.redspace.irons_artifice.client.entity;
 
 import io.redspace.irons_artifice.entity.Gunslinger;
+import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.monster.illager.IllagerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.client.renderer.entity.state.IllagerRenderState;
 import net.minecraft.resources.ResourceLocation;
 
-public class GunslingerRenderer extends IllagerRenderer<Gunslinger, IllagerRenderState> {
+public class GunslingerRenderer extends IllagerRenderer<Gunslinger> {
     private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/illager/pillager.png");
 
     public GunslingerRenderer(EntityRendererProvider.Context context) {
@@ -18,12 +17,7 @@ public class GunslingerRenderer extends IllagerRenderer<Gunslinger, IllagerRende
     }
 
     @Override
-    public ResourceLocation getTextureLocation(IllagerRenderState state) {
+    public ResourceLocation getTextureLocation(Gunslinger entity) {
         return TEXTURE;
-    }
-
-    @Override
-    public IllagerRenderState createRenderState() {
-        return new IllagerRenderState();
     }
 }

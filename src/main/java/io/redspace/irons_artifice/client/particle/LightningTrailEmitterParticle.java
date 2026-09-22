@@ -8,7 +8,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class LightningTrailEmitterParticle extends BulletTrailParticle {
     private static final float EMIT_CHANCE = 0.04f;

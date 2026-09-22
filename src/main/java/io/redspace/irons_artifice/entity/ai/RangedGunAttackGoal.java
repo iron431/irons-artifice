@@ -21,7 +21,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.NonNull;
+import javax.annotation.Nonnull;
 
 import java.util.EnumSet;
 import java.util.function.Consumer;
@@ -349,7 +349,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
         return mob.getMainHandItem().getItem() instanceof GunItem;
     }
 
-    protected @NonNull GunCombatMoveControl createMoveControl() {
+    protected @Nonnull GunCombatMoveControl createMoveControl() {
         return new GunCombatMoveControl();
     }
 }

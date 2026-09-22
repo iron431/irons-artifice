@@ -6,10 +6,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import java.util.Optional;
-
 @Mixin(Mob.class)
 public interface MobAccessor {
     @Accessor("lootTable")
-    void setLootTable(Optional<ResourceKey<LootTable>> lootTable);
+    void setLootTable(ResourceKey<LootTable> lootTable);
 }

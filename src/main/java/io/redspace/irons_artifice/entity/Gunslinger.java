@@ -19,16 +19,16 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.illager.AbstractIllager;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class Gunslinger extends AbstractIllager {
     public Gunslinger(EntityType<? extends Gunslinger> type, Level level) {

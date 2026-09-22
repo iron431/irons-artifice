@@ -4,13 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.entity.ChainEntity;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypes;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -19,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntityRenderer.ChainRenderState> {
+public class ChainEntityRenderer extends EntityRenderer<ChainEntity> {
     public static final ResourceLocation CHAIN_TEXTURE = IronsArtifice.id("textures/entity/entity_chain.png");
     private static final RenderType RENDER_TYPE = RenderType.entityCutoutNoCull(CHAIN_TEXTURE);
 
@@ -29,34 +27,20 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntity
     }
 
     @Override
-    public void submit(ChainRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        if (!state.valid) {
-            return;
-        }
-
-        float warmup = Mth.clamp(state.warmup / ChainEntity.VISUAL_WARMUP_TIME, 0f, 1f);
-        renderChainBetween(state.from, state.to, poseStack, submitNodeCollector, state.lightCoords, warmup);
-        super.submit(state, poseStack, submitNodeCollector, camera);
-    }
-
-    @Override
-    public void extractRenderState(ChainEntity entity, ChainRenderState state, float partialTicks) {
-        super.extractRenderState(entity, state, partialTicks);
+    public void render(ChainEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         LivingEntity first = entity.getFirst();
         LivingEntity second = entity.getSecond();
-        if (first == null || second == null) {
-            state.valid = false;
-            return;
+        if (first != null && second != null && !first.isRemoved() && !second.isRemoved()) {
+            Vec3 entityPos = new Vec3(
+                    Mth.lerp(partialTicks, entity.xo, entity.getX()),
+                    Mth.lerp(partialTicks, entity.yo, entity.getY()),
+                    Mth.lerp(partialTicks, entity.zo, entity.getZ()));
+            Vec3 from = lerpCenter(first, partialTicks).subtract(entityPos);
+            Vec3 to = lerpCenter(second, partialTicks).subtract(entityPos);
+            float warmup = Mth.clamp((entity.warmup + partialTicks) / ChainEntity.VISUAL_WARMUP_TIME, 0f, 1f);
+            renderChainBetween(from, to, poseStack, bufferSource.getBuffer(RENDER_TYPE), packedLight, warmup);
         }
-        if (first.isRemoved() || second.isRemoved()) {
-            state.valid = false;
-            return;
-        }
-        state.valid = true;
-        state.warmup = entity.warmup + partialTicks;
-        Vec3 entityPos = new Vec3(state.x, state.y, state.z);
-        state.from = lerpCenter(first, partialTicks).subtract(entityPos);
-        state.to = lerpCenter(second, partialTicks).subtract(entityPos);
+        super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, packedLight);
     }
 
     private static Vec3 lerpCenter(LivingEntity entity, float partialTick) {
@@ -66,7 +50,7 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntity
         return new Vec3(x, y, z).add(0, entity.getBbHeight() * 0.5, 0);
     }
 
-    private static void renderChainBetween(Vec3 start, Vec3 end, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, float warmupPercent) {
+    private static void renderChainBetween(Vec3 start, Vec3 end, PoseStack poseStack, VertexConsumer consumer, int packedLight, float warmupPercent) {
         Vec3 delta = end.subtract(start);
         float distance = (float) delta.length();
         if (distance < 1.0E-4f) {
@@ -89,11 +73,9 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntity
             origin = destination.scale(1f - warmupPercent);
         }
 
-        Vec3 drawOrigin = origin;
-        collector.submitCustomGeometry(poseStack,RENDER_TYPE, (pose, buffer) -> {
-            drawQuad(drawOrigin, destination, true, pose, buffer, packedLight, 0f, distance);
-            drawQuad(drawOrigin, destination, false, pose, buffer, packedLight, 0f, distance);
-        });
+        PoseStack.Pose pose = poseStack.last();
+        drawQuad(origin, destination, true, pose, consumer, packedLight, 0f, distance);
+        drawQuad(origin, destination, false, pose, consumer, packedLight, 0f, distance);
 
         poseStack.popPose();
     }
@@ -136,19 +118,12 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity, ChainEntity
     }
 
     @Override
-    public ChainRenderState createRenderState() {
-        return new ChainRenderState();
+    public ResourceLocation getTextureLocation(ChainEntity entity) {
+        return CHAIN_TEXTURE;
     }
 
     @Override
-    protected boolean affectedByCulling(ChainEntity entity) {
-        return false;
-    }
-
-    public static class ChainRenderState extends EntityRenderState {
-        public boolean valid;
-        public Vec3 from = Vec3.ZERO;
-        public Vec3 to = Vec3.ZERO;
-        public float warmup;
+    public boolean shouldRender(ChainEntity entity, Frustum frustum, double x, double y, double z) {
+        return true;
     }
 }

@@ -38,8 +38,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -84,7 +84,7 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
+    public @Nonnull InteractionResult use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (GunItem.isReloading(stack)) {
             return InteractionResult.FAIL;
@@ -101,7 +101,7 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public @NonNull UseAnim getUseAnimation(@NonNull ItemStack stack) {
+    public @Nonnull UseAnim getUseAnimation(@Nonnull ItemStack stack) {
         if (hasGunSpyglass(stack)) {
             return UseAnim.SPYGLASS;
         }
@@ -112,7 +112,7 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public int getUseDuration(@NonNull ItemStack stack, @NonNull LivingEntity user) {
+    public int getUseDuration(@Nonnull ItemStack stack, @Nonnull LivingEntity user) {
         if (hasGunSpyglass(stack)) {
             return SCOPE_USE_DURATION;
         }
@@ -123,7 +123,7 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
+    public @Nonnull ItemStack finishUsingItem(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             return stack;
@@ -135,7 +135,7 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public boolean releaseUsing(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {
+    public boolean releaseUsing(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull LivingEntity entity, int remainingTime) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
             return true;
@@ -195,7 +195,7 @@ public class GunItem extends BaseGeoItem {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void appendHoverText(@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull List<Component> tooltip, @NonNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag tooltipFlag) {
         super.appendHoverText(itemStack, context, tooltip, tooltipFlag);
         Consumer<Component> statBuilder = (component) -> tooltip.add(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);

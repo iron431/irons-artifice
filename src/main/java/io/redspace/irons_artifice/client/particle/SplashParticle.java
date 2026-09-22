@@ -6,10 +6,10 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SplashParticle extends Particle {
     private final int color;
@@ -18,12 +18,10 @@ public class SplashParticle extends Particle {
                           double xa, double ya, double za, ColorParticleOption options) {
         super(level, x, y, z);
         this.setParticleSpeed(xa, ya, za);
-        this.color = ARGB.opaque(ARGB.colorFromFloat(
-                Math.max(options.getAlpha(), 1f),
-                options.getRed(),
-                options.getGreen(),
-                options.getBlue()
-        ));
+        this.color = 0xFF000000
+                | (as8BitChannel(options.getRed()) << 16)
+                | (as8BitChannel(options.getGreen()) << 8)
+                | as8BitChannel(options.getBlue());
         this.gravity = 1.5f;
         this.friction = 0.96f;
         this.hasPhysics = true;
@@ -46,8 +44,12 @@ public class SplashParticle extends Particle {
         );
     }
 
+    private static int as8BitChannel(float value) {
+        return Mth.clamp((int) (value * 255.0F), 0, 255);
+    }
+
     @Override
-    public @NonNull ParticleRenderType getGroup() {
+    public @Nonnull ParticleRenderType getRenderType() {
         return ParticleRenderType.NO_RENDER;
     }
 

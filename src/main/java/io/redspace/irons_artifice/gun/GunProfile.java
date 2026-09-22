@@ -8,7 +8,7 @@ import io.redspace.irons_artifice.data.ReloadCueStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.item.TopLoadConfig;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;

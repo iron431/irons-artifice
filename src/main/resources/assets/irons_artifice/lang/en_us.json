@@ -141,6 +141,12 @@
   "death.attack.irons_artifice.bullet.stopped_cold.item": "%1$s was stopped cold by %2$s using %3$s",
   "death.attack.irons_artifice.bullet.bullet": "%1$s was shot by %2$s. With a bullet.",
   "death.attack.irons_artifice.bullet.bullet.item": "%1$s was shot by %2$s. With a bullet. From %3$s.",
+  "death.attack.irons_artifice.bayonet": "%1$s was impaled on %2$s's bayonet",
+  "death.attack.irons_artifice.bayonet.item": "%1$s was impaled on %2$s's bayonet",
+  "death.attack.irons_artifice.bayonet.impaled": "%1$s was impaled by %2$s",
+  "death.attack.irons_artifice.bayonet.impaled.item": "%1$s was impaled by %2$s using %3$s",
+  "death.attack.irons_artifice.bayonet.run_through": "%1$s was run through by %2$s",
+  "death.attack.irons_artifice.bayonet.run_through.item": "%1$s was run through by %2$s using %3$s",
 
   "advancements.irons_artifice.root.title": "Iron's Arms 'n Artifice",
   "advancements.irons_artifice.root.description": "First we arm, then we artifice.",

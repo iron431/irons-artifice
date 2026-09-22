@@ -9,7 +9,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class ImpactBlockParticle extends TerrainParticle {
     public ImpactBlockParticle(ClientLevel level, double x, double y, double z,

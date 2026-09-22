@@ -8,7 +8,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

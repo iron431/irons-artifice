@@ -38,7 +38,17 @@ public class GenericArmorModel<T extends Item & GeoItem> extends GeoModel<T> {
     }
 
     @Override
+    public ResourceLocation getModelResource(T animatable) {
+        return model;
+    }
+
+    @Override
     public ResourceLocation getTextureResource(T animatable, @Nullable GeoRenderer<T> renderer) {
+        return texture;
+    }
+
+    @Override
+    public ResourceLocation getTextureResource(T animatable) {
         return texture;
     }
 
