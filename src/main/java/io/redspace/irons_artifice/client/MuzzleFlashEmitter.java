@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -43,8 +43,14 @@ public final class MuzzleFlashEmitter {
         spawn(level, packet, worldPosFromBone(poseStack, packet.extraForwardOffset()));
     }
 
+    /**
+     * Fallback flush for flashes that were not matched to a rendered gun muzzle this frame.
+     * Must run on RenderFrameEvent.Post (after rendering) so that {@link #tryEmit} at the
+     * muzzle bone gets first chance during the frame's render pass — a tick-based flush fires
+     * before rendering and would always steal the flash to the backup position.
+     */
     @SubscribeEvent
-    static void onClientTick(ClientTickEvent.Post event) {
+    static void onRenderFrame(RenderFrameEvent.Post event) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || PENDING.isEmpty() || Minecraft.getInstance().isPaused()) {
             return;
