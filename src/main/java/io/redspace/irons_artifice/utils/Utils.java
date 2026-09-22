@@ -17,7 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import org.jspecify.annotations.Nullable;
+import org.joml.Vector3f;
+import javax.annotation.Nullable;
 
 import java.text.DecimalFormat;
 
@@ -26,6 +27,10 @@ public class Utils {
 
     public static Vec3 reflect(Vec3 direction, Vec3 normal) {
         return direction.subtract(normal.scale(2 * normal.dot(direction)));
+    }
+
+    public static Vector3f vector3fFromRGB24(int rgb) {
+        return new Vector3f(((rgb >> 16) & 0xFF) / 255.0F, ((rgb >> 8) & 0xFF) / 255.0F, (rgb & 0xFF) / 255.0F);
     }
 
     public static Component formatValueModifierDescription(ValueModifier valueModifier, ComponentType<?> componentType) {

@@ -23,7 +23,17 @@ public class SimpleItemGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
     }
 
     @Override
+    public ResourceLocation getModelResource(T animatable) {
+        return modelResource;
+    }
+
+    @Override
     public ResourceLocation getTextureResource(T animatable, @Nullable GeoRenderer<T> renderer) {
+        return textureResource;
+    }
+
+    @Override
+    public ResourceLocation getTextureResource(T animatable) {
         return textureResource;
     }
 

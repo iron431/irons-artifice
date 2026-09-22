@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber
 public final class GunCriteria {

@@ -1,14 +1,14 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.util.Mth;
@@ -17,10 +17,9 @@ import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.Tags;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
-public class BlockDustParticle extends SingleQuadParticle {
+public class BlockDustParticle extends TextureSheetParticle {
     public BlockDustParticle(ClientLevel level, double x, double y, double z,
                              double xa, double ya, double za,
                              float r, float g, float b,
@@ -47,9 +46,9 @@ public class BlockDustParticle extends SingleQuadParticle {
     }
 
     @Override
-    public void extract(QuadParticleRenderState particleTypeRenderState, Camera camera, float partialTickTime) {
+    public void render(VertexConsumer buffer, Camera camera, float partialTickTime) {
         updateAlpha(partialTickTime);
-        super.extract(particleTypeRenderState, camera, partialTickTime);
+        super.render(buffer, camera, partialTickTime);
     }
 
     private void updateAlpha(float partialTickTime) {
@@ -57,8 +56,8 @@ public class BlockDustParticle extends SingleQuadParticle {
     }
 
     @Override
-    protected @NonNull Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<BlockParticleOption> {
@@ -84,9 +83,9 @@ public class BlockDustParticle extends SingleQuadParticle {
                     // for some reason, undyed glass's color is black. hardcode to white-blue
                     tintColor = 0xd0eae9;
                 } else {
-                    BlockTintSource tintSource = Minecraft.getInstance().getBlockColors().getTintSource(blockState, 0);
-                    if (tintSource != null) {
-                        tintColor = tintSource.color(blockState);
+                    int blockColor = Minecraft.getInstance().getBlockColors().getColor(blockState, level, pos, 0);
+                    if (blockColor != -1) {
+                        tintColor = blockColor;
                     } else {
                         tintColor = blockState.getMapColor(level, pos).col;
                     }

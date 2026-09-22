@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public record MagazineContents(int count) {
     public static final MagazineContents EMPTY = new MagazineContents(0);

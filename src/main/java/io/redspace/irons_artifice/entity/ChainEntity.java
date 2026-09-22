@@ -11,15 +11,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
+
+import javax.annotation.Nullable;
+
+import java.util.UUID;
 
 public class ChainEntity extends Entity {
     public static final float SPAWN_RANGE = 8f;
@@ -53,9 +54,9 @@ public class ChainEntity extends Entity {
             SynchedEntityData.defineId(ChainEntity.class, EntityDataSerializers.INT);
 
     @Nullable
-    private EntityReference<LivingEntity> firstRef;
+    private UUID firstUUID;
     @Nullable
-    private EntityReference<LivingEntity> secondRef;
+    private UUID secondUUID;
 
     public int warmup;
 
@@ -76,34 +77,40 @@ public class ChainEntity extends Entity {
     }
 
     public void setFirst(LivingEntity entity) {
-        this.firstRef = EntityReference.of(entity);
+        this.firstUUID = entity.getUUID();
         this.entityData.set(DATA_FIRST_ID, entity.getId());
     }
 
     public void setSecond(LivingEntity entity) {
-        this.secondRef = EntityReference.of(entity);
+        this.secondUUID = entity.getUUID();
         this.entityData.set(DATA_SECOND_ID, entity.getId());
     }
 
     @Nullable
     public LivingEntity getFirst() {
-        return resolveBound(entityData.get(DATA_FIRST_ID), firstRef);
+        return resolveBound(entityData.get(DATA_FIRST_ID), firstUUID);
     }
 
     @Nullable
     public LivingEntity getSecond() {
-        return resolveBound(entityData.get(DATA_SECOND_ID), secondRef);
+        return resolveBound(entityData.get(DATA_SECOND_ID), secondUUID);
     }
 
     @Nullable
-    private LivingEntity resolveBound(int entityId, @Nullable EntityReference<LivingEntity> reference) {
+    private LivingEntity resolveBound(int entityId, @Nullable UUID uuid) {
         if (entityId != 0) {
             Entity entity = level().getEntity(entityId);
             if (entity instanceof LivingEntity living && !living.isRemoved()) {
                 return living;
             }
         }
-        return EntityReference.getLivingEntity(reference, level());
+        if (uuid != null && level() instanceof ServerLevel serverLevel) {
+            Entity entity = serverLevel.getEntity(uuid);
+            if (entity instanceof LivingEntity living && !living.isRemoved()) {
+                return living;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -175,12 +182,7 @@ public class ChainEntity extends Entity {
     }
 
     @Override
-    public boolean canBeCollidedWith(@Nullable Entity other) {
-        return false;
-    }
-
-    @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurt(DamageSource source, float damage) {
         return false;
     }
 
@@ -191,26 +193,38 @@ public class ChainEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
-        this.firstRef = EntityReference.read(input, "First");
-        this.secondRef = EntityReference.read(input, "Second");
-        this.tickCount = input.getInt("Age");
-        if (level() instanceof ServerLevel) {
-            LivingEntity first = EntityReference.getLivingEntity(firstRef, level());
-            if (first != null) {
-                entityData.set(DATA_FIRST_ID, first.getId());
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        if (tag.hasUUID("First")) {
+            this.firstUUID = tag.getUUID("First");
+        }
+        if (tag.hasUUID("Second")) {
+            this.secondUUID = tag.getUUID("Second");
+        }
+        this.tickCount = tag.getInt("Age");
+        if (level() instanceof ServerLevel serverLevel) {
+            if (firstUUID != null) {
+                Entity first = serverLevel.getEntity(firstUUID);
+                if (first != null) {
+                    entityData.set(DATA_FIRST_ID, first.getId());
+                }
             }
-            LivingEntity second = EntityReference.getLivingEntity(secondRef, level());
-            if (second != null) {
-                entityData.set(DATA_SECOND_ID, second.getId());
+            if (secondUUID != null) {
+                Entity second = serverLevel.getEntity(secondUUID);
+                if (second != null) {
+                    entityData.set(DATA_SECOND_ID, second.getId());
+                }
             }
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
-        EntityReference.store(firstRef, output, "First");
-        EntityReference.store(secondRef, output, "Second");
-        output.putInt("Age", tickCount);
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        if (firstUUID != null) {
+            tag.putUUID("First", firstUUID);
+        }
+        if (secondUUID != null) {
+            tag.putUUID("Second", secondUUID);
+        }
+        tag.putInt("Age", tickCount);
     }
 }

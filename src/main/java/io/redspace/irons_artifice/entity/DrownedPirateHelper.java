@@ -16,8 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.nautilus.ZombieNautilus;
-import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -25,10 +24,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraft.tags.FluidTags;
 
 import java.util.List;
-import java.util.Optional;
 
 public class DrownedPirateHelper {
 
@@ -43,19 +41,13 @@ public class DrownedPirateHelper {
                 pos = new Vec3(pos.x, y, pos.z);
             }
             AABB box = AABB.ofSize(pos, 5, 3, 5);
-            if (level.isFluidAtPosition(BlockPos.containing(pos), f -> f.is(Tags.Fluids.WATER)) && level.noCollision(box)) {
+            if (level.isFluidAtPosition(BlockPos.containing(pos), f -> f.is(FluidTags.WATER)) && level.noCollision(box)) {
                 for (int j = 0; j < 3; j++) {
                     Drowned pirate = DrownedPirateHelper.createDrownedPirate(level);
                     pirate.setPos(pos.add(Utils.randomVec3(3)));
                     pirate.setTarget(target);
-                    if (level.getRandom().nextFloat() < 0.50) {
-                        ZombieNautilus zombieNautilus = new ZombieNautilus(EntityType.ZOMBIE_NAUTILUS, level);
-                        zombieNautilus.setPos(pirate.position());
-                        pirate.startRiding(zombieNautilus);
-                        level.addFreshEntityWithPassengers(zombieNautilus);
-                    } else {
-                        level.addFreshEntity(pirate);
-                    }
+                    // 1.21.1 has no nautilus mobs, so pirates spawn on foot.
+                    level.addFreshEntity(pirate);
                 }
                 level.playSound(null, BlockPos.containing(pos), SoundRegistry.PIRATE_AMBUSH.get(), SoundSource.NEUTRAL, 2.5f, 1);
                 break;
@@ -68,7 +60,7 @@ public class DrownedPirateHelper {
         // drop chances intentionally left unchanged
         drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ItemRegistry.TRICORNE_HAT.get()));
         drowned.setItemSlot(EquipmentSlot.MAINHAND, createLoadout(level));
-        ((MobAccessor) drowned).setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
+        ((MobAccessor) drowned).setLootTable(EntityLootProvider.DROWNED_PIRATE);
         return drowned;
     }
 

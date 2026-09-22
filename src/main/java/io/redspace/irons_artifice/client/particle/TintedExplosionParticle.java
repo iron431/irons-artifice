@@ -5,7 +5,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.util.RandomSource;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 public class TintedExplosionParticle extends MuzzleFlashParticle {
 

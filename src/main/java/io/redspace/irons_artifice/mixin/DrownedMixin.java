@@ -8,7 +8,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;

@@ -42,7 +42,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
 import java.util.UUID;
 import java.util.List;

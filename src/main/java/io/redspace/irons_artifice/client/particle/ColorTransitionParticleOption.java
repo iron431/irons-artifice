@@ -4,11 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.ARGB;
 import org.joml.Vector3f;
 
 public class ColorTransitionParticleOption implements ParticleOptions {
@@ -87,11 +87,11 @@ public class ColorTransitionParticleOption implements ParticleOptions {
     }
 
     public Vector3f getFromColor() {
-        return ARGB.vector3fFromRGB24(this.fromColor);
+        return Utils.vector3fFromRGB24(this.fromColor);
     }
 
     public Vector3f getToColor() {
-        return ARGB.vector3fFromRGB24(this.toColor);
+        return Utils.vector3fFromRGB24(this.toColor);
     }
     public int getFromColorPacked() {
         return fromColor;

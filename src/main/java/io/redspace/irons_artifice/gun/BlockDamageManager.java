@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -94,7 +94,7 @@ public class BlockDamageManager {
         IronsArtifice.LOGGER.debug("Dealing {} damage ({}/{}) to {} at {}", damage, blockCurrentHealth, blockMaxHealth, state.getBlock(), pos);
         float destroyProgress = 1 - blockCurrentHealth / blockMaxHealth;
         if (destroyProgress >= 1) {
-            if (!(bullet.getOwner() instanceof Player player) || !NeoForge.EVENT_BUS.post(new BreakBlockEvent(level, pos, state, player)).isCanceled()) {
+            if (!(bullet.getOwner() instanceof Player player) || !NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled()) {
                 level.destroyBlock(pos, false);
                 level.levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
             }

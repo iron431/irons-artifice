@@ -141,6 +141,6 @@ public final class ItemRegistry {
 
     public static final DeferredItem<SpawnEggItem> ILLIFICER_SPAWN_EGG = ITEMS.registerItem(
             "illificer_spawn_egg",
-            properties -> new SpawnEggItem(properties.spawnEgg(EntityRegistry.ILLIFICER.get()))
+            properties -> new SpawnEggItem(EntityRegistry.ILLIFICER.get(), 0x3B2D20, 0xC9A227, properties)
     );
 }

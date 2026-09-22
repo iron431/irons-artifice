@@ -48,8 +48,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -125,7 +125,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected boolean canHitEntity(@NonNull Entity entity) {
+    protected boolean canHitEntity(@Nonnull Entity entity) {
         return super.canHitEntity(entity) && !piercedEntities.contains(entity.getId()) && Utils.canHarm(getOwner(), entity);
     }
 
@@ -320,7 +320,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    public @NonNull Vec3 getMovementToShoot(double xd, double yd, double zd, float pow, float uncertainty) {
+    public @Nonnull Vec3 getMovementToShoot(double xd, double yd, double zd, float pow, float uncertainty) {
         return Utils.directionWithinCone(new Vec3(xd, yd, zd), uncertainty, this.random).scale(pow);
     }
 
@@ -331,7 +331,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHit(@NonNull HitResult hitResult) {
+    protected void onHit(@Nonnull HitResult hitResult) {
         // setup default hit state
         hitState = HitState.DISCARD;
         brokeBlocksThisTick = false;
@@ -410,7 +410,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHitEntity(@NonNull EntityHitResult result) {
+    protected void onHitEntity(@Nonnull EntityHitResult result) {
         super.onHitEntity(result);
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
@@ -468,7 +468,7 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void onHitBlock(@NonNull BlockHitResult hitResult) {
+    protected void onHitBlock(@Nonnull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
         playBlockHitEffects(hitResult);
         boolean brokeThroughBlock = attemptApplyBlockDamage(hitResult);

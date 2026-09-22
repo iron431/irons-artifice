@@ -1,23 +1,22 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import org.joml.Quaternionf;
-import org.jspecify.annotations.Nullable;
+import javax.annotation.Nullable;
 
-public class MuzzleFlashParticle extends SingleQuadParticle {
+public class MuzzleFlashParticle extends TextureSheetParticle {
     private static final String FIRE_SUFFIX = "_fire";
     private static final String TINTED_MASKED_SUFFIX = "_tinted_masked";
     private static final String WHITE_MASK_SUFFIX = "_white_mask";
@@ -94,51 +93,44 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         }
 
         String basePath = path.substring(0, path.length() - FIRE_SUFFIX.length());
-        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(ResourceLocation.withDefaultNamespace("particles"));
+        TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_PARTICLES);
         setSprite(atlas.getSprite(fireName.withPath(basePath + TINTED_MASKED_SUFFIX)));
         whiteMaskSprite = atlas.getSprite(fireName.withPath(basePath + WHITE_MASK_SUFFIX));
     }
 
     @Override
-    protected void extractRotatedQuad(
-            QuadParticleRenderState particleTypeRenderState,
-            Quaternionf rotation,
-            float x,
-            float y,
-            float z,
-            float partialTickTime
-    ) {
+    public void render(VertexConsumer buffer, Camera camera, float partialTickTime) {
         // Tinted masked pass (uses particle tint color), or single untinted fire pass.
-        super.extractRotatedQuad(particleTypeRenderState, rotation, x, y, z, partialTickTime);
+        super.render(buffer, camera, partialTickTime);
 
         if (!tinted || whiteMaskSprite == null) {
             return;
         }
 
         // White-mask highlight pass: same transform, white color, white_mask UVs.
-        float u0 = mirrorHorizontal ? whiteMaskSprite.getU1() : whiteMaskSprite.getU0();
-        float u1 = mirrorHorizontal ? whiteMaskSprite.getU0() : whiteMaskSprite.getU1();
-        float v0 = mirrorVertical ? whiteMaskSprite.getV1() : whiteMaskSprite.getV0();
-        float v1 = mirrorVertical ? whiteMaskSprite.getV0() : whiteMaskSprite.getV1();
-        particleTypeRenderState.add(
-                getLayer(),
-                x, y, z,
-                rotation.x, rotation.y, rotation.z, rotation.w,
-                getQuadSize(partialTickTime),
-                u0, u1, v0, v1,
-                ARGB.colorFromFloat(alpha, 1f, 1f, 1f),
-                getLightCoords(partialTickTime)
-        );
+        TextureAtlasSprite originalSprite = this.sprite;
+        float r = this.rCol;
+        float g = this.gCol;
+        float b = this.bCol;
+        this.setSprite(whiteMaskSprite);
+        this.rCol = 1.0F;
+        this.gCol = 1.0F;
+        this.bCol = 1.0F;
+        super.render(buffer, camera, partialTickTime);
+        this.setSprite(originalSprite);
+        this.rCol = r;
+        this.gCol = g;
+        this.bCol = b;
     }
 
     @Override
-    protected int getLightCoords(float a) {
+    protected int getLightColor(float partialTick) {
         return LightTexture.FULL_BRIGHT;
     }
 
     @Override
-    protected Layer getLayer() {
-        return Layer.TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     public static class Provider implements ParticleProvider<MuzzleFlashParticleOption> {

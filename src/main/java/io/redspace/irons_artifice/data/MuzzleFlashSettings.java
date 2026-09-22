@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.data;
 
-import net.minecraft.util.ARGB;
+import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.util.RandomSource;
 import org.joml.Vector3f;
 
@@ -38,7 +38,7 @@ public record MuzzleFlashSettings(
     }
 
     public void addTint(int tint) {
-        addTint(ARGB.vector3fFromRGB24(tint));
+        addTint(Utils.vector3fFromRGB24(tint));
     }
 
     public void addAirBurst(ParticleBurst burst) {
