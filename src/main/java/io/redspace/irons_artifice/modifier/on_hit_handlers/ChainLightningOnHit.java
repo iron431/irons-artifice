@@ -34,7 +34,7 @@ public class ChainLightningOnHit implements OnHitEffect {
             if (!targets.isEmpty()) {
                 Entity entity = targets.get(random.nextInt(targets.size()));
                 float damage = bullet.resolveDamage() * DAMAGE_MULTIPLIER;
-                if (entity.hurtServer(level, bullet.damageSources().indirectMagic(bullet, bullet.getOwner()), damage)) {
+                if (entity.hurt(bullet.damageSources().indirectMagic(bullet, bullet.getOwner()), damage)) {
                     accumulator.add(entity);
                 }
                 visualAnchor = entity.getBoundingBox().getCenter();

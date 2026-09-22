@@ -21,7 +21,7 @@ public record RecoilState(float pitch, float yaw, long tick) {
     public static final RecoilState NONE = new RecoilState(0.0F, 0.0F, 0L);
 
     public static RecoilState current(LivingEntity living, long now) {
-        RecoilState state = living.getData(DataAttachmentRegistry.RECOIL);
+        RecoilState state = living.getData(DataAttachmentRegistry.RECOIL.get());
         int elapsed = (int) Math.max(0L, now - state.tick());
         if (elapsed == 0) {
             return state;
@@ -39,6 +39,6 @@ public record RecoilState(float pitch, float yaw, long tick) {
                 decayed.pitch() + recoil.x,
                 decayed.yaw() + recoil.y,
                 now);
-        living.setData(DataAttachmentRegistry.RECOIL, next);
+        living.setData(DataAttachmentRegistry.RECOIL.get(), next);
     }
 }

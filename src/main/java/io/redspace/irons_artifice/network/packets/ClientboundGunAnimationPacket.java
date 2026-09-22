@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -21,7 +21,7 @@ public record ClientboundGunAnimationPacket(int entityId, long instanceId, Inter
     }
 
     public static final Type<ClientboundGunAnimationPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "gun_animation"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "gun_animation"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundGunAnimationPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundGunAnimationPacket::encode, ClientboundGunAnimationPacket::decode);

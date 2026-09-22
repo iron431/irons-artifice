@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -13,7 +13,7 @@ public record ClientboundBulletImpactPacket(Vec3 position, Vec3 deltaMovement, V
         implements CustomPacketPayload {
 
     public static final Type<ClientboundBulletImpactPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_impact"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_impact"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundBulletImpactPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundBulletImpactPacket::encode, ClientboundBulletImpactPacket::decode);

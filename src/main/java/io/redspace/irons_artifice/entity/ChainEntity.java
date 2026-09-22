@@ -155,7 +155,7 @@ public class ChainEntity extends Entity {
     }
 
     private void breakWithEffects(Vec3 from, Vec3 to) {
-        playSound(SoundEvents.CHAIN_BREAK, 1f, 1f);
+        playSound(SoundEvents.ITEM_BREAK, 1f, 1.2f);
         BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.IRON_CHAIN.defaultBlockState());
         int count = 12;
         for (int i = 0; i < count; i++) {
@@ -194,7 +194,7 @@ public class ChainEntity extends Entity {
     protected void readAdditionalSaveData(ValueInput input) {
         this.firstRef = EntityReference.read(input, "First");
         this.secondRef = EntityReference.read(input, "Second");
-        this.tickCount = input.getIntOr("Age", 0);
+        this.tickCount = input.getInt("Age");
         if (level() instanceof ServerLevel) {
             LivingEntity first = EntityReference.getLivingEntity(firstRef, level());
             if (first != null) {

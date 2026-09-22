@@ -6,7 +6,7 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -108,11 +108,11 @@ public class FairyDustParticle extends SingleQuadParticle {
         float lightIntensity = (this.age + a) / lifetime;
 //        lightIntensity = 1 - (1 - lightIntensity) * (1 - lightIntensity);
         int packed = super.getLightCoords(a);
-        int block = LightCoordsUtil.block(packed);
-        int sky = LightCoordsUtil.sky(packed);
+        int block = LightTexture.block(packed);
+        int sky = LightTexture.sky(packed);
         block = (int) Mth.lerp(lightIntensity, block, 240);
         sky = (int) Mth.lerp(lightIntensity, sky, 240);
-        return LightCoordsUtil.pack(block, sky);
+        return LightTexture.pack(block, sky);
     }
 
 

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -20,8 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import static io.redspace.irons_artifice.menu.GunModifierMenu.SLOT_SIZE;
 
 public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> {
-    private static final Identifier BG_TEXTURE = IronsArtifice.id("textures/gui/gun_modifier_screen.png");
-    private static final Identifier SLOT_SPRITE = IronsArtifice.id("modifier_screen/slot");
+    private static final ResourceLocation BG_TEXTURE = IronsArtifice.id("textures/gui/gun_modifier_screen.png");
+    private static final ResourceLocation SLOT_SPRITE = IronsArtifice.id("modifier_screen/slot");
     private static final float PREVIEW_SCALE = 16.0F * 3.0F;
 
     public GunModifierScreen(GunModifierMenu menu, Inventory inventory, Component title) {
@@ -62,7 +62,7 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
         ScreenRectangle scissor = new ScreenRectangle(this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
         float itemX = this.width / 2.0F;
         float itemY = this.topPos + 93 - 24 - PREVIEW_SCALE * .6f;
-        float yRot = 15 + Mth.sin(Minecraft.getInstance().player.tickCount * Mth.DEG_TO_RAD * 2) * 5;
+        float yRot = 15 + Mth.sin(Minecraft.getInstance().player.tickCount * ((float) Math.PI / 180) * 2) * 5;
         graphics.submitPictureInPictureRenderState(new GunPreviewRenderState(
                 itemState,
                 itemX,

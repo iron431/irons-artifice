@@ -7,7 +7,11 @@ import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
-import net.minecraft.core.component.DataComponents;
+import io.redspace.irons_artifice.damage.DamageSources;
+import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -57,6 +61,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
     protected int volleyCooldown;
     protected int bayonetCooldown;
     protected int chargeTicksRemaining;
+    protected int bayonetHits;
 
     public RangedGunAttackGoal(T mob) {
         this(mob, 24, 15, 45, 40, 80);
@@ -232,6 +237,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
                 }
             }
             case CHARGING_BAYONET -> {
+                tickMobBayonetCharge(distSqr);
                 if (shouldEndBayonetCharge(distSqr)) {
                     endBayonetCharge();
                 }
@@ -256,6 +262,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
         mob.startUsingItem(InteractionHand.MAIN_HAND);
         phase = ShootPhase.CHARGING_BAYONET;
         chargeTicksRemaining = chargeMaxTicks;
+        bayonetHits = 0;
     }
 
     protected void endBayonetCharge() {
@@ -270,7 +277,7 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
     protected boolean canStartBayonetCharge(ItemStack gun, double distSqr) {
         return bayonetCooldown <= 0
                 && distSqr < bands.bayonetSqr()
-                && gun.has(DataComponents.KINETIC_WEAPON);
+                && gun.has(DataComponentRegistry.BAYONET.get());
     }
 
     protected boolean shouldEndBayonetCharge(double distSqr) {
@@ -284,7 +291,19 @@ public class RangedGunAttackGoal<T extends Mob> extends Goal {
         if (distSqr > chaseRange * chaseRange) {
             return true;
         }
-        return mob.stabbedEntities(e -> e == target) > 0;
+        return bayonetHits >= 2;
+    }
+
+    protected void tickMobBayonetCharge(double distSqr) {
+        if (target == null || !target.isAlive() || distSqr > 3.2 * 3.2 || mob.tickCount % 10 != 0) {
+            return;
+        }
+        if (mob.level() instanceof ServerLevel level
+                && target.hurt(DamageSources.bayonet(level, mob), 5.0f)) {
+            bayonetHits++;
+            target.knockback(0.35, target.getX() - mob.getX(), target.getZ() - mob.getZ());
+            level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.TRIDENT_HIT, SoundSource.HOSTILE, 1, 1);
+        }
     }
 
     protected void endVolley() {

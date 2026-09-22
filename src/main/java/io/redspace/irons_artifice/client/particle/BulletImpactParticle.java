@@ -8,7 +8,7 @@ import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -57,11 +57,11 @@ public class BulletImpactParticle extends SingleQuadParticle {
         if (lightIntensity == 0) {
             return packed;
         }
-        int block = LightCoordsUtil.block(packed);
-        int sky = LightCoordsUtil.sky(packed);
+        int block = LightTexture.block(packed);
+        int sky = LightTexture.sky(packed);
         block = (int) Mth.lerp(lightIntensity, block, 240);
         sky = (int) Mth.lerp(lightIntensity, sky, 240);
-        return LightCoordsUtil.pack(block, sky);
+        return LightTexture.pack(block, sky);
     }
 
     @Override

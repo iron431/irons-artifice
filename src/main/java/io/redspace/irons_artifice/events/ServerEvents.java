@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.events;
 
-import com.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.data.ReloadResult;
@@ -13,7 +13,7 @@ import io.redspace.irons_artifice.item.PendingShot;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.network.packets.ClientboundEquipSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -87,7 +87,7 @@ public class ServerEvents {
     public static void onMobEffectApplication(MobEffectEvent.Applicable event) {
         if (event.getEffectSource() instanceof AreaEffectCloud areaEffectCloud &&
                 areaEffectCloud.getOwner() == event.getEntity() &&
-                areaEffectCloud.getPersistentData().getBooleanOr("irons_artifice:venom_cloud", false)) {
+                areaEffectCloud.getPersistentData().getBoolean("irons_artifice:venom_cloud")) {
             event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
         }
     }
@@ -147,9 +147,9 @@ public class ServerEvents {
         ResourceKey<LootTable> lootTableKey = randomizableContainerBlockEntity.getLootTable();
 //        boolean isCursed = level.getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).get(lootTableKey).map(table -> table.is(IronsArtificeTags.CURSED_BY_PIRATES)).orElse(false);
         // fixme: appears loot table dont have tagging
-        boolean isCursed = lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/buried_treasure")) ||
-                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/shipwreck_treasure")) ||
-                lootTableKey.identifier().equals(Identifier.withDefaultNamespace("chests/underwater_ruin_big"));
+        boolean isCursed = lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/buried_treasure")) ||
+                lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/shipwreck_treasure")) ||
+                lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/underwater_ruin_big"));
         if (!isCursed) {
             return;
         }

@@ -65,19 +65,19 @@ public record ReloadState(double progress, double duration, double speed, int ro
     );
 
     public static @Nullable ReloadState get(ItemStack stack) {
-        return stack.get(DataComponentRegistry.RELOAD_STATE);
+        return stack.get(DataComponentRegistry.RELOAD_STATE.get());
     }
 
     public static void set(ItemStack stack, ReloadState state) {
-        stack.set(DataComponentRegistry.RELOAD_STATE, state);
+        stack.set(DataComponentRegistry.RELOAD_STATE.get(), state);
     }
 
     public static boolean has(ItemStack stack) {
-        return stack.has(DataComponentRegistry.RELOAD_STATE);
+        return stack.has(DataComponentRegistry.RELOAD_STATE.get());
     }
 
     public static void remove(ItemStack stack) {
-        stack.remove(DataComponentRegistry.RELOAD_STATE);
+        stack.remove(DataComponentRegistry.RELOAD_STATE.get());
     }
 
     public static ReloadState start(ItemStack stack, int reloadTimeTicks, double speed, int roundsToLoad, @Nullable TopLoadConfig topLoad) {

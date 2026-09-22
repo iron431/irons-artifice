@@ -49,7 +49,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
             if (damage <= 0) {
                 continue;
             }
-            if (entity.hurtServer(level, bullet.damageSources().explosion(bullet, owner instanceof LivingEntity living ? living : null), damage)) {
+            if (entity.hurt(bullet.damageSources().explosion(bullet, owner instanceof LivingEntity living ? living : null), damage)) {
                 accumulator.add(entity);
             }
         }

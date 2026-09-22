@@ -8,7 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -20,7 +20,7 @@ public record ClientboundBulletTrailPacket(Vec3 from, Vec3 to, List<ParticleOpti
         implements CustomPacketPayload {
 
     public static final Type<ClientboundBulletTrailPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_trail"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_trail"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundBulletTrailPacket> STREAM_CODEC =
             StreamCodec.of(ClientboundBulletTrailPacket::encode, ClientboundBulletTrailPacket::decode);

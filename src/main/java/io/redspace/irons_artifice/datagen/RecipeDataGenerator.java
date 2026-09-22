@@ -10,7 +10,7 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -30,18 +30,18 @@ public class RecipeDataGenerator extends RecipeProvider {
         /* **********************************
          * Blackpowder
          ********************************** */
-        ShapelessRecipeBuilder.shapeless(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 6)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 6)
                 .requires(Items.GUNPOWDER)
                 .requires(Items.CHARCOAL)
                 .requires(Items.REDSTONE)
                 .unlockedBy("has_gunpowder", this.has(Items.GUNPOWDER))
                 .save(this.output, recipeId("blackpowder_from_gunpowder"));
-        ShapelessRecipeBuilder.shapeless(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 2)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 2)
                 .requires(Items.CHARCOAL)
                 .requires(Items.REDSTONE)
                 .unlockedBy("has_redstone", this.has(Items.REDSTONE))
                 .save(this.output, recipeId("blackpowder"));
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 1)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BLACKPOWDER.get(), 1)
                 .pattern("##")
                 .define('#', Items.CHARCOAL)
                 .unlockedBy("has_charcoal", this.has(Items.CHARCOAL))
@@ -49,14 +49,14 @@ public class RecipeDataGenerator extends RecipeProvider {
         /* **********************************
          * Bullets
          ********************************** */
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BULLET.get(), 16)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BULLET.get(), 16)
                 .pattern("#")
                 .pattern("^")
                 .define('#', commonTag("ingots/iron"))
                 .define('^', ItemRegistry.BLACKPOWDER.get())
                 .unlockedBy("has_blackpowder", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output, recipeId("bullet_from_iron"));
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BULLET.get(), 4)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BULLET.get(), 4)
                 .pattern("#")
                 .pattern("^")
                 .define('#', commonTag("ingots/copper"))
@@ -67,7 +67,7 @@ public class RecipeDataGenerator extends RecipeProvider {
          * Armor
          ********************************** */
         // Cowboy Hat
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.COWBOY_HAT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.COWBOY_HAT.get())
                 .pattern("B#B")
                 .pattern("***")
                 .define('*', commonTag("leathers"))
@@ -76,7 +76,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("precursor", this.has(ItemRegistry.BULLET))
                 .save(this.output);
         // Tricorne
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.TRICORNE_HAT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.TRICORNE_HAT.get())
                 .pattern("***")
                 .pattern("B#F")
                 .define('*', commonTag("leathers"))
@@ -88,16 +88,16 @@ public class RecipeDataGenerator extends RecipeProvider {
         /* **********************************
          * Mechanical Components
          ********************************** */
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS.get())
                 .pattern("CIC")
                 .pattern("INI")
                 .pattern("CIC")
                 .define('N', commonTag("nuggets/copper"))
-                .define('C', Items.COPPER_CHAIN.unaffected())
+                .define('C', Items.IRON_CHAIN)
                 .define('I', commonTag("ingots/copper"))
                 .unlockedBy("has_redstone", this.has(Items.REDSTONE))
                 .save(this.output);
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MECHANICAL_COMPONENTS.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.MECHANICAL_COMPONENTS.get())
                 .pattern("BCR")
                 .pattern("CMC")
                 .pattern("RCN")
@@ -108,7 +108,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_simple", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.CLOCKWORK_COMPONENTS.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.CLOCKWORK_COMPONENTS.get())
                 .pattern("MI ")
                 .pattern("IRI")
                 .pattern(" IM")
@@ -121,7 +121,7 @@ public class RecipeDataGenerator extends RecipeProvider {
          * Guns
          ********************************** */
         // Flintlock
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.FLINTLOCK_PISTOL.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.FLINTLOCK_PISTOL.get())
                 .pattern("I  ")
                 .pattern(" IF")
                 .pattern(" LB")
@@ -132,7 +132,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Musket
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MUSKET.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.MUSKET.get())
                 .pattern("I  ")
                 .pattern(" MF")
                 .pattern(" LB")
@@ -144,7 +144,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Blackpowder Revolver
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER_REVOLVER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BLACKPOWDER_REVOLVER.get())
                 .pattern("I  ")
                 .pattern(" HM")
                 .pattern(" LB")
@@ -156,7 +156,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Six Shooter
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SIX_SHOOTER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SIX_SHOOTER.get())
                 .pattern("I  ")
                 .pattern(" HM")
                 .pattern(" IL")
@@ -167,7 +167,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Blunderbuss
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLUNDERBUSS.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BLUNDERBUSS.get())
                 .pattern("MI ")
                 .pattern("IMI")
                 .pattern(" IL")
@@ -177,7 +177,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Arquebus
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.ARQUEBUS.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.ARQUEBUS.get())
                 .pattern("I  ")
                 .pattern(" IM")
                 .pattern(" LB")
@@ -188,7 +188,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.IRON_INGOT))
                 .save(this.output);
         // Clockwork Rifle
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.CLOCKWORK_RIFLE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.CLOCKWORK_RIFLE.get())
                 .pattern("I  ")
                 .pattern(" HR")
                 .pattern(" LM")
@@ -203,7 +203,7 @@ public class RecipeDataGenerator extends RecipeProvider {
          * Modifier
          ********************************** */
         // Overcharged Powder
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.OVERCHARGED_POWDER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.OVERCHARGED_POWDER.get())
                 .pattern("BBB")
                 .pattern("PRP")
                 .pattern("BBB")
@@ -213,7 +213,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(Items.BLAZE_POWDER))
                 .save(this.output);
         // Steel Core
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.STEEL_CORE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.STEEL_CORE.get())
                 .pattern(" I ")
                 .pattern(" S ")
                 .pattern("IBI")
@@ -223,7 +223,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Incendiary Tip
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.INCENDIARY_TIP_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.INCENDIARY_TIP_MODIFIER.get())
                 .pattern(" P ")
                 .pattern("PIP")
                 .pattern("IBI")
@@ -233,7 +233,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Hair Trigger
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.HAIR_TRIGGER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.HAIR_TRIGGER.get())
                 .pattern("C")
                 .pattern("R")
                 .define('R', Items.BREEZE_ROD)
@@ -241,7 +241,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Chain Lightning
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.CHAIN_LIGHTNING.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.CHAIN_LIGHTNING.get())
                 .pattern(" R ")
                 .pattern("RIR")
                 .pattern("IBI")
@@ -251,7 +251,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Frozen Jacket
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.FROZEN_JACKET.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.FROZEN_JACKET.get())
                 .pattern(" * ")
                 .pattern("*R*")
                 .pattern("RBR")
@@ -261,14 +261,14 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Antigravity Powder
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.ANTIGRAVITY_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.ANTIGRAVITY_MODIFIER.get())
                 .pattern("BPB")
                 .define('P', Items.ENDER_PEARL)
                 .define('B', ItemRegistry.BLACKPOWDER)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Wind Chamber
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.WIND_CHAMBER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.WIND_CHAMBER.get())
                 .pattern("  P")
                 .pattern("CB ")
                 .pattern(" C ")
@@ -278,14 +278,14 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Gas Vent
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.GAS_VENT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.GAS_VENT.get())
                 .pattern("BPB")
                 .define('P', Items.HOPPER)
                 .define('B', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Blackpowder Charge
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLACKPOWDER_CHARGE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BLACKPOWDER_CHARGE.get())
                 .pattern("BSB")
                 .pattern("BBB")
                 .pattern("BBB")
@@ -294,7 +294,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Mechanical Repeater
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MECHANICAL_REPEATER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.MECHANICAL_REPEATER.get())
                 .pattern("#B#")
                 .pattern("***")
                 .define('#', Items.IRON_CHAIN)
@@ -303,7 +303,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.CLOCKWORK_COMPONENTS))
                 .save(this.output);
         // Chain Shot
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.CHAIN_SHOT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.CHAIN_SHOT.get())
                 .pattern("###")
                 .pattern("# #")
                 .pattern("B B")
@@ -312,7 +312,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BULLET))
                 .save(this.output);
         // Buffer Spring
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BUFFER_SPRING.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BUFFER_SPRING.get())
                 .pattern("I I")
                 .pattern("IBI")
                 .pattern("I I")
@@ -321,7 +321,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Breaching
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BREACHING_SHELL.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BREACHING_SHELL.get())
                 .pattern(" R ")
                 .pattern("RBR")
                 .pattern("III")
@@ -331,7 +331,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Venom
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.VENOM_CAPSULE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.VENOM_CAPSULE.get())
                 .pattern(" EE")
                 .pattern(" GE")
                 .pattern("B  ")
@@ -341,7 +341,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BULLET))
                 .save(this.output);
         // Scattershot
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SCATTERSHOT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SCATTERSHOT.get())
                 .pattern(" BB")
                 .pattern("#PB")
                 .pattern(" # ")
@@ -351,7 +351,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BULLET))
                 .save(this.output);
         // Lead Core
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.LEAD_CORE.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.LEAD_CORE.get())
                 .pattern(" I ")
                 .pattern(" S ")
                 .pattern("IBI")
@@ -361,7 +361,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Trick Bullet
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.TRICK_BULLET_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.TRICK_BULLET_MODIFIER.get())
                 .pattern(" I ")
                 .pattern(" S ")
                 .pattern("IBI")
@@ -371,7 +371,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Gun Oil
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.GUN_OIL.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.GUN_OIL.get())
                 .pattern("LMR")
                 .define('L', Items.HONEY_BOTTLE)
                 .define('R', Items.REDSTONE)
@@ -379,7 +379,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Singularity Charge
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get())
                 .pattern(" #B")
                 .pattern("#*#")
                 .pattern("B# ")
@@ -389,7 +389,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Enchanted Bullet
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.ENCHANTED_BULLET_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.ENCHANTED_BULLET_MODIFIER.get())
                 .pattern(" ##")
                 .pattern("B*#")
                 .pattern(" B ")
@@ -399,23 +399,23 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Seeking Powder
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SEEKING_POWDER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SEEKING_POWDER.get())
                 .pattern("B*B")
                 .define('*', Items.AMETHYST_CLUSTER)
                 .define('B', ItemRegistry.BLACKPOWDER)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Accelerating
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.MECHANICAL_ACCELERATOR_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.MECHANICAL_ACCELERATOR_MODIFIER.get())
                 .pattern("#B#")
                 .pattern("***")
-                .define('#', Items.COPPER_CHAIN.unaffected())
+                .define('#', Items.IRON_CHAIN)
                 .define('*', commonTag("ingots/copper"))
                 .define('B', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Scope
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SCOPE_ATTACHMENT_MODIFIER.get())
                 .pattern("#")
                 .pattern("*")
                 .define('#', Items.SPYGLASS)
@@ -423,7 +423,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Bayonet
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BAYONET_ATTACHMENT_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BAYONET_ATTACHMENT_MODIFIER.get())
                 .pattern("*")
                 .pattern("#")
                 .define('#', Items.IRON_SPEAR)
@@ -431,7 +431,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
         // Spiral Tip
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SPIRAL_TIP_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SPIRAL_TIP_MODIFIER.get())
                 .pattern(" * ")
                 .pattern("#B#")
                 .define('B', ItemRegistry.BLACKPOWDER)
@@ -440,7 +440,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output);
         // Suppressor
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER.get())
                 .pattern("*C#")
                 .define('C', ItemRegistry.CLOCKWORK_COMPONENTS)
                 .define('#', commonTag("leathers"))
@@ -448,7 +448,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.CLOCKWORK_COMPONENTS))
                 .save(this.output);
         // Hook Shot
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.HOOK_SHOT_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.HOOK_SHOT_MODIFIER.get())
                 .pattern("**B")
                 .pattern(" C*")
                 .pattern("C *")
@@ -458,7 +458,7 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .unlockedBy("has_precursor", this.has(ItemRegistry.BULLET))
                 .save(this.output);
         // Bloodletting Tip
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.BLOODLETTING_TIP_MODIFIER.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.BLOODLETTING_TIP_MODIFIER.get())
                 .pattern(" BB")
                 .pattern("#*B")
                 .pattern("$# ")
@@ -472,10 +472,10 @@ public class RecipeDataGenerator extends RecipeProvider {
     }
 
     private static TagKey<Item> commonTag(String path) {
-        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", path));
+        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
     }
 
-    private static ResourceKey<Recipe<?>> recipeId(Identifier identifier) {
+    private static ResourceKey<Recipe<?>> recipeId(ResourceLocation identifier) {
         return ResourceKey.create(Registries.RECIPE, identifier);
     }
 

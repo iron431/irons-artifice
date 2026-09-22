@@ -32,6 +32,10 @@ public final class DataComponentRegistry {
             COMPONENTS.registerComponentType("gun_spyglass", builder -> builder
                     .persistent(Unit.CODEC)
                     .networkSynchronized(Unit.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BAYONET =
+            COMPONENTS.registerComponentType("bayonet", builder -> builder
+                    .persistent(Unit.CODEC)
+                    .networkSynchronized(Unit.STREAM_CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<AttachmentMap>> ATTACHMENT =
             COMPONENTS.registerComponentType("attachment", builder -> builder
                     .persistent(AttachmentMap.CODEC)

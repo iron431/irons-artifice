@@ -1,15 +1,15 @@
 package io.redspace.irons_artifice.data;
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
 
 public final class ComponentType<T> {
-    final Identifier name;
+    final ResourceLocation name;
 
     final Supplier<T> defaultValue;
 
-    public ComponentType(Identifier name, Supplier<T> defaultValue) {
+    public ComponentType(ResourceLocation name, Supplier<T> defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
     }
@@ -18,7 +18,7 @@ public final class ComponentType<T> {
         return defaultValue.get();
     }
 
-    public Identifier getName() {
+    public ResourceLocation getName() {
         return name;
     }
 

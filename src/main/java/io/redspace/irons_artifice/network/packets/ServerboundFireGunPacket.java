@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.item.GunplayManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -15,7 +15,7 @@ public record ServerboundFireGunPacket(Vec3 direction)
         implements CustomPacketPayload {
 
     public static final Type<ServerboundFireGunPacket> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(IronsArtifice.MODID, "fire_gun"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "fire_gun"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundFireGunPacket> STREAM_CODEC =
             StreamCodec.of(ServerboundFireGunPacket::encode, ServerboundFireGunPacket::decode);

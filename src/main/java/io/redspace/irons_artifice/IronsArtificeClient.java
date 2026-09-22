@@ -1,12 +1,11 @@
 package io.redspace.irons_artifice;
 
+import io.redspace.irons_artifice.client.BayonetAnimations;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
 import io.redspace.irons_artifice.client.entity.GunslingerRenderer;
 import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
-import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
-import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
@@ -29,15 +28,18 @@ import io.redspace.irons_artifice.menu.GunModifierScreen;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.MenuRegistry;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
-import com.geckolib.animatable.client.GeoRenderProvider;
-import com.geckolib.model.DefaultedItemGeoModel;
-import com.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.model.DefaultedItemGeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 import com.google.common.base.Suppliers;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -49,18 +51,17 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.gui.VanillaGuiOverlay;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -73,20 +74,15 @@ public class IronsArtificeClient {
     }
 
     @SubscribeEvent
-    public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR, IronsArtifice.id("ammo_hud"), AmmoCountHudOverlay::render);
-        event.registerAbove(VanillaGuiLayers.CAMERA_OVERLAYS, IronsArtifice.id("gun_scope"), GunScopeOverlay::render);
-    }
-
-    @SubscribeEvent
-    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
-        event.register(GunPreviewRenderState.class, GunPreviewRenderer::new);
+    public static void registerGuiLayers(RegisterGuiOverlaysEvent event) {
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), IronsArtifice.id("ammo_hud"), AmmoCountHudOverlay::render);
+        event.registerAbove(VanillaGuiOverlay.CAMERA_OVERLAYS.id(), IronsArtifice.id("gun_scope"), GunScopeOverlay::render);
     }
 
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         for (GunItem gun : guns()) {
-            Identifier modelId = BuiltInRegistries.ITEM.getKey(gun);
+            ResourceLocation modelId = BuiltInRegistries.ITEM.getKey(gun);
             gun.geoRenderProvider.setValue(new GeoRenderProvider() {
                 private final Supplier<GeoItemRenderer<GunItem>> renderer =
                         Suppliers.memoize(() -> new GunInHandRenderer(new DefaultedItemGeoModel<>(modelId)));
@@ -99,24 +95,15 @@ public class IronsArtificeClient {
         }
         AttachmentRenderableRegistry.register(
                 IronsArtifice.id("spyglass_scope"),
-                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
-                        "spyglass_scope",
-                        "model/spyglass_scope",
-                        "empty"))
+                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID, "spyglass_scope"))
         );
         AttachmentRenderableRegistry.register(
                 IronsArtifice.id("iron_bayonet"),
-                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
-                        "iron_bayonet",
-                        "model/iron_bayonet",
-                        "empty"))
+                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID, "iron_bayonet"))
         );
         AttachmentRenderableRegistry.register(
                 IronsArtifice.id("suppressor"),
-                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
-                        "suppressor",
-                        "model/suppressor",
-                        "empty"))
+                new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID, "suppressor"))
         );
     }
 
@@ -191,6 +178,15 @@ public class IronsArtificeClient {
             @Override
             public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
                 return pose;
+            }
+
+            @Override
+            public boolean applyForgeHandTransform(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, ItemStack itemInHand, float partialTick, float equipProcess, float swingProcess) {
+                if (GunItem.isChargingBayonet(player)) {
+                    BayonetAnimations.firstPersonUse(1000f, poseStack, player.getTicksUsingItem() + partialTick, arm, itemInHand);
+                    return true;
+                }
+                return false;
             }
         };
     }

@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.datagen;
 
-import com.geckolib.renderer.internal.GeckolibItemSpecialRenderer;
+import software.bernie.geckolib.renderer.internal.GeckolibItemSpecialRenderer;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
@@ -14,7 +14,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class ItemModelDataGenerator extends ModelProvider {
-    public static final Identifier GECKOLIB_GUN_DISPLAY = IronsArtifice.id("item/gun_display");
-    public static final Identifier REVOLVER_GUN_DISPLAY = IronsArtifice.id("item/pistol_display");
-    private static final Identifier DEMO_GUN_MODEL = IronsArtifice.id("item/gun");
+    public static final ResourceLocation GECKOLIB_GUN_DISPLAY = IronsArtifice.id("item/gun_display");
+    public static final ResourceLocation REVOLVER_GUN_DISPLAY = IronsArtifice.id("item/pistol_display");
+    private static final ResourceLocation DEMO_GUN_MODEL = IronsArtifice.id("item/gun");
 
     public ItemModelDataGenerator(PackOutput output) {
         super(output, IronsArtifice.MODID);
@@ -36,7 +36,7 @@ public class ItemModelDataGenerator extends ModelProvider {
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         for (var item : ItemRegistry.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
-                Identifier displayParent = GECKOLIB_GUN_DISPLAY;
+                ResourceLocation displayParent = GECKOLIB_GUN_DISPLAY;
                 if (item == ItemRegistry.BLACKPOWDER_REVOLVER || item == ItemRegistry.SIX_SHOOTER) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
@@ -51,8 +51,8 @@ public class ItemModelDataGenerator extends ModelProvider {
      * Writes {@code models/item/<item>.json} from {@link ModelTemplates#FLAT_ITEM}
      * with the given layer0 texture, plus the matching {@code items/<item>.json} client item.
      */
-    public static void generateTemplatedItem(ItemModelGenerators itemModels, Item item, Identifier layer0Texture) {
-        Identifier modelLocation = ModelLocationUtils.getModelLocation(item);
+    public static void generateTemplatedItem(ItemModelGenerators itemModels, Item item, ResourceLocation layer0Texture) {
+        ResourceLocation modelLocation = ModelLocationUtils.getModelLocation(item);
         ModelTemplates.FLAT_ITEM.create(
                 modelLocation,
                 TextureMapping.layer0(new Material(layer0Texture)),
@@ -61,18 +61,18 @@ public class ItemModelDataGenerator extends ModelProvider {
         itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(modelLocation));
     }
 
-    public static void gunModel(ItemModelGenerators itemModels, Item item, Identifier displayParent) {
+    public static void gunModel(ItemModelGenerators itemModels, Item item, ResourceLocation displayParent) {
         itemModels.itemModelOutput.accept(
                 item,
                 ItemModelUtils.specialModel(displayParent, new GeckolibItemSpecialRenderer.Unbaked<>())
         );
     }
 
-    private static Identifier itemTexture(DeferredHolder<?, ?> item) {
+    private static ResourceLocation itemTexture(DeferredHolder<?, ?> item) {
         return itemTexture(item.getId());
     }
 
-    private static Identifier itemTexture(Identifier identifier) {
+    private static ResourceLocation itemTexture(ResourceLocation identifier) {
         return identifier.withPrefix("item/");
     }
 

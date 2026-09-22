@@ -3,7 +3,7 @@
         {
             "enum": "net/minecraft/client/model/HumanoidModel$ArmPose",
             "name": "IRONS_ARTIFICE_PISTOL",
-            "constructor": "(ZZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
+            "constructor": "(ZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
             "parameters": {
                 "class": "io/redspace/irons_artifice/client/gun/GunArmPoses",
                 "field": "PISTOL"
@@ -12,7 +12,7 @@
         {
             "enum": "net/minecraft/client/model/HumanoidModel$ArmPose",
             "name": "IRONS_ARTIFICE_RIFLE",
-            "constructor": "(ZZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
+            "constructor": "(ZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
             "parameters": {
                 "class": "io/redspace/irons_artifice/client/gun/GunArmPoses",
                 "field": "RIFLE"

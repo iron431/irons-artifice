@@ -23,7 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ItemLike;
 
@@ -37,7 +37,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
                         ItemRegistry.BLACKPOWDER.get(),
                         title("root"),
                         description("blackpowder_heart"),
-                        Identifier.withDefaultNamespace("block/stripped_dark_oak_log"),
+                        ResourceLocation.withDefaultNamespace("block/stripped_dark_oak_log"),
                         AdvancementType.TASK,
                         true,
                         false,

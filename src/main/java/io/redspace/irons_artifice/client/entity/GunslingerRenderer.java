@@ -7,10 +7,10 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.state.IllagerRenderState;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class GunslingerRenderer extends IllagerRenderer<Gunslinger, IllagerRenderState> {
-    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/illager/pillager.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/illager/pillager.png");
 
     public GunslingerRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.PILLAGER)), 0.5F);
@@ -18,7 +18,7 @@ public class GunslingerRenderer extends IllagerRenderer<Gunslinger, IllagerRende
     }
 
     @Override
-    public Identifier getTextureLocation(IllagerRenderState state) {
+    public ResourceLocation getTextureLocation(IllagerRenderState state) {
         return TEXTURE;
     }
 

@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.item;
 
-import com.geckolib.GeckoLibConstants;
+import software.bernie.geckolib.GeckoLibConstants;
 import io.redspace.irons_artifice.data.FireCycleCueStack;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import net.minecraft.sounds.SoundSource;
@@ -22,7 +22,7 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
     public static final long UNKEYED = Long.MIN_VALUE;
 
     public static FireDelayState get(LivingEntity living) {
-        return living.getData(DataAttachmentRegistry.FIRE_DELAY.get());
+        return living.getData(DataAttachmentRegistry.FIRE_DELA.get()Y.get());
     }
 
     /**
@@ -52,12 +52,12 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
         if (durationTicks <= 0) {
             return;
         }
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(),
+        living.setData(DataAttachmentRegistry.FIRE_DELA.get()Y.get(),
                 new FireDelayState(gunIdOf(heldGun), 0, durationTicks, 0, pitchMultiplier));
     }
 
     public static void clear(LivingEntity living) {
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(), NONE);
+        living.setData(DataAttachmentRegistry.FIRE_DELA.get()Y.get(), NONE);
     }
 
     /**
@@ -81,7 +81,7 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
             clear(living);
             return true;
         }
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(),
+        living.setData(DataAttachmentRegistry.FIRE_DELA.get()Y.get(),
                 new FireDelayState(state.gunId, progress, state.duration, nextCue, state.pitchMultiplier));
         return false;
     }

@@ -58,7 +58,7 @@ public final class CrosshairRenderer {
 
 //            float remaining = 1f - Mth.lerp(partialTick, reloadProgressO, reloadProgress);
             f = crosshairAnimationInterpolation(f);
-            poseStack.rotate(f * 180 * Mth.DEG_TO_RAD);
+            poseStack.rotate(f * 180 * ((float) Math.PI / 180));
             poseStack.translate(-0.5f, -0.5f);
         }
         drawCross(graphics, gap);
@@ -79,8 +79,8 @@ public final class CrosshairRenderer {
         if (degreesSpread <= 0 || guiHeight <= 0 || fovDegrees <= 0) {
             return 0;
         }
-        float halfFovRad = fovDegrees * Mth.DEG_TO_RAD * 0.5f;
-        float spreadRad = degreesSpread * Mth.DEG_TO_RAD;
+        float halfFovRad = fovDegrees * ((float) Math.PI / 180) * 0.5f;
+        float spreadRad = degreesSpread * ((float) Math.PI / 180);
         float denom = (float) Math.tan(halfFovRad);
         if (denom <= 1.0E-6f) {
             return 0;

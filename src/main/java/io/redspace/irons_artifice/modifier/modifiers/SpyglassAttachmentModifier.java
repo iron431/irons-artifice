@@ -32,8 +32,8 @@ public class SpyglassAttachmentModifier extends ValueStackModifier {
     @Override
     public Optional<DataComponentPatch> getPatch() {
         return Optional.of(DataComponentPatch.builder()
-                .set(DataComponentRegistry.GUN_SPYGLASS.get(), Unit.INSTANCE)
-                .set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
+                .set(DataComponentRegistry.GUN_SPYGLAS.get()S.get(), Unit.INSTANCE)
+                .set(DataComponentRegistry.ATTACHMEN.get()T.get(), new AttachmentMap(Map.of(
                         GunBones.SOCKET_OPTIC, IronsArtifice.id("spyglass_scope")
                 )))
                 .build());

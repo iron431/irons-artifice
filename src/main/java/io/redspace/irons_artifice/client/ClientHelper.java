@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.client;
 
-import com.geckolib.animation.AnimationController;
-import com.geckolib.constant.DataTickets;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.constant.DataTickets;
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
 import io.redspace.irons_artifice.client.particle.FairyDustParticleOption;
 import io.redspace.irons_artifice.client.particle.ITrailParticle;
@@ -148,16 +148,14 @@ public final class ClientHelper {
 
     public static void playClientGunAnimation(GunItem gun, long instanceId, String animName, double speed, double offsetSeconds, double skipAtSeconds, double skipToSeconds) {
         var manager = gun.getAnimatableInstanceCache().getManagerForId(instanceId);
-        manager.setAnimatableData(DataTickets.ITEM_RENDER_PERSPECTIVE, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND);
+        manager.setData(DataTickets.ITEM_RENDER_PERSPECTIVE, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND);
         AnimationController<?> controller = gun.getAnimatableInstanceCache().getManagerForId(instanceId).getAnimationControllers().get(GunItem.TRIGGERED_ANIMATION_CONTROLLER);
         if (controller == null) {
             return;
         }
-        controller.triggerAnimation(animName);
+        gun.configureActionTimeline(instanceId, offsetSeconds, skipAtSeconds, skipToSeconds);
+        controller.tryTriggerAnimation(animName);
         controller.setAnimationSpeed(speed);
-        // IMPORTANT: set even if zero (controller workaround doesn't handle context-free transitions)
-        controller.setTimelineTime(offsetSeconds);
-        gun.configureActionTimelineSkip(instanceId, skipAtSeconds, skipToSeconds);
     }
 
     public static void handleCancelGunAnimationPacket(ClientboundCancelGunAnimationPacket msg) {
@@ -182,8 +180,8 @@ public final class ClientHelper {
         if (controller == null) {
             return;
         }
-        controller.stopTriggeredAnimation();
-        controller.reset();
+        gun.getAnimatableInstanceCache().getManagerForId(instanceId).stopTriggeredAnimation(GunItem.TRIGGERED_ANIMATION_CONTROLLER, null);
+        controller.forceAnimationReset();
     }
 
     public static void handleGunshotSound(ClientboundGunshotSoundPacket msg) {
