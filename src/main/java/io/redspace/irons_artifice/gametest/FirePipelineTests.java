@@ -44,8 +44,8 @@ public final class FirePipelineTests {
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.RELOADING, "mid reload is refused as RELOADING");
 
-        // TestFixtures.shooter dismisses the shooter at the end of the tick, which takes the
-        // dangling ReloadState set above with it.
+        // TestFixtures.shooter's fake player never ticks, so the ReloadState set above goes
+        // nowhere once the test ends.
         helper.succeed();
     }
 

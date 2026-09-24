@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.gametest;
 
+import com.mojang.authlib.GameProfile;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.ShotProfile;
@@ -29,8 +30,10 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -75,47 +78,33 @@ public final class TestFixtures {
     }
 
     /**
-     * A mock player holding the given gun, for any test that does not fire. It {@link #dismiss}es
-     * itself at the end of the current tick, so a {@code startSequence} test built on it loses its
-     * shooter mid-sequence with no compile error.
+     * A player holding the given gun, for any test that does not fire.
+     * <p>
+     * A NeoForge {@link FakePlayer} rather than {@code GameTestHelper#makeMockServerPlayerInLevel}. The mock
+     * player joins the server through {@code PlayerList#placeNewPlayer} on a connection that never negotiated a
+     * channel, so any mod that sends a payload on login or to nearby players throws "Payload ... may not be sent
+     * to the client!" at it. A {@code FakePlayer} is never added to the player list or the level, and its
+     * connection drops everything sent to it.
+     * <p>
+     * It also never ticks, so fire delay and reload state set on it stay where the test put them. Built
+     * directly rather than through {@code FakePlayerFactory}, which hands every caller with the same profile one
+     * shared instance.
      */
     public static ServerPlayer shooter(GameTestHelper helper, BlockPos relativePos, ItemStack gun) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = new FakePlayer(helper.getLevel(), new GameProfile(UUID.randomUUID(), "test-fake-player"));
         player.setPos(helper.absoluteVec(Vec3.atCenterOf(relativePos)));
         player.setItemSlot(EquipmentSlot.MAINHAND, gun);
         resetShotState(player);
-        helper.runAfterDelay(0, () -> dismiss(helper, player));
         return player;
-    }
-
-    /**
-     * Takes a finished test's mock player off the server, so it neither keeps ticking a dangling
-     * {@link ReloadState} or {@link FireDelayState} nor receives a gunshot broadcast from a
-     * later-running test in the same batch.
-     * <p>
-     * {@code Entity.discard()} is not enough. It clears {@code ServerLevel#players()}, but
-     * {@code PlayerList.broadcast} -- what sends the gunshot sound -- reads {@code PlayerList}'s own
-     * separate list, which only {@code PlayerList#remove} clears. That call covers both.
-     * <p>
-     * Scheduled with {@code runAfterDelay(0, ...)} rather than {@code runBeforeTestEnd}, which
-     * schedules for {@code timeoutTicks - 1}: {@code succeed()} marks the test done synchronously,
-     * and {@code GameTestInfo.tick()} then skips the queue where that runnable is waiting. Tick 0
-     * is drained right after the test body returns, done or not.
-     */
-    private static void dismiss(GameTestHelper helper, ServerPlayer player) {
-        resetShotState(player);
-        helper.getLevel().getServer().getPlayerList().remove(player);
     }
 
     /**
      * A mob with no free will holding the given gun, for any test that fires a shot.
      * <p>
-     * A shot that goes off plays a gunshot sound to every real player within 192 blocks
-     * ({@code GunShotSoundStack#playGunShotSound}), the shooter included. A mock
-     * {@link ServerPlayer} sits in the server's player list behind a fake connection, and this
-     * mod's payloads throw "Payload ... may not be sent to the client!" at it. A mob is not a
-     * player and never receives that broadcast. The gunplay pipeline takes a {@link LivingEntity}
-     * throughout, so nothing else about the test changes.
+     * A mob rather than {@link #shooter}'s {@link FakePlayer}: fire delay and reload advance in
+     * {@code EntityTickEvent}, which a {@code FakePlayer} never receives because it is not in the
+     * level. The gunplay pipeline takes a {@link LivingEntity} throughout, so nothing else about the
+     * test changes.
      */
     public static LivingEntity firingShooter(GameTestHelper helper, BlockPos relativePos, ItemStack gun) {
         LivingEntity shooter = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, relativePos);
