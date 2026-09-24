@@ -16,7 +16,7 @@ public final class HeldItemRenderContext {
     }
 
     public static void push(LivingEntity holder) {
-        // An exception unwinding past the pop leaks an entry; past this depth the stack is assumed to have.
+        // Item renders never nest this deep, so a stack this size means an exception skipped pop() and leaked.
         if (HOLDERS.size() > MAX_DEPTH) {
             HOLDERS.clear();
         }

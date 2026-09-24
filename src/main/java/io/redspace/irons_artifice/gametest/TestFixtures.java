@@ -45,8 +45,9 @@ public final class TestFixtures {
     public static final Vec3 FORWARD = new Vec3(0.0, 0.0, 1.0);
 
     /**
-     * The pitch and yaw {@link Vec3#directionFromRotation(float, float)} turns back into {@code direction}, so a
-     * test can build an aim by rotating one it already has.
+     * Inverse of {@link Vec3#directionFromRotation(float, float)}. Deliberately not
+     * {@code Utils.rotationFromDirection}: {@code RecoilTests} builds its control aim with this, and the control must
+     * share no code with the firing path it checks.
      */
     public static Vec2 rotationOf(Vec3 direction) {
         float yaw = (float) Math.atan2(-direction.x, direction.z) * 57.295776F;

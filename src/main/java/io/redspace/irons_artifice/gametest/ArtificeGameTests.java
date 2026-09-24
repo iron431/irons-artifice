@@ -16,10 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Turns the catalog into the framework's own {@link TestFunction}s. NeoForge finds this class through
- * {@link GameTestHolder} in the mod's scan data and calls the generator once.
- */
+/** The one place the catalog becomes {@link TestFunction}s. No test is registered anywhere else. */
 @GameTestHolder(IronsArtifice.MODID)
 public final class ArtificeGameTests {
     private static final String BATCH = "defaultBatch";

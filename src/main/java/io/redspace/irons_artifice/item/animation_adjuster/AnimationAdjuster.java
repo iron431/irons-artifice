@@ -25,7 +25,6 @@ public interface AnimationAdjuster {
         bone.resetStateChanges();
     }
 
-    /** Seconds into the reload animation, or zero when no reload is playing. */
     static double reloadProgressSeconds(AnimationState<GunItem> animationState) {
         Double progress = animationState.getData(GunItem.RELOAD_PROGRESS_SECONDS_TICKET);
         return progress != null ? progress : 0.0;

@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -8,7 +9,6 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -58,9 +58,7 @@ public class BulletImpactParticle extends TextureSheetParticle {
         if (lightIntensity == 0) {
             return packed;
         }
-        int block = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.block(packed), 240), 0, 15);
-        int sky = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.sky(packed), 240), 0, 15);
-        return LightTexture.pack(block, sky);
+        return Utils.brightenLightTexture(packed, lightIntensity);
     }
 
     @Override

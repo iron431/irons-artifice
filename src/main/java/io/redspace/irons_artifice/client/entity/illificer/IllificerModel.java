@@ -30,9 +30,8 @@ public class IllificerModel extends IllagerModel<Illificer> {
      * humanoid-shaped view over this model's parts, so posing it poses this model.
      */
     private final HumanoidModel<Illificer> humanoidProxy;
-    /** Where the arms sit before anything animates them. See {@link #restoreArmOffsets()}. */
-    private final float rightArmX, rightArmY, rightArmZ;
-    private final float leftArmX, leftArmY, leftArmZ;
+    private final float restRightArmX, restRightArmY, restRightArmZ;
+    private final float restLeftArmX, restLeftArmY, restLeftArmZ;
     private MobGunPose mobGunPose = MobGunPose.NONE;
     private HumanoidArm mainArm = HumanoidArm.RIGHT;
 
@@ -40,12 +39,12 @@ public class IllificerModel extends IllagerModel<Illificer> {
         super(root);
         this.leftArm = root.getChild("left_arm");
         this.rightArm = root.getChild("right_arm");
-        this.rightArmX = this.rightArm.x;
-        this.rightArmY = this.rightArm.y;
-        this.rightArmZ = this.rightArm.z;
-        this.leftArmX = this.leftArm.x;
-        this.leftArmY = this.leftArm.y;
-        this.leftArmZ = this.leftArm.z;
+        this.restRightArmX = this.rightArm.x;
+        this.restRightArmY = this.rightArm.y;
+        this.restRightArmZ = this.rightArm.z;
+        this.restLeftArmX = this.leftArm.x;
+        this.restLeftArmY = this.leftArm.y;
+        this.restLeftArmZ = this.leftArm.z;
         this.humanoidProxy = new HumanoidModel<>(humanoidView(root));
         this.getHat().visible = true;
     }
@@ -56,12 +55,12 @@ public class IllificerModel extends IllagerModel<Illificer> {
      * the offsets pile up frame on frame and the arms walk away from the body.
      */
     private void restoreArmOffsets() {
-        this.rightArm.x = this.rightArmX;
-        this.rightArm.y = this.rightArmY;
-        this.rightArm.z = this.rightArmZ;
-        this.leftArm.x = this.leftArmX;
-        this.leftArm.y = this.leftArmY;
-        this.leftArm.z = this.leftArmZ;
+        this.rightArm.x = this.restRightArmX;
+        this.rightArm.y = this.restRightArmY;
+        this.rightArm.z = this.restRightArmZ;
+        this.leftArm.x = this.restLeftArmX;
+        this.leftArm.y = this.restLeftArmY;
+        this.leftArm.z = this.restLeftArmZ;
     }
 
     private static ModelPart humanoidView(ModelPart root) {

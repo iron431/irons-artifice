@@ -21,7 +21,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 /**
- * The adjusters read everything off the {@link AnimationState}, which is the only object that reaches them.
+ * GeckoLib 4 exposes the animated bones between the animation tick and the draw only through
+ * {@link #setCustomAnimations}, so perspective silencing and the animation adjusters live on the model, and the
+ * renderer-side state they need is copied onto the {@link AnimationState} first.
  */
 public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
 

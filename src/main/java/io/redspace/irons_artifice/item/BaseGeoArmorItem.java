@@ -18,11 +18,7 @@ import java.util.function.Consumer;
  * two hats cannot share a superclass with the guns.
  */
 public class BaseGeoArmorItem extends ArmorItem implements GeoItem {
-    /**
-     * Populated from the client only, by {@code ArmorRenderProviders}. A {@code GeoArmorRenderer} is a
-     * {@code HumanoidModel}, so naming one from a subclass constructor would load a client class while a
-     * dedicated server registers items.
-     */
+    /** Set client-side by {@code ArmorRenderProviders}, which explains why the constructor cannot. */
     public final MutableObject<GeoRenderProvider> geoRenderProvider = new MutableObject<>();
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 

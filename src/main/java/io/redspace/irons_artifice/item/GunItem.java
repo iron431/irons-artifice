@@ -47,8 +47,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GunItem extends BaseGeoItem {
-    // Only what the animation adjusters read travels on a DataTicket. The attachments, the holder and its hand
-    // occupancy come straight off the rendered stack.
     public static final DataTicket<MagazineContents> MAGAZINE_ANIMATION_TICKET = new DataTicket<>(IronsArtifice.id("magazine_state").toString(), MagazineContents.class);
     public static final DataTicket<Double> RELOAD_PROGRESS_SECONDS_TICKET = new DataTicket<>(IronsArtifice.id("reload_progress_seconds").toString(), Double.class);
     public static final DataTicket<Float> RELOAD_PERCENT_TICKET = new DataTicket<>(IronsArtifice.id("reload_percent").toString(), Float.class);
@@ -326,7 +324,6 @@ public class GunItem extends BaseGeoItem {
             return this.triggeredAnimation != null && this.triggeredAnimation == this.triggerableAnimations.get(animName);
         }
 
-        /** Exposes {@link AnimationController#stopTriggeredAnimation()}, which is protected. */
         public boolean cancelTriggeredAnimation() {
             return stopTriggeredAnimation();
         }
@@ -371,7 +368,6 @@ public class GunItem extends BaseGeoItem {
             return adjusted;
         }
 
-        /** Shifts the tick offset so the current animation reads as {@code targetTicks} in. */
         private double seekTo(double tick, double targetTicks) {
             double speed = getAnimationSpeed();
 

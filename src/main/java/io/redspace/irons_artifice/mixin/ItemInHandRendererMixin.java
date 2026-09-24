@@ -30,7 +30,7 @@ public class ItemInHandRendererMixin {
         }
     }
 
-    /** The method carries no parameter names, so the equip offset is addressed by its local slot. */
+    /** The runtime jar has no local variable names, so {@code inverseArmHeight} is addressed by its slot. */
     @ModifyVariable(
             method = "renderArmWithItem",
             at = @At("HEAD"),

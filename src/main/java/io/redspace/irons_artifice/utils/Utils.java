@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.utils;
 import io.redspace.irons_artifice.data.ComponentType;
 import io.redspace.irons_artifice.data.ValueModifier;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -149,5 +150,14 @@ public class Utils {
 
     public static boolean hasLineOfSight(Entity a, Entity b) {
         return a.level().clip(new ClipContext(a.getBoundingBox().getCenter(), b.getBoundingBox().getCenter(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty())).getType() == HitResult.Type.MISS;
+    }
+
+    /**
+     * Pushes packed light toward full bright by {@code intensity}.
+     */
+    public static int brightenLightTexture(int packed, float intensity) {
+        int block = Mth.clamp((int) Mth.lerp(intensity, LightTexture.block(packed), 240), 0, 15);
+        int sky = Mth.clamp((int) Mth.lerp(intensity, LightTexture.sky(packed), 240), 0, 15);
+        return LightTexture.pack(block, sky);
     }
 }

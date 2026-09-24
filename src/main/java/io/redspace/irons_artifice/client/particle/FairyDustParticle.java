@@ -7,7 +7,6 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -110,9 +109,7 @@ public class FairyDustParticle extends TextureSheetParticle {
         float lightIntensity = (this.age + a) / lifetime;
 //        lightIntensity = 1 - (1 - lightIntensity) * (1 - lightIntensity);
         int packed = super.getLightColor(a);
-        int block = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.block(packed), 240), 0, 15);
-        int sky = Mth.clamp((int) Mth.lerp(lightIntensity, LightTexture.sky(packed), 240), 0, 15);
-        return LightTexture.pack(block, sky);
+        return Utils.brightenLightTexture(packed, lightIntensity);
     }
 
 
