@@ -17,10 +17,9 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.GunState;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
-import io.redspace.irons_artifice.item.kinetic.KineticWeaponHandler;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -31,14 +30,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
@@ -72,12 +69,6 @@ public class GunItem extends BaseGeoItem {
 
     public static final int SCOPE_USE_DURATION = 1200;
 
-    /**
-     * A charge ends when its conditions run out or the player lets go, never on the duration elapsing, and
-     * {@link KineticWeaponHandler} counts ticks up from this value.
-     */
-    public static final int KINETIC_USE_DURATION = 72000;
-
     public static boolean hasGunSpyglass(ItemStack stack) {
         return stack.has(DataComponentRegistry.GUN_SPYGLASS);
     }
@@ -90,11 +81,6 @@ public class GunItem extends BaseGeoItem {
         return entity instanceof LivingEntity living && living.isUsingItem() && KineticWeapon.has(living.getUseItem());
     }
 
-    /** Whether this stack's arm pose is the mod's own rather than vanilla's. {@code PlayerRendererMixin} asks. */
-    public static boolean posedAsKineticWeapon(ItemStack stack) {
-        return stack.getItem() instanceof GunItem && KineticWeapon.has(stack);
-    }
-
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
@@ -105,9 +91,13 @@ public class GunItem extends BaseGeoItem {
             player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
             return ItemUtils.startUsingInstantly(level, player, hand);
         }
-        // The charge starts only once the gun has finished cycling its action.
+        // The charge starts only once the gun has finished cycling its action. Iron's Lib starts a charge for any
+        // kinetic stack whose use falls through as PASS, so the gated case must answer FAIL rather than defer.
         KineticWeapon kineticWeapon = KineticWeapon.get(stack);
-        if (kineticWeapon != null && !FireDelayState.isActive(player, stack)) {
+        if (kineticWeapon != null) {
+            if (FireDelayState.isActive(player, stack)) {
+                return InteractionResultHolder.fail(stack);
+            }
             player.startUsingItem(hand);
             // playSound's Player argument is the listener to EXCLUDE, so pass null and the charging player
             // hears it too. Item.use runs on both sides, and the guard is what stops the sound doubling.
@@ -126,38 +116,14 @@ public class GunItem extends BaseGeoItem {
         if (hasGunSpyglass(stack)) {
             return SCOPE_USE_DURATION;
         }
-        return KineticWeapon.has(stack) ? KINETIC_USE_DURATION : super.getUseDuration(stack, user);
-    }
-
-    /**
-     * {@link UseAnim#SPEAR} keeps the first-person timing. {@code ItemInHandRendererMixin} replaces the trident pose
-     * that would otherwise go with it, and {@code PlayerRendererMixin} the third-person one.
-     */
-    @Override
-    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return KineticWeapon.has(stack) ? UseAnim.SPEAR : super.getUseAnimation(stack);
-    }
-
-    @Override
-    public void onUseTick(@NotNull Level level, @NotNull LivingEntity entity, @NotNull ItemStack stack, int remainingUseDuration) {
-        if (!level.isClientSide() && KineticWeapon.has(stack)) {
-            KineticWeaponHandler.tickCharge(stack, entity, remainingUseDuration,
-                    entity.getUsedItemHand() == InteractionHand.OFF_HAND
-                            ? EquipmentSlot.OFFHAND
-                            : EquipmentSlot.MAINHAND);
-            return;
-        }
-        super.onUseTick(level, entity, stack, remainingUseDuration);
+        // A kinetic stack's duration comes from Iron's Lib, which also ticks and ends the charge.
+        return super.getUseDuration(stack, user);
     }
 
     @Override
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-            return stack;
-        }
-        if (KineticWeapon.has(stack)) {
-            KineticWeaponHandler.endCharge(entity);
             return stack;
         }
         return super.finishUsingItem(stack, level, entity);
@@ -167,10 +133,6 @@ public class GunItem extends BaseGeoItem {
     public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity, int remainingTime) {
         if (hasGunSpyglass(stack)) {
             entity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
-            return;
-        }
-        if (KineticWeapon.has(stack)) {
-            KineticWeaponHandler.endCharge(entity);
             return;
         }
         super.releaseUsing(stack, level, entity, remainingTime);

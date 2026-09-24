@@ -19,6 +19,7 @@ import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.modifier.modifiers.LeechModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainShotOnHit;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.ironslib.registry.IronsLibRegistries;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
@@ -238,8 +239,8 @@ public final class ModifierTests {
                         "the scope narrowed composed spread");
             }),
             compose(ItemRegistry.BAYONET_ATTACHMENT_MODIFIER, "bayonet_attachment_applies_patch", (helper, control, variant) -> {
-                helper.assertFalse(control.stack().has(DataComponentRegistry.KINETIC_WEAPON.get()), "a plain gun has no kinetic-weapon component");
-                helper.assertTrue(variant.stack().has(DataComponentRegistry.KINETIC_WEAPON.get()),
+                helper.assertFalse(control.stack().has(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get()), "a plain gun has no kinetic-weapon component");
+                helper.assertTrue(variant.stack().has(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get()),
                         "the bayonet's patch put the kinetic-weapon component on the stack");
             }),
             compose(ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER, "suppressor_quietens_and_attaches", (helper, control, variant) -> {

@@ -3,8 +3,8 @@ package io.redspace.irons_artifice.client.gun;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.ReloadState;
-import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -30,10 +30,6 @@ public final class GunArmPoses {
         return gun.getGun().armPoseKind() == ArmPoseKind.PISTOL ? PISTOL.getValue() : RIFLE.getValue();
     }
 
-    /**
-     * Pose whichever hands are holding a gun. Models that drive their own arm poses rather than going through
-     * {@link net.neoforged.neoforge.client.extensions.common.IClientItemExtensions#getArmPose} call this directly.
-     */
     public static <T extends LivingEntity> void applyHeldGunPoses(HumanoidModel<T> model, T entity) {
         applyHeldGunPose(model, entity, HumanoidArm.LEFT);
         applyHeldGunPose(model, entity, HumanoidArm.RIGHT);
@@ -64,7 +60,6 @@ public final class GunArmPoses {
         float ticksUsingItem = ticksUsingItem(entity, arm);
         if (ticksUsingItem > 0) {
             var stack = itemHeldByArm(entity, arm);
-            // todo: addon hook for this?
             if (KineticWeapon.has(stack)) {
                 handleBayonetPose(armModel, holdingInRightArm);
             } else if (stack.has(DataComponentRegistry.GUN_SPYGLASS)) {

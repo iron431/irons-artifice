@@ -246,7 +246,6 @@ public final class ClientHelper {
 
     public static void reset() {
         localDryFireTime = 0;
-        KineticHitFeedback.reset();
     }
 
     public static InteractionHand getHandHoldingTwoHandedGun(LocalPlayer player) {

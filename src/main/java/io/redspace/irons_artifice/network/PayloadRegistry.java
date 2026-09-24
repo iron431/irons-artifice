@@ -6,7 +6,6 @@ import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationP
 import io.redspace.irons_artifice.network.packets.ClientboundEquipSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunshotSoundPacket;
-import io.redspace.irons_artifice.network.packets.ClientboundKineticHitPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundLocalSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
@@ -76,11 +75,6 @@ public final class PayloadRegistry {
                 ClientboundEquipSoundPacket.TYPE,
                 ClientboundEquipSoundPacket.STREAM_CODEC,
                 ClientboundEquipSoundPacket::handle
-        );
-        registrar.playToClient(
-                ClientboundKineticHitPacket.TYPE,
-                ClientboundKineticHitPacket.STREAM_CODEC,
-                ClientboundKineticHitPacket::handle
         );
     }
 }

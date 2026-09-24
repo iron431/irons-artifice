@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.RecentShots;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
+import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import net.minecraft.server.level.ServerPlayer;

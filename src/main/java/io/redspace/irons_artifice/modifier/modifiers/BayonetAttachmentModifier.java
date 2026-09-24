@@ -4,16 +4,18 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.item.AttachmentMap;
-import io.redspace.irons_artifice.item.kinetic.AttackRange;
-import io.redspace.irons_artifice.item.kinetic.KineticWeapon;
-import io.redspace.irons_artifice.item.kinetic.UseEffects;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.ironslib.kinetic_weapon.AttackRange;
+import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
+import io.redspace.ironslib.kinetic_weapon.UseEffects;
+import io.redspace.ironslib.registry.IronsLibRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.Map;
@@ -21,6 +23,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BayonetAttachmentModifier implements GunModifier {
+
+    /** The {@code KineticAnimation} the client registers for bayonet charges. */
+    public static final ResourceLocation BAYONET_ANIMATION = IronsArtifice.id("bayonet");
 
     @Override
     public void apply(ShotComponentMap components) {
@@ -35,14 +40,14 @@ public class BayonetAttachmentModifier implements GunModifier {
     public Optional<DataComponentPatch> getPatch() {
         DataComponentPatch.Builder builder = DataComponentPatch.builder();
         AttackRange defaultSpearAttackRange = new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F);
-        builder.set(DataComponentRegistry.ATTACK_RANGE.get(), defaultSpearAttackRange);
-        builder.set(DataComponentRegistry.KINETIC_WEAPON.get(),
+        builder.set(IronsLibRegistries.ComponentRegistry.ATTACK_RANGE.get(), defaultSpearAttackRange);
+        builder.set(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get(),
                 createVanillaSpear(
                         1f,
                         0.5f,
                         2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F
-                ));
-        builder.set(DataComponentRegistry.USE_EFFECTS.get(), new UseEffects(true, false, 1));
+                ).withAnimation(BAYONET_ANIMATION));
+        builder.set(IronsLibRegistries.ComponentRegistry.USE_EFFECTS.get(), new UseEffects(true, 1));
         builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
                 GunBones.SOCKET_BAYONET, IronsArtifice.id("iron_bayonet")
         )));
