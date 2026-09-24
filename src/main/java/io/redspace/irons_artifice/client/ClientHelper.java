@@ -47,6 +47,10 @@ public final class ClientHelper {
 
     private static long localDryFireTime;
 
+    public static boolean isOnClientThread() {
+        return Minecraft.getInstance().isSameThread();
+    }
+
     public static void handleLocalDryFire(Player player, PlayableSound sound) {
         if (player.level().getGameTime() > localDryFireTime + 8) {
             localDryFireTime = player.level().getGameTime();

@@ -1,12 +1,12 @@
 package io.redspace.irons_artifice.modifier.on_hit_handlers;
 
 import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleOption;
-import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.BlockDamageManager;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
@@ -55,9 +55,9 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
         }
 
         ShotProfile profile = bullet.getProfile();
-        if (profile != null && profile.peek(ShotComponents.BREAKS_BLOCKS)
+        if (profile != null && bullet.canBreakBlocks()
                 && !(owner instanceof Mob && !level.getGameRules().get(GameRules.MOB_GRIEFING))) {
-            float blockDamageMultiplier = (float) profile.value(ShotComponents.BLOCK_DAMAGE_MULTIPLIER);
+            float blockDamageMultiplier = (float) profile.value(AttributeRegistry.BLOCK_DAMAGE);
             BlockPos.betweenClosed(
                     BlockPos.containing(center.x - RADIUS, center.y - RADIUS, center.z - RADIUS),
                     BlockPos.containing(center.x + RADIUS, center.y + RADIUS, center.z + RADIUS)

@@ -5,39 +5,28 @@ import io.redspace.irons_artifice.gun.Guns;
 import io.redspace.irons_artifice.item.CowboyHatItem;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.TricorneItem;
+import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.modifier.modifiers.AntigravityModifier;
+import io.redspace.irons_artifice.modifier.ModifierStats;
 import io.redspace.irons_artifice.modifier.modifiers.BayonetAttachmentModifier;
 import io.redspace.irons_artifice.modifier.modifiers.BlackpowderChargeModifier;
-import io.redspace.irons_artifice.modifier.modifiers.BreachModifier;
-import io.redspace.irons_artifice.modifier.modifiers.BufferSpringModifier;
 import io.redspace.irons_artifice.modifier.modifiers.ChainLightningModifier;
 import io.redspace.irons_artifice.modifier.modifiers.ChainShotModifier;
-import io.redspace.irons_artifice.modifier.modifiers.EnchantedBulletModifier;
 import io.redspace.irons_artifice.modifier.modifiers.FrozenJacketModifier;
-import io.redspace.irons_artifice.modifier.modifiers.GasVentModifier;
-import io.redspace.irons_artifice.modifier.modifiers.GunOilModifier;
-import io.redspace.irons_artifice.modifier.modifiers.HairTriggerModifier;
-import io.redspace.irons_artifice.modifier.modifiers.HeavyModifier;
 import io.redspace.irons_artifice.modifier.modifiers.HookShotModifier;
 import io.redspace.irons_artifice.modifier.modifiers.IncendiaryTipModifier;
 import io.redspace.irons_artifice.modifier.modifiers.LeechModifier;
 import io.redspace.irons_artifice.modifier.modifiers.MechanicalAccelerator;
-import io.redspace.irons_artifice.modifier.modifiers.MechanicalRepeaterModifier;
-import io.redspace.irons_artifice.modifier.modifiers.OverchargedPowderModifier;
-import io.redspace.irons_artifice.modifier.modifiers.ScattershotModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SeekingModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SingularityChargeModifier;
-import io.redspace.irons_artifice.modifier.modifiers.SpiralTipModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SpyglassAttachmentModifier;
-import io.redspace.irons_artifice.modifier.modifiers.SteelCoreModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SuppressorAttachmentModifier;
 import io.redspace.irons_artifice.modifier.modifiers.TrickshotModifier;
 import io.redspace.irons_artifice.modifier.modifiers.VenomCapsuleModifier;
-import io.redspace.irons_artifice.modifier.modifiers.WindChamberModifier;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -75,13 +64,13 @@ public final class ItemRegistry {
     public static final DeferredItem<Item> TRICORNE_HAT = ITEMS.registerItem("tricorne", TricorneItem::new);
 
     public static final DeferredItem<ModifierItem> INCENDIARY_TIP_MODIFIER = ITEMS.registerItem(
-            "incendiary_tip_modifier", properties -> new ModifierItem(properties.stacksTo(1), new IncendiaryTipModifier()));
+            "incendiary_tip_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.incendiaryTip()), new IncendiaryTipModifier()));
     public static final DeferredItem<ModifierItem> CHAIN_LIGHTNING = ITEMS.registerItem(
             "voltaic_core_modifier", properties -> new ModifierItem(properties.stacksTo(1), new ChainLightningModifier()));
     public static final DeferredItem<ModifierItem> FROZEN_JACKET = ITEMS.registerItem(
             "frozen_jacket_modifier", properties -> new ModifierItem(properties.stacksTo(1), new FrozenJacketModifier()));
     public static final DeferredItem<ModifierItem> SPIRAL_TIP_MODIFIER = ITEMS.registerItem(
-            "spiral_tip_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpiralTipModifier()));
+            "spiral_tip_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.spiralTip()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> BLACKPOWDER_CHARGE = ITEMS.registerItem(
             "blackpowder_charge_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BlackpowderChargeModifier()));
     public static final DeferredItem<ModifierItem> CHAIN_SHOT = ITEMS.registerItem(
@@ -91,43 +80,44 @@ public final class ItemRegistry {
     public static final DeferredItem<ModifierItem> VENOM_CAPSULE = ITEMS.registerItem(
             "venom_capsule_modifier", properties -> new ModifierItem(properties.stacksTo(1), new VenomCapsuleModifier()));
     public static final DeferredItem<ModifierItem> SCATTERSHOT = ITEMS.registerItem(
-            "scattershot_modifier", properties -> new ModifierItem(properties.stacksTo(1), new ScattershotModifier()));
+            "scattershot_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.scattershot()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> BREACHING_SHELL = ITEMS.registerItem(
-            "breaching_shell_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BreachModifier()));
+            "breaching_shell_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.breachingShell()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> WIND_CHAMBER = ITEMS.registerItem(
-            "wind_chamber_modifier", properties -> new ModifierItem(properties.stacksTo(1), new WindChamberModifier()));
+            "wind_chamber_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.windChamber()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> OVERCHARGED_POWDER = ITEMS.registerItem(
-            "overcharged_powder_modifier", properties -> new ModifierItem(properties.stacksTo(1), new OverchargedPowderModifier()));
+            "overcharged_powder_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.overchargedPowder()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> ANTIGRAVITY_MODIFIER = ITEMS.registerItem(
-            "antigravity_powder_modifier", properties -> new ModifierItem(properties.stacksTo(1), new AntigravityModifier()));
+            "antigravity_powder_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.antigravityPowder()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> SEEKING_POWDER = ITEMS.registerItem(
-            "seeking_powder_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SeekingModifier()));
+            "seeking_powder_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.seekingPowder()), new SeekingModifier()));
     public static final DeferredItem<ModifierItem> SINGULARITY_CHARGE_MODIFIER = ITEMS.registerItem(
             "singularity_charge_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SingularityChargeModifier()));
     public static final DeferredItem<ModifierItem> ENCHANTED_BULLET_MODIFIER = ITEMS.registerItem(
-            "enchanted_bullet_modifier", properties -> new ModifierItem(properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true), new EnchantedBulletModifier()));
+            "enchanted_bullet_modifier", properties -> new ModifierItem(
+                    withStats(properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true), ModifierStats.enchantedBullet()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> TRICK_BULLET_MODIFIER = ITEMS.registerItem(
-            "trick_bullet_modifier", properties -> new ModifierItem(properties.stacksTo(1), new TrickshotModifier()));
+            "trick_bullet_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.trickBullet()), new TrickshotModifier()));
     public static final DeferredItem<ModifierItem> STEEL_CORE = ITEMS.registerItem(
-            "steel_core_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SteelCoreModifier()));
+            "steel_core_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.steelCore()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> LEAD_CORE = ITEMS.registerItem(
-            "lead_core_modifier", properties -> new ModifierItem(properties.stacksTo(1), new HeavyModifier()));
+            "lead_core_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.leadCore()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> BLOODLETTING_TIP_MODIFIER = ITEMS.registerItem(
-            "bloodletting_tip_modifier", properties -> new ModifierItem(properties.stacksTo(1), new LeechModifier()));
+            "bloodletting_tip_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.bloodlettingTip()), new LeechModifier()));
     public static final DeferredItem<ModifierItem> HAIR_TRIGGER = ITEMS.registerItem(
-            "hair_trigger_modifier", properties -> new ModifierItem(properties.stacksTo(1), new HairTriggerModifier()));
+            "hair_trigger_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.hairTrigger()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> GAS_VENT = ITEMS.registerItem(
-            "gas_vent_modifier", properties -> new ModifierItem(properties.stacksTo(1), new GasVentModifier()));
+            "gas_vent_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.gasVent()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> GUN_OIL = ITEMS.registerItem(
-            "gun_oil_modifier", properties -> new ModifierItem(properties.stacksTo(1), new GunOilModifier()));
+            "gun_oil_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.gunOil()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> BUFFER_SPRING = ITEMS.registerItem(
-            "buffer_spring_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BufferSpringModifier()));
+            "buffer_spring_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.bufferSpring()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> MECHANICAL_REPEATER = ITEMS.registerItem(
-            "mechanical_repeater_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalRepeaterModifier()));
+            "mechanical_repeater_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.mechanicalRepeater()), GunModifier.NONE));
     public static final DeferredItem<ModifierItem> MECHANICAL_ACCELERATOR_MODIFIER = ITEMS.registerItem(
-            "mechanical_accelerator_modifier", properties -> new ModifierItem(properties.stacksTo(1), new MechanicalAccelerator()));
+            "mechanical_accelerator_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.mechanicalAccelerator()), new MechanicalAccelerator()));
     public static final DeferredItem<ModifierItem> SCOPE_ATTACHMENT_MODIFIER = ITEMS.registerItem(
-            "scope_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SpyglassAttachmentModifier()));
+            "scope_attachment_modifier", properties -> new ModifierItem(withStats(properties.stacksTo(1), ModifierStats.scopeAttachment()), new SpyglassAttachmentModifier()));
     public static final DeferredItem<ModifierItem> BAYONET_ATTACHMENT_MODIFIER = ITEMS.registerItem(
             "bayonet_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BayonetAttachmentModifier()));
     public static final DeferredItem<ModifierItem> SUPRESSOR_ATTACHMENT_MODIFIER = ITEMS.registerItem(
@@ -143,4 +133,11 @@ public final class ItemRegistry {
             "illificer_spawn_egg",
             properties -> new SpawnEggItem(properties.spawnEgg(EntityRegistry.ILLIFICER.get()))
     );
+
+    /**
+     * Only call from inside an item factory: the stats cannot be built before attributes are registered
+     */
+    private static Item.Properties withStats(Item.Properties properties, ItemAttributeModifiers stats) {
+        return properties.component(DataComponentRegistry.GUN_MODIFIER_STATS, stats);
+    }
 }

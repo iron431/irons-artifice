@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.utils;
 import io.redspace.irons_artifice.data.RecoilProfile;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
@@ -27,7 +28,7 @@ public final class RecoilHelper {
      */
     public static Vec2 calculateFullRecoil(ShotProfile shotProfile) {
         int index = getBulletIndex(shotProfile);
-        float strengthMultiplier = (float) shotProfile.value(ShotComponents.CAMERA_RECOIL_MULTIPLIER);
+        float strengthMultiplier = (float) shotProfile.value(AttributeRegistry.CAMERA_RECOIL);
         RecoilProfile recoil = shotProfile.peek(ShotComponents.CAMERA_RECOIL);
         float pitch = recoil.magnitude();
         float yaw = recoil.magnitude() * recoil.horizontalRatio() *

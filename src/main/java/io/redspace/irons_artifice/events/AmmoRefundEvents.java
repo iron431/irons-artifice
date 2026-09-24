@@ -1,11 +1,9 @@
-package io.redspace.irons_artifice.modifier.modifiers;
+package io.redspace.irons_artifice.events;
 
 import io.redspace.irons_artifice.api.AmmoEvent;
 import io.redspace.irons_artifice.data.PlayableSound;
-import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.modifier.ValueStackModifier;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -15,23 +13,15 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-import java.util.Map;
-import java.util.function.Consumer;
-
+/**
+ * Ammo refund roll for anything that lowers a gun's chance to consume ammo
+ */
 @EventBusSubscriber
-public final class EnchantedBulletModifier extends ValueStackModifier {
+public final class AmmoRefundEvents {
+    /**
+     * How much an Enchanted Bullet lowers the chance to consume ammo
+     */
     public static final double INFINITY_CHANCE = 0.125;
-
-    public EnchantedBulletModifier() {
-        super(Map.of(
-                ShotComponents.AMMO_CONSUME_CHANCE, new ValueModifier(-INFINITY_CHANCE, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL)
-        ));
-    }
-
-    @Override
-    public void getDescriptionText(Consumer<Component> builder) {
-        super.getDescriptionText(builder);
-    }
 
     @SubscribeEvent
     public static void preventAmmoConsumption(AmmoEvent.Consume event) {
@@ -39,7 +29,7 @@ public final class EnchantedBulletModifier extends ValueStackModifier {
             return;
         }
         var shooter = event.getEntity();
-        if (!shouldConsumeAmmoForEnchantedBullet(shooter, event.getShotProfile())) {
+        if (!shouldConsumeAmmo(shooter, event.getShotProfile())) {
             event.setCanceled(true);
             PlayableSound.of(SoundRegistry.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
             if (shooter instanceof Player player) {
@@ -48,8 +38,8 @@ public final class EnchantedBulletModifier extends ValueStackModifier {
         }
     }
 
-    private static boolean shouldConsumeAmmoForEnchantedBullet(LivingEntity shooter, ShotProfile profile) {
-        double consumeChance = profile.value(ShotComponents.AMMO_CONSUME_CHANCE);
+    private static boolean shouldConsumeAmmo(LivingEntity shooter, ShotProfile profile) {
+        double consumeChance = profile.value(AttributeRegistry.AMMO_CONSUME_CHANCE);
         if (consumeChance >= 1) {
             return true;
         }

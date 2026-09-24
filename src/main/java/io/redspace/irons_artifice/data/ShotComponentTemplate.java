@@ -1,21 +1,29 @@
 package io.redspace.irons_artifice.data;
 
+import com.google.common.base.Suppliers;
+import io.redspace.irons_artifice.attribute.GunStat;
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
 import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Factory for a gun's innate {@link ShotComponentMap}.
+ * A gun's innate shot: its stats, and a factory for its non-numeric {@link ShotComponentMap}.
  * <p>
  * Every call to {@link #get()} builds a new map. Callers may mutate the result freely
  */
-@FunctionalInterface
 public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
 
     /**
@@ -25,10 +33,17 @@ public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
     ShotComponentMap get();
 
     /**
-     * @param damage            base damage per shot ({@link ShotComponents#DAMAGE})
-     * @param spread            base spread in degrees ({@link ShotComponents#SPREAD})
-     * @param characterBlowback push-back applied to the shooter ({@link ShotComponents#CHARACTER_BLOWBACK})
-     * @param fireDelayTicks    ticks between shots ({@link ShotComponents#FIRE_DELAY})
+     * The gun's own stats, as {@link GunStat#BASE_ID} modifiers for the main hand. This is what the gun item carries as its default attribute modifiers.
+     * <p>
+     * Only available once attributes are registered
+     */
+    ItemAttributeModifiers baseStats();
+
+    /**
+     * @param damage            base damage per shot ({@link AttributeRegistry#GUN_DAMAGE})
+     * @param spread            base spread in degrees ({@link AttributeRegistry#BULLET_SPREAD})
+     * @param characterBlowback push-back applied to the shooter ({@link AttributeRegistry#CHARACTER_BLOWBACK})
+     * @param fireDelayTicks    ticks between shots ({@link AttributeRegistry#FIRE_DELAY})
      * @param cameraRecoil      camera recoil profile ({@link ShotComponents#CAMERA_RECOIL})
      */
     static Builder builder(double damage, double spread, double characterBlowback, int fireDelayTicks, RecoilProfile cameraRecoil) {
@@ -39,43 +54,41 @@ public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
         public static final int DEFAULT_PROJECTILE_COUNT = 1;
         public static final double DEFAULT_GRAVITY = 0.05;
         public static final double DEFAULT_KNOCKBACK = 0.3;
+        public static final double DEFAULT_IN_AIR_PENALTY = 1.5;
 
-        // required
-        private final double damage;
-        private final double spread;
         private final RecoilProfile cameraRecoil;
-        private final double characterBlowback;
-        private final int fireDelayTicks;
 
-        // defaulted
-        private int projectileCount = DEFAULT_PROJECTILE_COUNT;
-        private double bulletSpeed = Bullet.BASE_SPEED;
-        private double gravity = DEFAULT_GRAVITY;
-        private double knockback = DEFAULT_KNOCKBACK;
+        // absolute values; insertion order is the order they appear on the item
+        private final Map<Holder<Attribute>, Double> stats = new LinkedHashMap<>();
 
         // everything else, applied in order after the base components
         private final List<Consumer<ShotComponentMap>> steps = new ArrayList<>();
 
         private Builder(double damage, double spread, RecoilProfile cameraRecoil, double characterBlowback, int fireDelayTicks) {
-            this.damage = damage;
-            this.spread = spread;
             this.cameraRecoil = cameraRecoil;
-            this.characterBlowback = characterBlowback;
-            this.fireDelayTicks = fireDelayTicks;
+            stat(AttributeRegistry.GUN_DAMAGE, damage);
+            stat(AttributeRegistry.BULLET_SPREAD, spread);
+            stat(AttributeRegistry.PROJECTILE_COUNT, DEFAULT_PROJECTILE_COUNT);
+            stat(AttributeRegistry.BULLET_SPEED, Bullet.BASE_SPEED);
+            stat(AttributeRegistry.BULLET_GRAVITY, DEFAULT_GRAVITY);
+            stat(AttributeRegistry.BULLET_KNOCKBACK, DEFAULT_KNOCKBACK);
+            stat(AttributeRegistry.IN_AIR_PENALTY, DEFAULT_IN_AIR_PENALTY);
+            stat(AttributeRegistry.BULLET_DRAG, Bullet.BASE_DRAG);
+            stat(AttributeRegistry.UNDERWATER_DRAG, Bullet.BASE_UNDERWATER_DRAG);
+            stat(AttributeRegistry.CHARACTER_BLOWBACK, characterBlowback);
+            stat(AttributeRegistry.FIRE_DELAY, fireDelayTicks);
         }
 
         /* ************
-         * Defaulted base components
+         * Defaulted stats
          * ************/
 
         public Builder projectileCount(int projectileCount) {
-            this.projectileCount = projectileCount;
-            return this;
+            return stat(AttributeRegistry.PROJECTILE_COUNT, projectileCount);
         }
 
         public Builder bulletSpeed(double bulletSpeed) {
-            this.bulletSpeed = bulletSpeed;
-            return this;
+            return stat(AttributeRegistry.BULLET_SPEED, bulletSpeed);
         }
 
         /**
@@ -86,13 +99,32 @@ public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
         }
 
         public Builder gravity(double gravity) {
-            this.gravity = gravity;
-            return this;
+            return stat(AttributeRegistry.BULLET_GRAVITY, gravity);
         }
 
         public Builder knockback(double knockback) {
-            this.knockback = knockback;
-            return this;
+            return stat(AttributeRegistry.BULLET_KNOCKBACK, knockback);
+        }
+
+        /**
+         * Spread multiplier while the shooter is airborne
+         */
+        public Builder inAirPenalty(double inAirPenalty) {
+            return stat(AttributeRegistry.IN_AIR_PENALTY, inAirPenalty);
+        }
+
+        /**
+         * Velocity the bullet keeps each tick
+         */
+        public Builder drag(double drag) {
+            return stat(AttributeRegistry.BULLET_DRAG, drag);
+        }
+
+        /**
+         * Velocity the bullet keeps each tick underwater, on top of {@link #drag}. 1 or more means no extra drag
+         */
+        public Builder underwaterDrag(double underwaterDrag) {
+            return stat(AttributeRegistry.UNDERWATER_DRAG, underwaterDrag);
         }
 
         /* ************
@@ -123,10 +155,11 @@ public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
          * ************/
 
         /**
-         * Sets a {@link Value} component with the given base and no modifiers.
+         * Sets the value a gun stat has on this gun before any modifiers. For a toggle, any value above zero turns it on.
          */
-        public Builder value(ComponentType<Value> type, double base) {
-            return set(type, () -> Value.of(base));
+        public Builder stat(Holder<Attribute> stat, double value) {
+            stats.put(stat, value);
+            return this;
         }
 
         /**
@@ -148,26 +181,34 @@ public interface ShotComponentTemplate extends Supplier<ShotComponentMap> {
 
         public ShotComponentTemplate build() {
             // snapshot everything so later mutation of this builder cannot leak into the template
-            List<Consumer<ShotComponentMap>> frozen = List.copyOf(steps);
-            int projectileCount = this.projectileCount;
-            double bulletSpeed = this.bulletSpeed;
-            double gravity = this.gravity;
-            double knockback = this.knockback;
-            return () -> {
-                ShotComponentMap map = new ShotComponentMap();
-                map.set(ShotComponents.PROJECTILE_COUNT, Value.of(projectileCount));
-                map.set(ShotComponents.BULLET_SPEED, Value.of(bulletSpeed));
-                map.set(ShotComponents.GRAVITY, Value.of(gravity));
-                map.set(ShotComponents.KNOCKBACK, Value.of(knockback));
-                map.set(ShotComponents.DAMAGE, Value.of(damage));
-                map.set(ShotComponents.SPREAD, Value.of(spread));
-                map.set(ShotComponents.CAMERA_RECOIL, cameraRecoil);
-                map.set(ShotComponents.CHARACTER_BLOWBACK, Value.of(characterBlowback));
-                map.set(ShotComponents.FIRE_DELAY, Value.of(fireDelayTicks));
-                for (Consumer<ShotComponentMap> step : frozen) {
-                    step.accept(map);
+            List<Consumer<ShotComponentMap>> frozenSteps = List.copyOf(steps);
+            Map<Holder<Attribute>, Double> frozenStats = new LinkedHashMap<>(stats);
+            RecoilProfile cameraRecoil = this.cameraRecoil;
+            // guns are defined statically, which may be before attributes exist
+            Supplier<ItemAttributeModifiers> baseStats = Suppliers.memoize(() -> {
+                ItemAttributeModifiers.Builder modifiers = ItemAttributeModifiers.builder();
+                // a stat's resolved base is its attribute default plus this modifier
+                frozenStats.forEach((stat, value) -> modifiers.add(
+                        stat.getDelegate(),
+                        new AttributeModifier(GunStat.BASE_ID, value - stat.value().getDefaultValue(), AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND));
+                return modifiers.build();
+            });
+            return new ShotComponentTemplate() {
+                @Override
+                public ShotComponentMap get() {
+                    ShotComponentMap map = new ShotComponentMap();
+                    map.set(ShotComponents.CAMERA_RECOIL, cameraRecoil);
+                    for (Consumer<ShotComponentMap> step : frozenSteps) {
+                        step.accept(map);
+                    }
+                    return map;
                 }
-                return map;
+
+                @Override
+                public ItemAttributeModifiers baseStats() {
+                    return baseStats.get();
+                }
             };
         }
     }

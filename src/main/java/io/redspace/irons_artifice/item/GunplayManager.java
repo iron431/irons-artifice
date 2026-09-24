@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.item;
 
 import com.geckolib.animatable.GeoItem;
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.AmmoEvent;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.api.GunAboutToShootEvent;
@@ -14,9 +15,9 @@ import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
+import io.redspace.irons_artifice.gun.GunStatResolver;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.ModifierItem;
@@ -24,10 +25,13 @@ import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationP
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
+import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -35,6 +39,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -51,6 +56,7 @@ import java.util.Optional;
 public final class GunplayManager {
 
     public static final int EARLY_SHOT_TOLERANCE_TICKS = 1;
+    private static final Identifier SCOPING_MODIFIER = IronsArtifice.id("compose/scoping");
 
     public static FireOutcome tryFire(LivingEntity shooter, Vec3 direction) {
         if (!shooter.isAlive() || shooter.isSpectator()) {
@@ -164,7 +170,7 @@ public final class GunplayManager {
     }
 
     private static float pitchMultiplierForFire(ShotProfile profile) {
-        return (float) ((profile.value(ShotComponents.FIRE_RATE) + 2) / 3);
+        return (float) ((profile.value(AttributeRegistry.FIRE_RATE) + 2) / 3);
     }
 
     private static void beginFireDelay(LivingEntity shooter, ItemStack stack, int ticks, float pitchMultiplier) {
@@ -172,7 +178,7 @@ public final class GunplayManager {
     }
 
     private static void applyCharacterBlowback(LivingEntity living, ShotProfile profile) {
-        float strength = (float) profile.value(ShotComponents.CHARACTER_BLOWBACK);
+        float strength = (float) profile.value(AttributeRegistry.CHARACTER_BLOWBACK);
         if (strength <= 0.0F) {
             return;
         }
@@ -187,7 +193,7 @@ public final class GunplayManager {
     }
 
     private static void playFireAnimation(LivingEntity living, ItemStack stack, GunItem gunItem, ShotProfile profile) {
-        double fireSpeedMultiplier = profile.peek(ShotComponents.FIRE_DELAY).base() / profile.fireDelayTicks();
+        double fireSpeedMultiplier = profile.baseValue(AttributeRegistry.FIRE_DELAY) / profile.fireDelayTicks();
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(living.getId(), GeoItem.getOrAssignId(stack, (ServerLevel) living.level()), stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 GunAnimations.FIRE, (fireSpeedMultiplier + 1) / 2, 0);
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
@@ -222,8 +228,8 @@ public final class GunplayManager {
         direction = event.getDirection();
         UUID fireId = UUID.randomUUID();
         boolean fullMagazine = profile.magazineContents().count() == profile.gun().magazineCapacity();
-        int projectileCount = Math.max(1, (int) Math.round(profile.value(ShotComponents.PROJECTILE_COUNT)));
-        float speed = (float) profile.value(ShotComponents.BULLET_SPEED);
+        int projectileCount = profile.projectileCount();
+        float speed = (float) profile.value(AttributeRegistry.BULLET_SPEED);
         float spread = getSpreadForEntity(profile, shooter);
         for (int i = 0; i < projectileCount; i++) {
             Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
@@ -248,7 +254,7 @@ public final class GunplayManager {
             MuzzleFlashType type = settings.pick(level.getRandom());
             flash = Optional.of(type.particle(settings.pickTint(level.getRandom())));
         }
-        float muzzleOffset = (float) profile.value(ShotComponents.MUZZLE_OFFSET);
+        float muzzleOffset = profile.itemStack().getOrDefault(DataComponentRegistry.MUZZLE_OFFSET, 0f);
         float offsetDirection = shooter.getMainArm() == HumanoidArm.LEFT ? -1.0F : 1.0F;
         Vec3 backupPos = shooter.getEyePosition()
                 .add(direction.normalize().scale(1.25 + muzzleOffset))
@@ -267,7 +273,7 @@ public final class GunplayManager {
         float penaltyPerMovement = 7.5f;
         float maxMovementPenalty = 20f;
         Vec3 reconstructedDeltaMovement = new Vec3(entity.getX(), entity.getY(), entity.getZ()).subtract(entity.xOld, entity.yOld, entity.zOld);
-        float spread = (float) shotProfile.value(ShotComponents.SPREAD);
+        float spread = (float) shotProfile.value(AttributeRegistry.BULLET_SPREAD);
         if (GunItem.isChargingBayonet(entity)) {
             spread += 4;
         }
@@ -276,7 +282,7 @@ public final class GunplayManager {
         }
         if (!entity.onGround()) {
             // fixme: technically doesn't work if spread is zero
-            spread *= (float) shotProfile.value(ShotComponents.IN_AIR_PENALTY);
+            spread *= (float) shotProfile.value(AttributeRegistry.IN_AIR_PENALTY);
         }
 
         float entitySpeed = (float) reconstructedDeltaMovement.length();
@@ -287,19 +293,20 @@ public final class GunplayManager {
         return Math.max(0, spread);
     }
 
+    /**
+     * Resolves the shot {@code gunStack} would fire right now. Runs on both sides, and without a shooter for anything that only concerns the gun itself.
+     */
     public static ShotProfile compose(@Nullable LivingEntity living, GunProfile gunProfile, ItemStack gunStack) {
-        GunContainer modifiers = new GunContainer(gunStack);
         ShotComponentMap components = gunProfile.baseProfile();
-        for (int slot = 0; slot < modifiers.getContainerSize(); slot++) {
-            ItemStack stack = modifiers.getItem(slot);
-            if (stack.getItem() instanceof ModifierItem modifierItem) {
+        GunContainer.forEachInstalled(gunStack, installed -> {
+            if (installed.typeHolder().value() instanceof ModifierItem modifierItem) {
                 modifierItem.getModifier().apply(components);
             }
-        }
-        ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
+        });
+        ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components, GunStatResolver.resolve(living, gunStack));
         if (living != null) {
             if (living instanceof Player player && GunItem.isScoping(player)) {
-                profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+                profile.addModifier(AttributeRegistry.CAMERA_RECOIL, SCOPING_MODIFIER, -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             }
             NeoForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
         }
@@ -358,7 +365,7 @@ public final class GunplayManager {
         }
         if (!living.level().isClientSide()) {
             ShotProfile shotProfile = compose(living, gunItem.getGun(), gun);
-            double speed = shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER);
+            double speed = shotProfile.value(AttributeRegistry.RELOAD_SPEED);
             TopLoadConfig topLoad = gunItem.getGun().topLoadConfig();
             boolean topOff = topLoad != null && missing < capacity;
             ReloadState state = ReloadState.start(gun, gunItem.getGun().reloadTimeTicks(), speed, missing, topOff ? topLoad : null);

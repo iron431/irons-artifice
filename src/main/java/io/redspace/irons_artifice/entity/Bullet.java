@@ -4,17 +4,15 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.ShotRecord;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
-import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.gun.BlockDamageManager;
-import io.redspace.irons_artifice.gun.Guns;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletImpactPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletTrailPacket;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
@@ -35,7 +33,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -70,11 +67,16 @@ public class Bullet extends Projectile {
             SynchedEntityData.defineId(Bullet.class, EntityDataSerializers.FLOAT);
 
     public static final double BASE_SPEED = 12;
+    /**
+     * Velocity kept per tick, unless the gun says otherwise
+     */
+    public static final double BASE_DRAG = 0.98;
+    public static final double BASE_UNDERWATER_DRAG = 0.95;
     public static final double TRAIL_DENSITY = 3.0;
     public static final int TRAIL_COMPENSATION_TICKS = 5;
 
     private final Set<Integer> piercedEntities = new HashSet<>();
-    private ShotProfile profile = new ShotProfile(ItemStack.EMPTY, Guns.MUSKET, MagazineContents.EMPTY, new ShotComponentMap());
+    private ShotProfile profile = ShotProfile.empty();
     private int piercingRemaining = 0;
     private HitState hitState = HitState.CONTINUE;
     private boolean appliedWaterSlowdown;
@@ -92,12 +94,12 @@ public class Bullet extends Projectile {
 
     public void applyProfile(ShotProfile profile) {
         this.profile = profile;
-        this.piercingRemaining = (int) profile.value(ShotComponents.PIERCING);
+        this.piercingRemaining = (int) profile.value(AttributeRegistry.PIERCING);
         // synced parameters for movement parity
-        this.entityData.set(DATA_GRAVITY, (float) profile.value(ShotComponents.GRAVITY));
-        this.entityData.set(DATA_RICOCHET, (int) profile.value(ShotComponents.RICOCHET));
-        this.entityData.set(DATA_DRAG, (float) profile.value(ShotComponents.BULLET_DRAG));
-        this.entityData.set(DATA_UNDERWATER_DRAG, (float) profile.value(ShotComponents.UNDERWATER_DRAG));
+        this.entityData.set(DATA_GRAVITY, (float) profile.value(AttributeRegistry.BULLET_GRAVITY));
+        this.entityData.set(DATA_RICOCHET, (int) profile.value(AttributeRegistry.RICOCHET));
+        this.entityData.set(DATA_DRAG, (float) profile.value(AttributeRegistry.BULLET_DRAG));
+        this.entityData.set(DATA_UNDERWATER_DRAG, (float) profile.value(AttributeRegistry.UNDERWATER_DRAG));
     }
 
     public ShotProfile getProfile() {
@@ -120,8 +122,8 @@ public class Bullet extends Projectile {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_GRAVITY, 0.05f);
         builder.define(DATA_RICOCHET, 0);
-        builder.define(DATA_DRAG, (float) ShotComponents.BULLET_DRAG.provideDefaultValue().base());
-        builder.define(DATA_UNDERWATER_DRAG, (float) ShotComponents.UNDERWATER_DRAG.provideDefaultValue().base());
+        builder.define(DATA_DRAG, (float) BASE_DRAG);
+        builder.define(DATA_UNDERWATER_DRAG, (float) BASE_UNDERWATER_DRAG);
     }
 
     @Override
@@ -129,9 +131,16 @@ public class Bullet extends Projectile {
         return super.canHitEntity(entity) && !piercedEntities.contains(entity.getId()) && Utils.canHarm(getOwner(), entity);
     }
 
+    /**
+     * Whether this bullet may still damage ordinary blocks
+     */
+    public boolean canBreakBlocks() {
+        return profile.flag(AttributeRegistry.BREAKS_BLOCKS);
+    }
+
     public float resolveDamage() {
         double velocityFactor = Math.clamp(getDeltaMovement().length(), 0, 2) / 2.0;
-        return (float) (velocityFactor * profile.value(ShotComponents.DAMAGE) / Math.max(1, profile.value(ShotComponents.PROJECTILE_COUNT)));
+        return (float) (velocityFactor * profile.value(AttributeRegistry.GUN_DAMAGE) / profile.projectileCount());
     }
 
     public static @Nullable EntityHitResult getEntityHitResult(
@@ -160,7 +169,7 @@ public class Bullet extends Projectile {
     private static final double SEEK_FORWARD_DOT = 0.2;
 
     protected void handleSeeking() {
-        double seeking = profile.value(ShotComponents.SEEKING);
+        double seeking = profile.value(AttributeRegistry.SEEKING);
         if (seeking <= 0) {
             return;
         }
@@ -362,7 +371,8 @@ public class Bullet extends Projectile {
                 piercingRemaining--;
             } else {
                 // allow the bullet to continue without piercing, but do not allow additional block damage thereafter
-                profile.remove(ShotComponents.BREAKS_BLOCKS);
+                // on this bullet's own stats, so anything it spawns from here on inherits it
+                profile.setFlat(AttributeRegistry.BREAKS_BLOCKS, 0);
             }
         } else if (hitState != HitState.CONTINUE && hitResult instanceof BlockHitResult blockHitResult) {
             // normally this would be handled in block hit, but we want to wait until modifier on-hit effects have run before mutating entity direction
@@ -424,7 +434,7 @@ public class Bullet extends Projectile {
         DamageSource source = DamageSources.bullet(level(), this, owner);
         target.hurtServer(serverLevel, source, damage);
 
-        float knockback = (float) profile.value(ShotComponents.KNOCKBACK);
+        float knockback = (float) profile.value(AttributeRegistry.BULLET_KNOCKBACK);
         if (target instanceof LivingEntity living && knockback > 0.0F) {
             Vec3 v = getDeltaMovement();
             living.knockback(knockback, -v.x, -v.z);
@@ -451,7 +461,7 @@ public class Bullet extends Projectile {
         var state = level().getBlockState(pos);
         if (!(level() instanceof ServerLevel serverLevel)
                 || state.is(IronsArtificeTags.NEVER_BREAK)
-                || !profile.peek(ShotComponents.BREAKS_BLOCKS) && !state.is(IronsArtificeTags.ALWAYS_BREAK)) {
+                || !canBreakBlocks() && !state.is(IronsArtificeTags.ALWAYS_BREAK)) {
             return false;
         }
 
@@ -463,7 +473,7 @@ public class Bullet extends Projectile {
         if (state.isAir()) {
             return false;
         }
-        float damage = (float) (this.profile.value(ShotComponents.BLOCK_DAMAGE_MULTIPLIER) * resolveDamage());
+        float damage = (float) (this.profile.value(AttributeRegistry.BLOCK_DAMAGE) * resolveDamage());
         return BlockDamageManager.applyDamage(serverLevel, pos, state, damage, this);
     }
 

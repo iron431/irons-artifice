@@ -2,10 +2,8 @@ package io.redspace.irons_artifice.modifier.modifiers;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.GunBones;
-import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
-import io.redspace.irons_artifice.modifier.ValueStackModifier;
+import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
@@ -16,17 +14,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class SpyglassAttachmentModifier extends ValueStackModifier {
-    public SpyglassAttachmentModifier() {
-        super(Map.of(
-                ShotComponents.SPREAD, new ValueModifier(-1, ValueModifier.Operation.ADD, ValueModifier.Type.HARMFUL)
-        ));
-    }
-
+public class SpyglassAttachmentModifier implements GunModifier {
     @Override
-    public void getDescriptionText(Consumer<Component> builder) {
+    public void appendTooltip(Consumer<Component> builder, Runnable statLines) {
         builder.accept(Component.translatable("irons_artifice.modifier.scope").withStyle(ChatFormatting.AQUA));
-        super.getDescriptionText(builder);
+        statLines.run();
     }
 
     @Override

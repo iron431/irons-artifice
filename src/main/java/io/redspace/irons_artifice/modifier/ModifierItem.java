@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.modifier;
 
+import io.redspace.irons_artifice.utils.GunModifierTooltip;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -23,7 +24,8 @@ public class ModifierItem extends Item {
     public void appendHoverText(@NonNull ItemStack itemStack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
         builder.accept(Component.empty());
         builder.accept(Component.translatable("irons_artifice.tooltip.when_used_as_modifier").withStyle(ChatFormatting.GRAY));
-        modifier.getDescriptionText((component) -> builder.accept(Component.literal(" ").append(component)));
+        Consumer<Component> indented = (component) -> builder.accept(Component.literal(" ").append(component));
+        modifier.appendTooltip(indented, () -> GunModifierTooltip.appendStatLines(itemStack, indented));
     }
 
     public GunModifier getModifier() {

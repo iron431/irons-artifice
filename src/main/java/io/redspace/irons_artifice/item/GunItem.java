@@ -11,15 +11,16 @@ import com.geckolib.model.GeoModel;
 import com.geckolib.renderer.base.GeoRenderState;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.GunAnimations;
+import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.ReloadResult;
-import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.GunState;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.menu.GunContainer;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -69,6 +70,8 @@ public class GunItem extends BaseGeoItem {
                 .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
                 .component(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT.withHidden(DataComponents.CONTAINER, true))
                 .component(DataComponentRegistry.MAGAZINE, new MagazineContents(gunProfile.magazineCapacity()))
+                // the gun's own stats, applied to whoever holds it the same way a sword's damage is
+                .attributes(gunProfile.baseStats())
         );
         this.gunProfile = gunProfile;
     }
@@ -176,19 +179,19 @@ public class GunItem extends BaseGeoItem {
         super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
         Consumer<Component> statBuilder = (component) -> builder.accept(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
-        ShotProfile shotProfile = GunplayManager.compose(context.player(), this.gunProfile, itemStack);
-        String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
-        int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
-        int bulletSpeedPercent = (int) (100 * shotProfile.value(ShotComponents.BULLET_SPEED) / Bullet.BASE_SPEED);
+        ShotProfile shotProfile = GunplayManager.compose(tooltipShooter(context), this.gunProfile, itemStack);
+        String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(AttributeRegistry.GUN_DAMAGE));
+        int bulletCount = shotProfile.projectileCount();
+        int bulletSpeedPercent = (int) (100 * shotProfile.value(AttributeRegistry.BULLET_SPEED) / Bullet.BASE_SPEED);
         String fireRate = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(20.0 / shotProfile.fireDelayTicks());
-        String reloadTime = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(gunProfile.reloadTimeTicks() / 20f / shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER));
+        String reloadTime = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(gunProfile.reloadTimeTicks() / 20f / shotProfile.value(AttributeRegistry.RELOAD_SPEED));
         if (bulletCount > 1) {
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.damage_per_bullet", highlightText.apply(damage), Component.literal(String.valueOf(bulletCount)).withStyle(ChatFormatting.YELLOW)));
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.bullet_count", bulletCount).withStyle(ChatFormatting.YELLOW));
         } else {
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.damage", highlightText.apply(damage)));
         }
-        if (bulletSpeedPercent != 100 || Bullet.BASE_SPEED != shotProfile.peek(ShotComponents.BULLET_SPEED).base()) {
+        if (bulletSpeedPercent != 100 || Bullet.BASE_SPEED != shotProfile.baseValue(AttributeRegistry.BULLET_SPEED)) {
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.bullet_speed_percent", highlightText.apply(bulletSpeedPercent + "%")));
         }
         if (gunProfile.magazineCapacity() > 1) {
@@ -210,6 +213,18 @@ public class GunItem extends BaseGeoItem {
                 builder.accept(Component.literal(" * ").withStyle(ChatFormatting.DARK_GRAY).append(item.getHoverName().copy().withStyle(ChatFormatting.GRAY)));
             }
         }
+    }
+
+    /**
+     * Tooltips are not always built on the game thread, recipe viewers index them in the background. Resolving a shot reads the shooter's live
+     * attributes, which only the game thread may touch, so anywhere else the gun is described on its own.
+     */
+    private static @Nullable Player tooltipShooter(TooltipContext context) {
+        Player player = context.player();
+        if (player != null && player.level().isClientSide() && !ClientHelper.isOnClientThread()) {
+            return null;
+        }
+        return player;
     }
 
     @Override

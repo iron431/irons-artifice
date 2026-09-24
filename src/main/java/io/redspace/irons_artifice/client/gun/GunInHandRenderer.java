@@ -14,10 +14,8 @@ import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.client.MuzzleFlashEmitter;
 import io.redspace.irons_artifice.data.HandOccupancy;
-import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
@@ -138,7 +136,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         renderState.addGeckolibData(GunItem.RELOAD_PERCENT_TICKET, reload != null ? reload.percent(partialTick) : 0f);
         renderState.addGeckolibData(
                 GunItem.MUZZLE_OFFSET_TICKET,
-                (float) GunplayManager.compose(null, animatable.getGun(), renderData.itemStack()).value(ShotComponents.MUZZLE_OFFSET)
+                renderData.itemStack().getOrDefault(DataComponentRegistry.MUZZLE_OFFSET, 0f)
         );
         renderState.addGeckolibData(GunItem.ANIMATION_ADJUSTERS_TICKET, animatable.getGun().animationAdjusters());
         renderState.addGeckolibData(

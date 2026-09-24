@@ -6,16 +6,17 @@ import com.google.common.base.Suppliers;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.client.armor.GenericArmorModel;
-import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorType;
@@ -50,6 +51,7 @@ public class TricorneItem extends BaseGeoItem {
     }
 
     public static final double DAMAGE_BUFF_PERCENT = 0.25;
+    private static final Identifier DAMAGE_BUFF_MODIFIER = IronsArtifice.id("compose/tricorne");
 
     @SubscribeEvent
     public static void attributeTooltip(AddAttributeTooltipsEvent event) {
@@ -69,6 +71,6 @@ public class TricorneItem extends BaseGeoItem {
         if (shotProfile.magazineContents().count() != shotProfile.gun().magazineCapacity()) {
             return;
         }
-        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(DAMAGE_BUFF_PERCENT, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        shotProfile.addModifier(AttributeRegistry.GUN_DAMAGE, DAMAGE_BUFF_MODIFIER, DAMAGE_BUFF_PERCENT, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
 }

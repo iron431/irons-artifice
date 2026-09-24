@@ -5,9 +5,8 @@ import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.data.MuzzleFlashSettings;
-import io.redspace.irons_artifice.modifier.ValueStackModifier;
+import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.IgnitePostHit;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.Utils;
@@ -16,21 +15,13 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
-public final class IncendiaryTipModifier extends ValueStackModifier {
+public final class IncendiaryTipModifier implements GunModifier {
     public static final int BURN_TICKS_PER = 4 * 20;
-
-    public IncendiaryTipModifier() {
-        super(Map.of(
-                ShotComponents.DAMAGE, new ValueModifier(0.10, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
-        ));
-    }
 
     @Override
     public void apply(ShotComponentMap components) {
-        super.apply(components);
         components.getOrCreate(ShotComponents.POST_HIT_EFFECTS)
                 .getOrCreate(IgnitePostHit.class, () -> new IgnitePostHit(0))
                 .addDuration(BURN_TICKS_PER);
@@ -57,7 +48,6 @@ public final class IncendiaryTipModifier extends ValueStackModifier {
 
     @Override
     public void getDescriptionText(Consumer<Component> builder) {
-        super.getDescriptionText(builder);
         builder.accept(Component.translatable("irons_artifice.component_type.burn_duration_on_hit", BURN_TICKS_PER / 20).withStyle(ChatFormatting.GREEN));
     }
 }

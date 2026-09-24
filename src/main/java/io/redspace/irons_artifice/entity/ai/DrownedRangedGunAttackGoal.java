@@ -1,11 +1,18 @@
 package io.redspace.irons_artifice.entity.ai;
 
+import io.redspace.irons_artifice.IronsArtifice;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.zombie.Drowned;
 import org.jspecify.annotations.NonNull;
 
 public class DrownedRangedGunAttackGoal extends RangedGunAttackGoal<Drowned> {
+    /**
+     * Own id, so it stacks with {@link io.redspace.irons_artifice.entity.IGunslingerMob#MOB_NERF_MODIFIER} instead of replacing it
+     */
+    public static final Identifier NERF_MODIFIER = IronsArtifice.id("compose/drowned_nerf");
+
     public DrownedRangedGunAttackGoal(Drowned mob, float range, int telegraphMinTicks, int telegraphMaxTicks, int volleyIntervalMin, int volleyIntervalMax) {
         super(mob, range, telegraphMinTicks, telegraphMaxTicks, volleyIntervalMin, volleyIntervalMax);
     }

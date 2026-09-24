@@ -1,12 +1,12 @@
 package io.redspace.irons_artifice.mixin;
 
-import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.IGunslingerMob;
 import io.redspace.irons_artifice.entity.ai.DrownedRangedGunAttackGoal;
 import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.level.Level;
@@ -31,6 +31,6 @@ public abstract class DrownedMixin extends Monster implements IGunslingerMob {
     public void customizeMobShot(@NotNull Mob mob, @NotNull ShotProfile shotProfile) {
         IGunslingerMob.super.customizeMobShot(mob, shotProfile);
         // tricorne's +25% destroying plebs since '26
-        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(-0.50, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        shotProfile.addModifier(AttributeRegistry.GUN_DAMAGE, DrownedRangedGunAttackGoal.NERF_MODIFIER, -0.50, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
 }

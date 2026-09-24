@@ -17,6 +17,7 @@
     "AbstractSkeletonMixin",
     "DrownedMixin",
     "IllagerPatrolMixin",
+    "LivingEntityAccessor",
     "MobAccessor"
   ]
 }

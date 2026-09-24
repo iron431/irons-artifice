@@ -20,6 +20,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class SuppressorAttachmentModifier implements GunModifier {
+    /**
+     * How far the suppressor model extends the muzzle
+     */
+    public static final float MUZZLE_OFFSET = 11 / 16f;
 
     @Override
     public void apply(ShotComponentMap components) {
@@ -38,7 +42,6 @@ public class SuppressorAttachmentModifier implements GunModifier {
         MuzzleFlashSettings muzzleFlashSettings = components.getOrCreate(ShotComponents.MUZZLE_FLASH);
         muzzleFlashSettings.airBursts().add(ParticleBurst.SMOKE);
         muzzleFlashSettings.types().clear();
-        components.set(ShotComponents.MUZZLE_OFFSET, components.getOrDefault(ShotComponents.MUZZLE_OFFSET).withBase(11 / 16f));
     }
 
     @Override
@@ -53,6 +56,7 @@ public class SuppressorAttachmentModifier implements GunModifier {
         builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
                 GunBones.SOCKET_MUZZLE, IronsArtifice.id("suppressor")
         )));
+        builder.set(DataComponentRegistry.MUZZLE_OFFSET.get(), MUZZLE_OFFSET);
         return Optional.of(builder.build());
     }
 }

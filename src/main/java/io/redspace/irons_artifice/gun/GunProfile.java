@@ -6,20 +6,21 @@ import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.PlayableSound;
 import io.redspace.irons_artifice.data.ReloadCueStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
+import io.redspace.irons_artifice.data.ShotComponentTemplate;
 import io.redspace.irons_artifice.item.TopLoadConfig;
 import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Definition of a specific gun and its properties. Immutable; construct via {@link #builder}.
  */
 public final class GunProfile {
-    private final Supplier<ShotComponentMap> baseProfileSupplier;
+    private final ShotComponentTemplate baseProfileSupplier;
     private final int magazineCapacity;
     private final int modifierSlots;
     private final int reloadTimeTicks;
@@ -51,9 +52,9 @@ public final class GunProfile {
      * @param magazineCapacity    rounds the magazine holds
      * @param modifierSlots       number of modifier slots on the gun
      * @param reloadTimeTicks     ticks required to reload
-     * @param baseProfileSupplier supplies innate (autoattack) shot component map; see {@link io.redspace.irons_artifice.data.ShotComponentTemplate}
+     * @param baseProfileSupplier the gun's innate (autoattack) stats and shot components
      */
-    public static Builder builder(int magazineCapacity, int modifierSlots, int reloadTimeTicks, FireMode fireMode, ArmPoseKind armPoseKind, Supplier<ShotComponentMap> baseProfileSupplier) {
+    public static Builder builder(int magazineCapacity, int modifierSlots, int reloadTimeTicks, FireMode fireMode, ArmPoseKind armPoseKind, ShotComponentTemplate baseProfileSupplier) {
         return new Builder(magazineCapacity, modifierSlots, reloadTimeTicks, fireMode, armPoseKind, baseProfileSupplier);
     }
 
@@ -61,7 +62,7 @@ public final class GunProfile {
      * Accessors
      * ************/
 
-    public Supplier<ShotComponentMap> baseProfileSupplier() {
+    public ShotComponentTemplate baseProfileSupplier() {
         return baseProfileSupplier;
     }
 
@@ -120,6 +121,13 @@ public final class GunProfile {
         return baseProfileSupplier.get();
     }
 
+    /**
+     * @return the gun's own stats, as the attribute modifiers its item carries by default
+     */
+    public ItemAttributeModifiers baseStats() {
+        return baseProfileSupplier.baseStats();
+    }
+
     public HandOccupancy defaultOccupancy() {
         return armPoseKind == ArmPoseKind.RIFLE ? HandOccupancy.BOTH : HandOccupancy.MAINHAND;
     }
@@ -143,7 +151,7 @@ public final class GunProfile {
         public static final int DEFAULT_MODIFIER_SLOTS = 5;
         public static final int DEFAULT_RELOAD_TIME_TICKS = 40;
 
-        private final Supplier<ShotComponentMap> baseProfileSupplier;
+        private final ShotComponentTemplate baseProfileSupplier;
         private final int magazineCapacity;
         private final int modifierSlots;
         private final int reloadTimeTicks;
@@ -157,7 +165,7 @@ public final class GunProfile {
         private List<AnimationAdjuster> animationAdjusters = List.of();
         private Map<GunState, HandOccupancy> occupancyOverrides = Map.of();
 
-        private Builder(int magazineCapacity, int modifierSlots, int reloadTimeTicks, FireMode fireMode, ArmPoseKind armPoseKind, Supplier<ShotComponentMap> baseProfileSupplier) {
+        private Builder(int magazineCapacity, int modifierSlots, int reloadTimeTicks, FireMode fireMode, ArmPoseKind armPoseKind, ShotComponentTemplate baseProfileSupplier) {
             this.baseProfileSupplier = baseProfileSupplier;
             this.magazineCapacity = magazineCapacity;
             this.modifierSlots = modifierSlots;

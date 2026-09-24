@@ -43,13 +43,6 @@ public class ShotComponentMap {
         components.put(type, value);
     }
 
-    /**
-     * Adds {@code modifier} to the stored {@link Value} for {@code type}, creating it from its default if absent.
-     */
-    public void modifyValue(ComponentType<Value> type, ValueModifier modifier) {
-        getOrCreate(type).addModifier(modifier);
-    }
-
     public boolean has(ComponentType<?> type) {
         return components.containsKey(type);
     }

@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.events.CommonSetup;
 import io.redspace.irons_artifice.network.PayloadRegistry;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
@@ -44,6 +45,7 @@ public class IronsArtifice {
 
     public IronsArtifice(IEventBus modEventBus, ModContainer modContainer) {
         CriterionRegistry.register(modEventBus);
+        AttributeRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
         EntityRegistry.register(modEventBus);
@@ -53,6 +55,7 @@ public class IronsArtifice {
         SoundRegistry.register(modEventBus);
         modEventBus.addListener(PayloadRegistry::register);
         modEventBus.addListener(CommonSetup::entityAttributes);
+        modEventBus.addListener(CommonSetup::modifyEntityAttributes);
         modEventBus.addListener(CommonSetup::buildCreativeTabs);
         CREATIVE_MODE_TABS.register(modEventBus);
 
