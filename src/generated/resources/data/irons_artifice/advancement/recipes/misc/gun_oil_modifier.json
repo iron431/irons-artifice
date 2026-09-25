@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "irons_artifice:mechanical_components"
+            "items": "irons_artifice:simple_mechanical_components"
           }
         ]
       },

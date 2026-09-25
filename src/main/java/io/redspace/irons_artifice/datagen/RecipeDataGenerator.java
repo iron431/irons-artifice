@@ -233,7 +233,8 @@ public class RecipeDataGenerator extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.HAIR_TRIGGER.get())
                 .pattern("C")
                 .pattern("R")
-                .define('R', Items.BREEZE_ROD)
+                .pattern("R")
+                .define('R', commonTag("ingots/copper"))
                 .define('C', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(output);
@@ -372,8 +373,8 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .pattern("LMR")
                 .define('L', Items.HONEY_BOTTLE)
                 .define('R', Items.REDSTONE)
-                .define('M', ItemRegistry.MECHANICAL_COMPONENTS)
-                .unlockedBy("has_precursor", has(ItemRegistry.MECHANICAL_COMPONENTS))
+                .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
+                .unlockedBy("has_precursor", has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(output);
         // Singularity Charge
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get())

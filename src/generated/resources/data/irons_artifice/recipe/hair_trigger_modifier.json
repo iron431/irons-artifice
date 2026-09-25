@@ -6,11 +6,12 @@
       "item": "irons_artifice:simple_mechanical_components"
     },
     "R": {
-      "item": "minecraft:breeze_rod"
+      "tag": "c:ingots/copper"
     }
   },
   "pattern": [
     "C",
+    "R",
     "R"
   ],
   "result": {
