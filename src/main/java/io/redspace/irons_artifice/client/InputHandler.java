@@ -3,8 +3,8 @@ package io.redspace.irons_artifice.client;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
 import io.redspace.irons_artifice.item.GunplayManager;
+import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundOpenModifierMenuPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundReloadGunPacket;
 import net.minecraft.client.Minecraft;
@@ -49,17 +49,30 @@ public final class InputHandler {
         handleFireInput(minecraft, player);
 
         while (Keybinds.OPEN_MODIFIER_MENU.consumeClick()) {
-            if (player.getMainHandItem().getItem() instanceof GunItem) {
-                ClientPacketDistributor.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
-            }
+            tryOpenModifierMenu(player);
         }
 
         while (Keybinds.RELOAD.consumeClick()) {
-            if (minecraft.screen == null && !player.isSpectator() && player.getMainHandItem().getItem() instanceof GunItem
-                    && !GunItem.isReloading(player.getMainHandItem())) {
-                ClientPacketDistributor.sendToServer(ServerboundReloadGunPacket.INSTANCE);
-            }
+            tryInitiateReload(minecraft, player);
         }
+    }
+
+    private static boolean tryInitiateReload(Minecraft minecraft, LocalPlayer player) {
+        if (minecraft.screen == null && !player.isSpectator() && player.getMainHandItem().getItem() instanceof GunItem
+                && !GunItem.isReloading(player.getMainHandItem())) {
+            // todo: run on client first, only send on successful reload result
+            ClientPacketDistributor.sendToServer(ServerboundReloadGunPacket.INSTANCE);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean tryOpenModifierMenu(LocalPlayer player) {
+        if (player.getMainHandItem().getItem() instanceof GunItem) {
+            ClientPacketDistributor.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
+            return true;
+        }
+        return false;
     }
 
     private static void handleFireInput(Minecraft minecraft, LocalPlayer player) {

@@ -3,10 +3,11 @@
   "category": "misc",
   "key": {
     "C": "irons_artifice:simple_mechanical_components",
-    "R": "minecraft:breeze_rod"
+    "R": "#c:ingots/copper"
   },
   "pattern": [
     "C",
+    "R",
     "R"
   ],
   "result": {

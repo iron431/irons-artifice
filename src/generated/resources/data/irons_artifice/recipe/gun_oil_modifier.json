@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "L": "minecraft:honey_bottle",
-    "M": "irons_artifice:mechanical_components",
+    "M": "irons_artifice:simple_mechanical_components",
     "R": "minecraft:redstone"
   },
   "pattern": [
