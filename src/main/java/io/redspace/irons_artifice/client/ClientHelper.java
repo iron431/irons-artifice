@@ -65,7 +65,7 @@ public final class ClientHelper {
         Vec3 from = msg.from();
         Vec3 to = msg.to();
         double distance = from.distanceTo(to);
-        int steps = (int) (distance * Bullet.TRAIL_DENSITY);
+        int steps = Math.min((int) (distance * Bullet.TRAIL_DENSITY), Bullet.MAX_TRAIL_STEPS);
         if (steps <= 0) {
             return;
         }

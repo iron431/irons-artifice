@@ -30,6 +30,15 @@ repositories {
         }
         filter { includeGroupAndSubgroups('software.bernie.geckolib') }
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sable'
+                url = 'https://maven.ryanhcode.dev/releases'
+            }
+        }
+        filter { includeGroup('dev.ryanhcode.sable-companion') }
+    }
     maven {
         url "https://cursemaven.com"
     }
@@ -103,6 +112,15 @@ configurations {
 dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "io.redspace:irons_lib:${irons_lib_version}"
+    jarJar(implementation("dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:[${sable_companion_version},)")) {
+        version {
+            prefer(sable_companion_version)
+        }
+    }
+
+    implementation "curse.maven:create-aeronautics-676721:8763471"
+    implementation "curse.maven:create-328085:7963363"
+    implementation "curse.maven:sable-1312371:8673825"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

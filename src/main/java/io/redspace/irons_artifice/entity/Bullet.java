@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.entity;
 
+import dev.ryanhcode.sable.companion.SableCompanion;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.ShotRecord;
 import io.redspace.irons_artifice.damage.DamageSources;
@@ -72,6 +73,7 @@ public class Bullet extends Projectile {
     public static final double BASE_SPEED = 12;
     public static final double TRAIL_DENSITY = 3.0;
     public static final int TRAIL_COMPENSATION_TICKS = 5;
+    public static final int MAX_TRAIL_STEPS = 1024;
 
     private final Set<Integer> piercedEntities = new HashSet<>();
     private ShotProfile profile = new ShotProfile(ItemStack.EMPTY, Guns.MUSKET, MagazineContents.EMPTY, new ShotComponentMap());
@@ -170,13 +172,13 @@ public class Bullet extends Projectile {
         double range = 7 * (1 + strength);
         Vec3 start = position();
         Vec3 direction = motion.scale(1.0 / speed);
-        Vec3 end = level().clip(new ClipContext(
+        Vec3 end = worldHitLocation(level().clip(new ClipContext(
                 start,
                 start.add(direction.scale(SEEK_LOOK_AHEAD)),
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
                 CollisionContext.empty()
-        )).getLocation();
+        )));
         AABB targetSearchArea = new AABB(start, end).inflate(range);
 
         Entity closest = null;
@@ -206,6 +208,14 @@ public class Bullet extends Projectile {
             return;
         }
         setDeltaMovement(homeTowards(closest.getBoundingBox().getCenter(), strength));
+    }
+
+    /**
+     * Sable resolves hits on physics sub-levels in the sub-level's plot space, which can be millions of blocks from the
+     * shooter. Anything that moves the bullet or draws its trail needs the world-space location instead.
+     */
+    private Vec3 worldHitLocation(HitResult hitResult) {
+        return SableCompanion.INSTANCE.projectOutOfSubLevel(level(), hitResult.getLocation());
     }
 
     private static double distanceToSegmentSqr(Vec3 point, Vec3 from, Vec3 to) {
@@ -266,7 +276,7 @@ public class Bullet extends Projectile {
         while (hitState == HitState.CONTINUE && --i > 0) {
             HitResult blockHit = level().clip(new ClipContext(
                     position, destination, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty()));
-            Vec3 blockClip = blockHit.getLocation();
+            Vec3 blockClip = worldHitLocation(blockHit);
             EntityHitResult entityHit = getEntityHitResult(level(), this, position, blockClip, getBoundingBox().expandTowards(delta).inflate(1),
                     this::canHitEntity, 0.25f, 3f);
             if (entityHit != null) {
@@ -274,7 +284,7 @@ public class Bullet extends Projectile {
                 destination = entityHit.getLocation();
             } else if (blockHit.getType() != HitResult.Type.MISS) {
                 onHit(blockHit);
-                destination = blockHit.getLocation();
+                destination = blockClip;
             } else {
                 hitState = HitState.STOP;
             }
