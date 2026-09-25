@@ -26,6 +26,7 @@ import io.redspace.irons_artifice.modifier.modifiers.MechanicalAccelerator;
 import io.redspace.irons_artifice.modifier.modifiers.MechanicalRepeaterModifier;
 import io.redspace.irons_artifice.modifier.modifiers.OverchargedPowderModifier;
 import io.redspace.irons_artifice.modifier.modifiers.ScattershotModifier;
+import io.redspace.irons_artifice.modifier.modifiers.SoulfireCoinModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SeekingModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SingularityChargeModifier;
 import io.redspace.irons_artifice.modifier.modifiers.SpiralTipModifier;
@@ -120,6 +121,8 @@ public final class ItemRegistry {
             "gas_vent_modifier", properties -> new ModifierItem(properties.stacksTo(1), new GasVentModifier()));
     public static final DeferredItem<ModifierItem> GUN_OIL = ITEMS.registerItem(
             "gun_oil_modifier", properties -> new ModifierItem(properties.stacksTo(1), new GunOilModifier()));
+    public static final DeferredItem<ModifierItem> SOULFIRE_COIN = ITEMS.registerItem(
+            "soulfire_coin_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SoulfireCoinModifier()));
     public static final DeferredItem<ModifierItem> BUFFER_SPRING = ITEMS.registerItem(
             "buffer_spring_modifier", properties -> new ModifierItem(properties.stacksTo(1), new BufferSpringModifier()));
     public static final DeferredItem<ModifierItem> MECHANICAL_REPEATER = ITEMS.registerItem(

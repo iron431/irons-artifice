@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
 import io.redspace.irons_artifice.client.entity.GunslingerRenderer;
+import io.redspace.irons_artifice.client.entity.SoulRenderer;
 import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
@@ -133,6 +134,7 @@ public class IronsArtificeClient {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.BULLET.get(), NoopRenderer::new);
         event.registerEntityRenderer(EntityRegistry.CHAIN.get(), ChainEntityRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.SOUL.get(), SoulRenderer::new);
         event.registerEntityRenderer(EntityRegistry.GUNSLINGER.get(), GunslingerRenderer::new);
         event.registerEntityRenderer(EntityRegistry.ILLIFICER.get(), IllificerRenderer::new);
     }

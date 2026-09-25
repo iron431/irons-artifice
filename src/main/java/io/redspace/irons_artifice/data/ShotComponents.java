@@ -2,6 +2,8 @@ package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
+import io.redspace.irons_artifice.damage.BulletDamageSource;
+import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.modifier.OnHitEffects;
 import io.redspace.irons_artifice.modifier.PostHitEffects;
@@ -23,6 +25,7 @@ public final class ShotComponents {
 
     // Attributes
     public static final ComponentType<Value> DAMAGE = new ComponentType<>(IronsArtifice.id("damage"), () -> Value.of(0));
+    public static final ComponentType<BulletDamageSource> DAMAGE_SOURCE = new ComponentType<>(IronsArtifice.id("damage_source"), () -> DamageSources::bullet);
     public static final ComponentType<Value> BULLET_SPEED = new ComponentType<>(IronsArtifice.id("bullet_speed"), () -> Value.of(Bullet.BASE_SPEED));
     public static final ComponentType<Value> GRAVITY = new ComponentType<>(IronsArtifice.id("gravity"), () -> Value.of(0.05));
     public static final ComponentType<Value> KNOCKBACK = new ComponentType<>(IronsArtifice.id("knockback"), () -> Value.of(0));
@@ -39,6 +42,8 @@ public final class ShotComponents {
     public static final ComponentType<Boolean> BREAKS_BLOCKS = new ComponentType<>(IronsArtifice.id("breaks_blocks"), () -> false);
     public static final ComponentType<Value> SEEKING = new ComponentType<>(IronsArtifice.id("seeking"), () -> Value.of(0));
     public static final ComponentType<Value> LEECH = new ComponentType<>(IronsArtifice.id("leech"), () -> Value.of(0));
+    public static final ComponentType<Value> SOUL_CHANCE = new ComponentType<>(IronsArtifice.id("soul_chance"), () -> Value.of(0));
+    public static final ComponentType<SoulToken> SOUL_TOKEN = new ComponentType<>(IronsArtifice.id("soul_token"), SoulToken::spent);
 
     // UX/VFX
     public static final ComponentType<RecoilProfile> CAMERA_RECOIL = new ComponentType<>(IronsArtifice.id("camera_recoil"), () -> RecoilProfile.simple(10, 0));

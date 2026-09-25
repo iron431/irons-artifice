@@ -5,6 +5,7 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.ChainEntity;
 import io.redspace.irons_artifice.entity.Gunslinger;
 import io.redspace.irons_artifice.entity.Illificer;
+import io.redspace.irons_artifice.entity.Soul;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.IEventBus;
@@ -24,6 +25,13 @@ public final class EntityRegistry {
     public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = ENTITY_TYPES.registerEntityType(
             "chain",
             ChainEntity::new,
+            MobCategory.MISC,
+            builder -> builder.sized(0.5f, 0.5f).clientTrackingRange(64).updateInterval(1)
+    );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Soul>> SOUL = ENTITY_TYPES.registerEntityType(
+            "soul",
+            Soul::new,
             MobCategory.MISC,
             builder -> builder.sized(0.5f, 0.5f).clientTrackingRange(64).updateInterval(1)
     );

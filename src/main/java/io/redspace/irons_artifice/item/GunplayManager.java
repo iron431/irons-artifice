@@ -14,6 +14,7 @@ import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.data.SoulToken;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.GunProfile;
@@ -225,10 +226,16 @@ public final class GunplayManager {
         int projectileCount = Math.max(1, (int) Math.round(profile.value(ShotComponents.PROJECTILE_COUNT)));
         float speed = (float) profile.value(ShotComponents.BULLET_SPEED);
         float spread = getSpreadForEntity(profile, shooter);
+        // fixme: bespoke logic like souls shouldnt be in generic fire.
+        //  also, addons couldn't do "shared shot value between all spawned bullets" concept (in this way)
+        double soulChance = profile.value(ShotComponents.SOUL_CHANCE);
+        SoulToken soulToken = soulChance > 0 && level.getRandom().nextDouble() < soulChance ? SoulToken.available() : SoulToken.spent();
         for (int i = 0; i < projectileCount; i++) {
             Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
             bullet.setOwner(shooter);
-            bullet.applyProfile(profile.copy());
+            ShotProfile pelletProfile = profile.copy();
+            pelletProfile.components().set(ShotComponents.SOUL_TOKEN, soulToken);
+            bullet.applyProfile(pelletProfile);
             bullet.setShotRecord(ShotRecord.of(fireId, fullMagazine));
             bullet.setPos(origin);
             bullet.shoot(direction.x, direction.y, direction.z, speed, spread);

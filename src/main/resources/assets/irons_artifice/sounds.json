@@ -216,5 +216,10 @@
       "irons_artifice:icefreeze_02",
       "irons_artifice:icefreeze_03"
     ]
+  },
+  "modifier.soulfire_coin.hit": {
+    "sounds": [
+      "irons_artifice:soulfire_coin_hit"
+    ]
   }
 }
