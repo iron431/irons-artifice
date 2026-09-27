@@ -6,10 +6,12 @@ import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.ironslib.registry.IronsLibRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.component.AttackRange;
 import net.minecraft.world.item.component.KineticWeapon;
@@ -20,6 +22,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BayonetAttachmentModifier implements GunModifier {
+    /**
+     * The {@code KineticAnimation} the client registers for bayonet charges.
+     */
+    public static final Identifier BAYONET_ANIMATION = IronsArtifice.id("bayonet");
 
     @Override
     public void apply(ShotComponentMap components) {
@@ -45,6 +51,7 @@ public class BayonetAttachmentModifier implements GunModifier {
         builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
                 GunBones.SOCKET_BAYONET, IronsArtifice.id("iron_bayonet")
         )));
+        builder.set(IronsLibRegistries.ComponentRegistry.KINETIC_ANIMATION.get(), BAYONET_ANIMATION);
         return Optional.of(builder.build());
     }
 

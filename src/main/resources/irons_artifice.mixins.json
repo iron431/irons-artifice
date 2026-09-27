@@ -7,8 +7,7 @@
     "DrownedModelMixin",
     "GuiCrosshairMixin",
     "ItemInHandRendererMixin",
-    "MinecraftMixin",
-    "SpearAnimationsMixin"
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -101,7 +101,7 @@ configurations {
 
 dependencies {
     implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-//    implementation "io.redspace:irons_lib:${irons_lib_version}"
+    implementation "io.redspace:irons_lib:${irons_lib_version}"
     runtimeOnly "curse.maven:jei-238222:8548511"
 
 //    implementation "curse.maven:ftb-teams-forge-404468:8074003"

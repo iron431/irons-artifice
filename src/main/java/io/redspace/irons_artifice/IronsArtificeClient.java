@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice;
 
+import io.redspace.irons_artifice.client.BayonetAnimations;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
@@ -26,6 +27,7 @@ import io.redspace.irons_artifice.client.particle.TintedExplosionParticle;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunModifierScreen;
+import io.redspace.irons_artifice.modifier.modifiers.BayonetAttachmentModifier;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.MenuRegistry;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
@@ -33,6 +35,7 @@ import com.geckolib.animatable.client.GeoRenderProvider;
 import com.geckolib.model.DefaultedItemGeoModel;
 import com.geckolib.renderer.GeoItemRenderer;
 import com.google.common.base.Suppliers;
+import io.redspace.ironslib.kinetic_weapon.client.KineticAnimations;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -122,6 +125,7 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
+        KineticAnimations.register(BayonetAttachmentModifier.BAYONET_ANIMATION, BayonetAnimations.INSTANCE);
     }
 
     @SubscribeEvent
