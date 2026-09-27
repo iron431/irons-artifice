@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Comparator;
 
 @EventBusSubscriber(modid = IronsArtifice.MODID)
-public class Soul extends Entity {
+public class SoulfireCoin extends Entity {
     public static final int ARMING_TICKS = 5;
     public static final int LIFETIME_TICKS = 10 * 20;
     public static final double LAUNCH_SPEED = 0.6;
@@ -49,21 +49,21 @@ public class Soul extends Entity {
 
     private @Nullable LivingEntity target;
 
-    public Soul(EntityType<? extends Soul> type, Level level) {
+    public SoulfireCoin(EntityType<? extends SoulfireCoin> type, Level level) {
         super(type, level);
         setInvulnerable(true);
     }
 
-    public static Soul launchSoul(ServerLevel level, LivingEntity target, Vec3 incoming) {
-        Soul soul = new Soul(EntityRegistry.SOUL.get(), level);
-        soul.target = target;
-        soul.setPos(target.getEyePosition());
+    public static SoulfireCoin launchSoul(ServerLevel level, LivingEntity target, Vec3 incoming) {
+        SoulfireCoin soulfireCoin = new SoulfireCoin(EntityRegistry.SOUL.get(), level);
+        soulfireCoin.target = target;
+        soulfireCoin.setPos(target.getEyePosition());
         RandomSource random = level.getRandom();
         Vec3 side = sideways(incoming, random).scale(random.nextBoolean() ? 1 : -1);
         double sideSpeed = LAUNCH_SIDE_SPEED * (1 - LAUNCH_SIDE_VARIANCE + random.nextDouble() * 2 * LAUNCH_SIDE_VARIANCE);
-        soul.setDeltaMovement(side.scale(sideSpeed).add(0, LAUNCH_SPEED, 0));
-        level.addFreshEntity(soul);
-        return soul;
+        soulfireCoin.setDeltaMovement(side.scale(sideSpeed).add(0, LAUNCH_SPEED, 0));
+        level.addFreshEntity(soulfireCoin);
+        return soulfireCoin;
     }
 
     private static Vec3 sideways(Vec3 incoming, RandomSource random) {
@@ -77,7 +77,7 @@ public class Soul extends Entity {
 
     @SubscribeEvent
     public static void onBulletImpact(BulletImpactEvent event) {
-        if (!(event.getRayTraceResult() instanceof EntityHitResult hit) || !(hit.getEntity() instanceof Soul soul)) {
+        if (!(event.getRayTraceResult() instanceof EntityHitResult hit) || !(hit.getEntity() instanceof SoulfireCoin soulfireCoin)) {
             return;
         }
         Bullet bullet = event.getBullet();
@@ -85,11 +85,11 @@ public class Soul extends Entity {
             event.setHitState(Bullet.HitState.STOP);
             return;
         }
-        redirectBullet(event, hit, soul, bullet);
+        redirectBullet(event, hit, soulfireCoin, bullet);
     }
 
-    private static void redirectBullet(BulletImpactEvent event, EntityHitResult hit, Soul soul, Bullet bullet) {
-        LivingEntity target = soul.findRedirectTarget(bullet.getOwner());
+    private static void redirectBullet(BulletImpactEvent event, EntityHitResult hit, SoulfireCoin soulfireCoin, Bullet bullet) {
+        LivingEntity target = soulfireCoin.findRedirectTarget(bullet.getOwner());
         if (target == null) {
             event.setHitState(Bullet.HitState.CONTINUE);
         } else {

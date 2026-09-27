@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.redspace.irons_artifice.entity.Soul;
+import io.redspace.irons_artifice.entity.SoulfireCoin;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -19,30 +19,28 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public class SoulRenderer extends EntityRenderer<Soul, SoulRenderer.SoulRenderState> {
+public class SoulfireCoinRenderer extends EntityRenderer<SoulfireCoin, SoulfireCoinRenderer.SoulRenderState> {
 
     private final ItemModelResolver itemModelResolver;
 
-    public SoulRenderer(EntityRendererProvider.Context context) {
+    public SoulfireCoinRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.itemModelResolver = context.getItemModelResolver();
     }
 
     @Override
-    protected int getBlockLightLevel(Soul entity, BlockPos blockPos) {
+    protected int getBlockLightLevel(SoulfireCoin entity, BlockPos blockPos) {
         return 15;
     }
 
     @Override
-    public void extractRenderState(Soul entity, SoulRenderState state, float partialTicks) {
+    public void extractRenderState(SoulfireCoin entity, SoulRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
         itemModelResolver.updateForTopItem(state.item, new ItemStack(ItemRegistry.SOULFIRE_COIN.get()), ItemDisplayContext.GROUND, entity.level(), null, 0);
     }
 
     @Override
     public void submit(SoulRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        // item/generated's GROUND display already scales to a half block and lifts the model by 3/16, so the
-        // model's centre is moved back onto the entity origin before flipping to keep the flip in place
         AABB box = state.item.getModelBoundingBox();
         Vec3 centre = box.getCenter();
         poseStack.pushPose();
