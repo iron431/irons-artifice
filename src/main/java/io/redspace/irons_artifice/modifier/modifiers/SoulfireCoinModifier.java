@@ -6,6 +6,7 @@ import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.entity.Soul;
 import io.redspace.irons_artifice.modifier.GunModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulSpawnOnHit;
+import io.redspace.irons_artifice.modifier.on_shot_handlers.RollSoulCoinChanceOnShot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -17,6 +18,7 @@ public final class SoulfireCoinModifier implements GunModifier {
     @Override
     public void apply(ShotComponentMap components) {
         components.modifyValue(ShotComponents.SOUL_CHANCE, new ValueModifier(SOUL_CHANCE, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL));
+        components.getOrCreate(ShotComponents.ON_SHOT).getOrCreate(RollSoulCoinChanceOnShot.class, RollSoulCoinChanceOnShot::new);
         components.getOrCreate(ShotComponents.ON_HIT).getOrCreate(SoulSpawnOnHit.class, SoulSpawnOnHit::new);
     }
 

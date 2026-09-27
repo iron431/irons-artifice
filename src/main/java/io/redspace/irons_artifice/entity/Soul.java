@@ -188,7 +188,7 @@ public class Soul extends Entity {
 
     @Override
     protected double getDefaultGravity() {
-        return 0.1;
+        return 0.01;
     }
 
     @Override

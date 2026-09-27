@@ -6,6 +6,7 @@ import io.redspace.irons_artifice.damage.BulletDamageSource;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.modifier.OnHitEffects;
+import io.redspace.irons_artifice.modifier.OnShotEffects;
 import io.redspace.irons_artifice.modifier.PostHitEffects;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.sounds.SoundEvents;
@@ -37,6 +38,7 @@ public final class ShotComponents {
     // Bullet Behavior
     public static final ComponentType<Value> PIERCING = new ComponentType<>(IronsArtifice.id("piercing"), () -> Value.of(0));
     public static final ComponentType<Value> RICOCHET = new ComponentType<>(IronsArtifice.id("ricochet"), () -> Value.of(0));
+    public static final ComponentType<OnShotEffects> ON_SHOT = new ComponentType<>(IronsArtifice.id("on_shot"), OnShotEffects::new);
     public static final ComponentType<OnHitEffects> ON_HIT = new ComponentType<>(IronsArtifice.id("on_hit"), OnHitEffects::new);
     public static final ComponentType<PostHitEffects> POST_HIT_EFFECTS = new ComponentType<>(IronsArtifice.id("post_hit_effects"), PostHitEffects::new);
     public static final ComponentType<Boolean> BREAKS_BLOCKS = new ComponentType<>(IronsArtifice.id("breaks_blocks"), () -> false);
