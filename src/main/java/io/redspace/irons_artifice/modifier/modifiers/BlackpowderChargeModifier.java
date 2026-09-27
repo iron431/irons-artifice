@@ -12,7 +12,9 @@ import java.util.function.Consumer;
 public final class BlackpowderChargeModifier implements GunModifier {
     @Override
     public void apply(ShotComponentMap components) {
-        components.getOrCreate(ShotComponents.ON_HIT).add(new BlackpowderChargeOnHit());
+        components.getOrCreate(ShotComponents.ON_HIT)
+                .getOrCreate(BlackpowderChargeOnHit.class, BlackpowderChargeOnHit::new)
+                .addStack();
     }
 
     @Override
