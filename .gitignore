@@ -40,3 +40,4 @@ repo/
 !**/src/**/repo/
 /.doc/
 /runDev2/
+/docs/
