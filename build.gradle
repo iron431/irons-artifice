@@ -118,9 +118,9 @@ dependencies {
         }
     }
 
-    implementation "curse.maven:create-aeronautics-676721:8763471"
-    implementation "curse.maven:create-328085:7963363"
-    implementation "curse.maven:sable-1312371:8673825"
+//    implementation "curse.maven:create-aeronautics-676721:8763471"
+//    implementation "curse.maven:create-328085:7963363"
+//    implementation "curse.maven:sable-1312371:8673825"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
