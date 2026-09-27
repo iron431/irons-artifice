@@ -11,8 +11,16 @@ public final class RollSoulCoinChanceOnShot implements OnShotEffect {
     @Override
     public void onShot(ServerLevel level, LivingEntity shooter, ShotProfile profile) {
         double soulChance = profile.value(ShotComponents.SOUL_CHANCE);
-        if (soulChance > 0 && level.getRandom().nextDouble() < soulChance) {
-            profile.components().set(ShotComponents.SOUL_TOKEN, SoulToken.available());
+        if (soulChance == 0) {
+            return;
+        }
+        int count = (int) soulChance;
+        double chance = soulChance % 1;
+        if (level.getRandom().nextDouble() < chance) {
+            count++;
+        }
+        if (count > 0) {
+            profile.components().set(ShotComponents.SOUL_TOKEN, SoulToken.available(count));
         }
     }
 }

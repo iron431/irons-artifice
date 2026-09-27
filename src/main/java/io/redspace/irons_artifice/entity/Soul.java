@@ -2,7 +2,6 @@ package io.redspace.irons_artifice.entity;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.BulletImpactEvent;
-import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
@@ -41,14 +40,12 @@ public class Soul extends Entity {
     public static final int ARMING_TICKS = 5;
     public static final int LIFETIME_TICKS = 10 * 20;
     public static final double LAUNCH_SPEED = 0.6;
-    public static final double LAUNCH_SIDE_SPEED = 0.25;
-    public static final double LAUNCH_SIDE_VARIANCE = 0.3;
+    public static final double LAUNCH_SIDE_SPEED = 0.20;
+    public static final double LAUNCH_SIDE_VARIANCE = 0.50;
     public static final float REDIRECT_SPREAD_DEGREES = 3f;
     public static final double REDIRECT_MAX_SPEED = 5;
     public static final double DAMAGE_BONUS = 0.5;
     public static final int SOUL_FIRE_TICKS = 5 * 20;
-    private static final int TRAIL_COLOR_FROM = 0x8aeafb;
-    private static final int TRAIL_COLOR_TO = 0x2f549c;
 
     private @Nullable LivingEntity target;
 
@@ -123,10 +120,7 @@ public class Soul extends Entity {
         postHit.getOrCreate(SoulFirePostHit.class, () -> new SoulFirePostHit(SOUL_FIRE_TICKS));
         components.set(ShotComponents.POST_HIT_EFFECTS, postHit);
 
-        ParticleStack trail = new ParticleStack();
-        trail.add(ColorTransitionParticleOption.bulletTrail(TRAIL_COLOR_FROM, TRAIL_COLOR_TO));
-        trail.addAccent(new ParticleStack.ParticleAccent(ParticleTypes.SOUL, 1));
-        components.set(ShotComponents.PARTICLE_TRAIL, trail);
+        bullet.getProfile().components().getOrCreate(ShotComponents.PARTICLE_TRAIL).addAccent(new ParticleStack.ParticleAccent(ParticleTypes.SOUL, 1));
 
         components.remove(ShotComponents.SOUL_TOKEN);
     }
@@ -152,7 +146,7 @@ public class Soul extends Entity {
     }
 
     public @Nullable LivingEntity findRedirectTarget(@Nullable Entity shooter) {
-        float targetRange =32;
+        float targetRange = 32;
         float fallbackRange = 16;
 
         if (isValidTarget(target, shooter, targetRange)) {

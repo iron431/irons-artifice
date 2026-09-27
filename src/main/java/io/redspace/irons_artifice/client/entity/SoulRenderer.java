@@ -1,27 +1,31 @@
 package io.redspace.irons_artifice.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.redspace.irons_artifice.IronsArtifice;
+import com.mojang.math.Axis;
 import io.redspace.irons_artifice.entity.Soul;
+import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
-public class SoulRenderer extends EntityRenderer<Soul, EntityRenderState> {
-    private static final Identifier TEXTURE = IronsArtifice.id("textures/entity/soul.png");
-    private static final RenderType RENDER_TYPE = RenderTypes.entityCutout(TEXTURE);
-    private static final float SIZE = 0.5f;
+public class SoulRenderer extends EntityRenderer<Soul, SoulRenderer.SoulRenderState> {
+
+    private final ItemModelResolver itemModelResolver;
 
     public SoulRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.itemModelResolver = context.getItemModelResolver();
     }
 
     @Override
@@ -30,32 +34,41 @@ public class SoulRenderer extends EntityRenderer<Soul, EntityRenderState> {
     }
 
     @Override
-    public void submit(EntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+    public void extractRenderState(Soul entity, SoulRenderState state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
+        itemModelResolver.updateForTopItem(state.item, new ItemStack(ItemRegistry.SOULFIRE_COIN.get()), ItemDisplayContext.GROUND, entity.level(), null, 0);
+    }
+
+    @Override
+    public void submit(SoulRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        // item/generated's GROUND display already scales to a half block and lifts the model by 3/16, so the
+        // model's centre is moved back onto the entity origin before flipping to keep the flip in place
+        AABB box = state.item.getModelBoundingBox();
+        Vec3 centre = box.getCenter();
         poseStack.pushPose();
-        poseStack.translate(0, SIZE * 0.5f, 0);
-        poseStack.scale(SIZE, SIZE, SIZE);
+        poseStack.translate(0, box.getYsize() * 0.5f, 0);
         poseStack.mulPose(camera.orientation);
-        submitNodeCollector.submitCustomGeometry(poseStack, RENDER_TYPE, (pose, buffer) -> {
-            vertex(buffer, pose, state.lightCoords, 0, 0, 0, 1);
-            vertex(buffer, pose, state.lightCoords, 1, 0, 1, 1);
-            vertex(buffer, pose, state.lightCoords, 1, 1, 1, 0);
-            vertex(buffer, pose, state.lightCoords, 0, 1, 0, 0);
-        });
+        poseStack.mulPose(Axis.XP.rotationDegrees(flipDegrees(state.ageInTicks, 20) + flipDegrees(state.ageInTicks, 50)));
+        float wobble = Mth.sin(state.ageInTicks * 0.25) * 25f;
+        poseStack.mulPose(Axis.YP.rotationDegrees(wobble));
+        poseStack.translate(-centre.x, -centre.y, -centre.z);
+        state.item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
         poseStack.popPose();
         super.submit(state, poseStack, submitNodeCollector, camera);
     }
 
-    private static void vertex(VertexConsumer buffer, PoseStack.Pose pose, int lightCoords, float x, float y, int u, int v) {
-        buffer.addVertex(pose, x - 0.5f, y - 0.5f, 0)
-                .setColor(-1)
-                .setUv(u, v)
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, 0, 1, 0);
+    private static float flipDegrees(float ageInTicks, int duration) {
+        float t = Mth.clamp(ageInTicks / duration, 0f, 1f);
+        float eased = 1f - (1f - t) * (1f - t) * (1f - t);
+        return 360f * eased;
     }
 
     @Override
-    public EntityRenderState createRenderState() {
-        return new EntityRenderState();
+    public SoulRenderState createRenderState() {
+        return new SoulRenderState();
+    }
+
+    public static class SoulRenderState extends EntityRenderState {
+        public final ItemStackRenderState item = new ItemStackRenderState();
     }
 }

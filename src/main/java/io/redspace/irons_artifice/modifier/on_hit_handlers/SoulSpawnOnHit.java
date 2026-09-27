@@ -16,9 +16,8 @@ public class SoulSpawnOnHit implements OnHitEffect {
         if (!(hitResult instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof LivingEntity target)) {
             return;
         }
-        if (!bullet.getProfile().peek(ShotComponents.SOUL_TOKEN).tryClaim()) {
-            return;
+        while (bullet.getProfile().peek(ShotComponents.SOUL_TOKEN).tryClaim()) {
+            Soul.launchSoul(level, target, bullet.getDeltaMovement());
         }
-        Soul.launchSoul(level, target, bullet.getDeltaMovement());
     }
 }
