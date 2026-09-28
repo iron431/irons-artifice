@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "#c:ingots/iron",
+    "L": "minecraft:leather",
+    "S": "minecraft:string"
+  },
+  "pattern": [
+    " S ",
+    "LIL",
+    " L "
+  ],
+  "result": {
+    "id": "irons_artifice:bullet_pouch"
+  }
+}
