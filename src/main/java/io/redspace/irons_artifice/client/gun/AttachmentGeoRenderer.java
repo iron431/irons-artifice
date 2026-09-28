@@ -11,6 +11,7 @@ import software.bernie.geckolib.util.RenderUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,13 +24,13 @@ public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable> {
     }
 
     public void renderAttachment(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
-        render(poseStack, this.attachment, bufferSource, null, null, packedLight, partialTick);
+        // Ensure buffer is unique to avoid shader rendering issues
+        RenderType renderType = getRenderType(this.attachment, getTextureLocation(this.attachment), bufferSource, partialTick);
+        render(poseStack, this.attachment, bufferSource, renderType, bufferSource.getBuffer(renderType), packedLight, partialTick);
     }
 
     @Override
     public void preRender(@NotNull PoseStack poseStack, @NotNull GeoAnimatable animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        // The attachment is drawn straight onto the socket bone's pose, so none of GeoObjectRenderer's default
-        // block-centering translation applies here.
         this.objectRenderTranslations = new Matrix4f(poseStack.last().pose());
     }
 

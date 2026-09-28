@@ -44,9 +44,6 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (isLeftHandPerspective(this.renderPerspective)) {
             PoseStack.Pose last = poseStack.last();
             last.pose().scale(-1f, 1f, 1f);
-            // compensate for weird lighting
-            Matrix3f normal = last.normal();
-            normal.scale(-1, -1, 1);
         }
     }
 
