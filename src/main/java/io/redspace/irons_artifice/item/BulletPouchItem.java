@@ -27,12 +27,17 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BulletPouchItem extends Item {
-    public BulletPouchItem(Properties properties) {
-        super(properties.stacksTo(1));
+    private static final BulletPouchContents MISSING_CONTENTS = BulletPouchContents.empty(0);
+
+    public BulletPouchItem(Properties properties, int capacity) {
+        super(properties
+                .stacksTo(1)
+                .component(DataComponentRegistry.BULLET_POUCH, BulletPouchContents.empty(capacity))
+        );
     }
 
     public static BulletPouchContents contents(ItemStack pouch) {
-        return pouch.getOrDefault(DataComponentRegistry.BULLET_POUCH.get(), BulletPouchContents.EMPTY);
+        return pouch.getOrDefault(DataComponentRegistry.BULLET_POUCH.get(), MISSING_CONTENTS);
     }
 
     public static int count(ItemStack pouch) {
@@ -48,12 +53,7 @@ public class BulletPouchItem extends Item {
     }
 
     private static void write(ItemStack pouch, BulletPouchContents.Mutable mutable) {
-        BulletPouchContents contents = mutable.toImmutable();
-        if (contents.isEmpty()) {
-            pouch.remove(DataComponentRegistry.BULLET_POUCH.get());
-        } else {
-            pouch.set(DataComponentRegistry.BULLET_POUCH.get(), contents);
-        }
+        pouch.set(DataComponentRegistry.BULLET_POUCH.get(), mutable.toImmutable());
     }
 
     public static int storeInPouches(Inventory inventory, ItemStack source) {
@@ -173,7 +173,11 @@ public class BulletPouchItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack pouch) {
-        return Mth.clamp(Math.round(13f * count(pouch) / BulletPouchContents.CAPACITY), 0, 13);
+        BulletPouchContents contents = contents(pouch);
+        if (contents.capacity() <= 0) {
+            return 0;
+        }
+        return Mth.clamp(Math.round(13f * contents.count() / contents.capacity()), 0, 13);
     }
 
     @Override
@@ -189,7 +193,8 @@ public class BulletPouchItem extends Item {
     @Override
     public void appendHoverText(ItemStack pouch, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         super.appendHoverText(pouch, context, display, builder, flag);
-        builder.accept(Component.translatable("irons_artifice.tooltip.bullet_pouch", count(pouch), BulletPouchContents.CAPACITY).withStyle(ChatFormatting.GRAY));
+        BulletPouchContents contents = contents(pouch);
+        builder.accept(Component.translatable("irons_artifice.tooltip.bullet_pouch", contents.count(), contents.capacity()).withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -204,7 +209,7 @@ public class BulletPouchItem extends Item {
     @Override
     public void onDestroyed(ItemEntity entity) {
         BulletPouchContents contents = contents(entity.getItem());
-        entity.getItem().remove(DataComponentRegistry.BULLET_POUCH.get());
+        entity.getItem().set(DataComponentRegistry.BULLET_POUCH.get(), BulletPouchContents.empty(contents.capacity()));
         ItemUtils.onContainerDestroyed(entity, contents.copies());
     }
 }

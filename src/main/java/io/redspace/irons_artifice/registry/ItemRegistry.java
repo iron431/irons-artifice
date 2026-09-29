@@ -135,7 +135,7 @@ public final class ItemRegistry {
             "suppressor_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SuppressorAttachmentModifier()));
 
     public static final DeferredItem<Item> BULLET = ITEMS.registerSimpleItem("bullet");
-    public static final DeferredItem<BulletPouchItem> BULLET_POUCH = ITEMS.registerItem("bullet_pouch", BulletPouchItem::new);
+    public static final DeferredItem<BulletPouchItem> BULLET_POUCH = ITEMS.registerItem("bullet_pouch", properties -> new BulletPouchItem(properties, 256));
     public static final DeferredItem<Item> BLACKPOWDER = ITEMS.registerSimpleItem("blackpowder");
     public static final DeferredItem<Item> SIMPLE_MECHANICAL_COMPONENTS = ITEMS.registerSimpleItem("simple_mechanical_components");
     public static final DeferredItem<Item> MECHANICAL_COMPONENTS = ITEMS.registerSimpleItem("mechanical_components");

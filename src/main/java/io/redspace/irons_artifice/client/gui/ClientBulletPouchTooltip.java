@@ -27,7 +27,6 @@ public class ClientBulletPouchTooltip implements ClientTooltipComponent {
     private static final int LINE_HEIGHT = 9;
     private static final int DESCRIPTION_COLOR = 0xFFAAAAAA;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
-    private static final Component EMPTY_DESCRIPTION = Component.translatable("item.irons_artifice.bullet_pouch.empty.description");
     private final BulletPouchContents contents;
 
     public ClientBulletPouchTooltip(BulletPouchContents contents) {
@@ -53,7 +52,7 @@ public class ClientBulletPouchTooltip implements ClientTooltipComponent {
     @Override
     public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
         if (contents.isEmpty()) {
-            graphics.textWithWordWrap(font, EMPTY_DESCRIPTION, x, y, GRID_WIDTH, DESCRIPTION_COLOR);
+            graphics.textWithWordWrap(font, emptyDescription(), x, y, GRID_WIDTH, DESCRIPTION_COLOR);
             return;
         }
         extractGrid(font, graphics, x, y);
@@ -126,7 +125,11 @@ public class ClientBulletPouchTooltip implements ClientTooltipComponent {
         return gridRows() * SLOT_SIZE;
     }
 
-    private static int emptyDescriptionHeight(Font font) {
-        return font.split(EMPTY_DESCRIPTION, GRID_WIDTH).size() * LINE_HEIGHT;
+    private Component emptyDescription() {
+        return Component.translatable("item.irons_artifice.bullet_pouch.empty.description", contents.capacity());
+    }
+
+    private int emptyDescriptionHeight(Font font) {
+        return font.split(emptyDescription(), GRID_WIDTH).size() * LINE_HEIGHT;
     }
 }

@@ -12,7 +12,7 @@
   "item.irons_artifice.clockwork_rifle": "Clockwork Rifle",
   "item.irons_artifice.bullet": "Bullet",
   "item.irons_artifice.bullet_pouch": "Bullet Pouch",
-  "item.irons_artifice.bullet_pouch.empty.description": "Holds up to 256 bullets",
+  "item.irons_artifice.bullet_pouch.empty.description": "Holds up to %s bullets",
   "item.irons_artifice.blackpowder": "Blackpowder",
   "item.irons_artifice.lead_core_modifier": "Lead Core Modifier",
   "item.irons_artifice.scattershot_modifier": "Scattershot Modifier",
