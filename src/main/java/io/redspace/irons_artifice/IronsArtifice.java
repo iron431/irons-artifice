@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.events.CommonSetup;
 import io.redspace.irons_artifice.network.PayloadRegistry;
+import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
@@ -43,6 +44,7 @@ public class IronsArtifice {
             }).build());
 
     public IronsArtifice(IEventBus modEventBus, ModContainer modContainer) {
+        AttributeRegistry.register(modEventBus);
         CriterionRegistry.register(modEventBus);
         ItemRegistry.register(modEventBus);
         DataComponentRegistry.register(modEventBus);

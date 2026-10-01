@@ -31,6 +31,9 @@ public record Value(double base, Multimap<ValueModifier.Operation, ValueModifier
 
     public double compute() {
         double sum = base + modifiersByOperation.get(ValueModifier.Operation.ADD).stream().mapToDouble(ValueModifier::amount).sum();
+        for (ValueModifier modifier : modifiersByOperation.get(ValueModifier.Operation.MULTIPLY_BASE)) {
+            sum += base * modifier.amount();
+        }
         for (ValueModifier modifier : modifiersByOperation.get(ValueModifier.Operation.MULTIPLY_TOTAL)) {
             sum *= 1 + modifier.amount();
         }
