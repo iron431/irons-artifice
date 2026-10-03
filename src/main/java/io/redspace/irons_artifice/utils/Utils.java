@@ -29,14 +29,22 @@ public class Utils {
     }
 
     public static Component formatValueModifierDescription(ValueModifier valueModifier, ComponentType<?> componentType) {
-        return formatValueModifierDescription(valueModifier, Component.translatable(String.format("%s.component_type.%s", componentType.getName().getNamespace(), componentType.getName().getPath())));
+        return formatValueModifierDescription(valueModifier, getComponentTranslate(componentType), componentType.sentiment());
     }
 
     public static Component getComponentTranslate(ComponentType<?> componentType) {
         return Component.translatable(String.format("%s.component_type.%s", componentType.getName().getNamespace(), componentType.getName().getPath()));
     }
 
+    /**
+     * @deprecated renders as {@link ComponentType.Sentiment#NEUTRAL}; pass the component or its sentiment
+     */
+    @Deprecated
     public static Component formatValueModifierDescription(ValueModifier valueModifier, Component valueName) {
+        return formatValueModifierDescription(valueModifier, valueName, ComponentType.Sentiment.NEUTRAL);
+    }
+
+    public static Component formatValueModifierDescription(ValueModifier valueModifier, Component valueName, ComponentType.Sentiment sentiment) {
         double value = valueModifier.amount();
         String identifier = value < 0 ? "minus" : "plus";
         if (valueModifier.operation() != ValueModifier.Operation.ADD) {
@@ -45,14 +53,13 @@ public class Utils {
         } else {
             value = Math.abs(value);
         }
-        int color;
-        if (valueModifier.type() == ValueModifier.Type.NEUTRAL) {
-            color = ChatFormatting.YELLOW.getColor();
-        } else {
-            color = valueModifier.type() == ValueModifier.Type.BENEFICIAL ^ valueModifier.amount() < 0 ?
-                    ChatFormatting.GREEN.getColor() : ChatFormatting.RED.getColor();
-        }
-        return Component.translatable(String.format("irons_artifice.value_modifier.%s", identifier), ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value), valueName).withColor(color);
+        boolean decrease = valueModifier.amount() < 0;
+        ChatFormatting color = switch (sentiment) {
+            case POSITIVE -> decrease ? ChatFormatting.RED : ChatFormatting.GREEN;
+            case NEGATIVE -> decrease ? ChatFormatting.GREEN : ChatFormatting.RED;
+            case NEUTRAL -> ChatFormatting.YELLOW;
+        };
+        return Component.translatable(String.format("irons_artifice.value_modifier.%s", identifier), ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value), valueName).withStyle(color);
     }
 
     /**

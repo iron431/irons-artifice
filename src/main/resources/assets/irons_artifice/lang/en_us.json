@@ -104,6 +104,8 @@
   "attribute.irons_artifice.leech": "Gun Max Leeching Shots",
   "attribute.irons_artifice.camera_recoil_multiplier": "Gun Recoil",
   "attribute.irons_artifice.character_blowback": "Gun Character Blowback",
+  "attribute.irons_artifice.force_auto_fire": "Gun Automatic Fire",
+  "attribute.irons_artifice.breaks_blocks": "Gun Terrain Breaking",
   "irons_artifice.modifier.blackpowder_charge": "Explode on Hit",
   "irons_artifice.modifier.chain_lightning": "+%s Lightning Chains on Hit (%s%% Damage Each)",
   "irons_artifice.modifier.chain_shot": "Consecutively Hit creatures are Chained Together",
