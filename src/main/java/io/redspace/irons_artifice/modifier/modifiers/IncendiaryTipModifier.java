@@ -9,7 +9,7 @@ import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.IgnitePostHit;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -35,7 +35,7 @@ public final class IncendiaryTipModifier extends ValueStackModifier {
                 .getOrCreate(IgnitePostHit.class, () -> new IgnitePostHit(0))
                 .addDuration(BURN_TICKS_PER);
         components.getOrCreate(ShotComponents.PARTICLE_TRAIL).add(
-                new ColorTransitionParticleOption(IronsArtificeRegistries.Particles.BULLET_TRAIL.get(), 0xfffa87, 0xfa0a00,
+                new ColorTransitionParticleOption(IronsArtificeParticles.BULLET_TRAIL.get(), 0xfffa87, 0xfa0a00,
                         1f, 0.5f,
                         1f, 1f,
                         0.5f, 0f,

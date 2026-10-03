@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 public final class ExtendedRaiderTypes {
     public static final EnumProxy<Raid.RaiderType> ILLIFICER = new EnumProxy<>(
             Raid.RaiderType.class,
-            (Supplier<EntityType<? extends Raider>>) IronsArtificeRegistries.Entities.ILLIFICER::get,
+            (Supplier<EntityType<? extends Raider>>) IronsArtificeEntities.ILLIFICER::get,
             new int[]{0, 0, 0, 1, 0, 1, 2, 3}
     );
 }

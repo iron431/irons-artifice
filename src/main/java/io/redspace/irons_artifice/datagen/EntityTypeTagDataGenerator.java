@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.datagen;
 
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -17,7 +17,7 @@ public class EntityTypeTagDataGenerator extends IntrinsicHolderTagsProvider<Enti
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        this.tag(EntityTypeTags.RAIDERS).add(IronsArtificeRegistries.Entities.ILLIFICER.get());
-        this.tag(EntityTypeTags.ILLAGER).add(IronsArtificeRegistries.Entities.ILLIFICER.get());
+        this.tag(EntityTypeTags.RAIDERS).add(IronsArtificeEntities.ILLIFICER.get());
+        this.tag(EntityTypeTags.ILLAGER).add(IronsArtificeEntities.ILLIFICER.get());
     }
 }

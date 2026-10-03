@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
 import io.redspace.irons_artifice.network.packets.ClientboundGunshotSoundPacket;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
@@ -26,7 +26,7 @@ public class GunShotSoundStack implements Copyable<GunShotSoundStack> {
     }
 
     public GunShotSoundStack(GunShotSoundSettings baseSound, PlayableSound dryFireSound) {
-        this(baseSound, new GunShotSoundSettings(IronsArtificeRegistries.Sounds.BULLET_ECHO_GENERIC, 0.7f, 0.9f, 64f, 128f, 192f), dryFireSound);
+        this(baseSound, new GunShotSoundSettings(IronsArtificeSounds.BULLET_ECHO_GENERIC, 0.7f, 0.9f, 64f, 128f, 192f), dryFireSound);
     }
 
     public void addAccent(PlayableSound options) {

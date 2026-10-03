@@ -7,7 +7,8 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.GunCriteria;
 import io.redspace.irons_artifice.client.armor.GenericArmorModel;
 import io.redspace.irons_artifice.damage.DamageSources;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -58,7 +59,7 @@ public class CowboyHatItem extends BaseGeoItem {
 
     @SubscribeEvent
     public static void attributeTooltip(AddAttributeTooltipsEvent event) {
-        if (event.getStack().is(IronsArtificeRegistries.Items.COWBOY_HAT)) {
+        if (event.getStack().is(IronsArtificeItems.COWBOY_HAT)) {
             event.addTooltipLines(
                     Component.literal(" ").append(Component.translatable("item.irons_artifice.cowboy_hat.ability", (int) (COOLDOWN_TICKS / 20)))
                             .withStyle(ChatFormatting.GOLD));
@@ -73,7 +74,7 @@ public class CowboyHatItem extends BaseGeoItem {
         }
         ItemStack hat = livingAttacker.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack gun = livingAttacker.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (!hat.is(IronsArtificeRegistries.Items.COWBOY_HAT) ||
+        if (!hat.is(IronsArtificeItems.COWBOY_HAT) ||
                 !(gun.getItem() instanceof GunItem gunItem) ||
                 !MagazineContents.has(gun) ||
                 (livingAttacker instanceof Player player && player.getCooldowns().isOnCooldown(hat))) {
@@ -89,7 +90,7 @@ public class CowboyHatItem extends BaseGeoItem {
     private static void performInstantReload(LivingEntity livingAttacker, GunItem gunItem, MagazineContents contents, ItemStack gunstack, ItemStack stack) {
         int missing = contents.missing(gunItem.magazineCapacity());
         MagazineContents.set(gunstack, contents.with(gunItem.magazineCapacity()));
-        livingAttacker.level().playSound(null, livingAttacker.getX(), livingAttacker.getY(), livingAttacker.getZ(), IronsArtificeRegistries.Sounds.INSTANT_RELOAD.get(), SoundSource.NEUTRAL, 1, 1);
+        livingAttacker.level().playSound(null, livingAttacker.getX(), livingAttacker.getY(), livingAttacker.getZ(), IronsArtificeSounds.INSTANT_RELOAD.get(), SoundSource.NEUTRAL, 1, 1);
         if (GunItem.isReloading(gunstack)) {
             ReloadState.remove(gunstack);
             GunplayManager.cancelGunAnimation(livingAttacker, gunstack);

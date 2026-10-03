@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.mixin;
 
 import io.redspace.irons_artifice.config.ServerConfig;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -21,13 +21,13 @@ public class IllagerPatrolMixin {
     private void irons_artifice$swapPatrolLeader(ServerLevel level, BlockPos pos, RandomSource random, boolean isLeader, CallbackInfoReturnable<Boolean> cir) {
         if (isLeader && level.getRandom().nextFloat() < ServerConfig.ILLIFICER_REPLACE_PATROL_LEADER_CHANCE.get()) {
             BlockState state = level.getBlockState(pos);
-            if (!NaturalSpawner.isValidEmptySpawnBlock(level, pos, state, state.getFluidState(), IronsArtificeRegistries.Entities.ILLIFICER.get())) {
+            if (!NaturalSpawner.isValidEmptySpawnBlock(level, pos, state, state.getFluidState(), IronsArtificeEntities.ILLIFICER.get())) {
                 return;
             }
-            if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(IronsArtificeRegistries.Entities.ILLIFICER.get(), level, EntitySpawnReason.PATROL, pos, random)) {
+            if (!PatrollingMonster.checkPatrollingMonsterSpawnRules(IronsArtificeEntities.ILLIFICER.get(), level, EntitySpawnReason.PATROL, pos, random)) {
                 return;
             }
-            PatrollingMonster mob = IronsArtificeRegistries.Entities.ILLIFICER.get().create(level, EntitySpawnReason.PATROL);
+            PatrollingMonster mob = IronsArtificeEntities.ILLIFICER.get().create(level, EntitySpawnReason.PATROL);
             if (mob != null) {
                 mob.setPatrolLeader(true);
                 mob.findPatrolTarget();

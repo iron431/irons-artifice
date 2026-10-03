@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import net.minecraft.core.particles.ParticleOptions;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class ParticleStack implements Copyable<ParticleStack> {
     }
 
     private static final List<ParticleOptions> EMPTY = List.of(new ColorTransitionParticleOption(
-            IronsArtificeRegistries.Particles.BULLET_TRAIL.get(), 0xffc600, 0x04f0b00, 1f, 0f, 1f, 1f, 0.5f, 0f, 0
+            IronsArtificeParticles.BULLET_TRAIL.get(), 0xffc600, 0x04f0b00, 1f, 0f, 1f, 1f, 0.5f, 0f, 0
     ));
     private final List<ParticleOptions> particles = new ArrayList<>();
     private final Set<ParticleAccent> accents = new HashSet<>();

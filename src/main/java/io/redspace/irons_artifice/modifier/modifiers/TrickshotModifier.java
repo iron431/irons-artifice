@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 
 import java.util.Map;
 
@@ -19,6 +19,6 @@ public final class TrickshotModifier extends ValueStackModifier {
     @Override
     public void apply(ShotComponentMap components) {
         super.apply(components);
-        components.getOrCreate(ShotComponents.IMPACT_SOUND).addBlockAccent(PlayableSound.of(IronsArtificeRegistries.Sounds.BULLET_IMPACT_RICOCHET, 2f, .7f, 1.3f));
+        components.getOrCreate(ShotComponents.IMPACT_SOUND).addBlockAccent(PlayableSound.of(IronsArtificeSounds.BULLET_IMPACT_RICOCHET, 2f, .7f, 1.3f));
     }
 }

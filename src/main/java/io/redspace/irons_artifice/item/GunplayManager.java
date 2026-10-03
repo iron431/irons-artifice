@@ -24,7 +24,7 @@ import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationP
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleOptions;
@@ -226,7 +226,7 @@ public final class GunplayManager {
         float speed = (float) profile.value(ShotComponents.BULLET_SPEED);
         float spread = getSpreadForEntity(profile, shooter);
         for (int i = 0; i < projectileCount; i++) {
-            Bullet bullet = new Bullet(IronsArtificeRegistries.Entities.BULLET.get(), level);
+            Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
             bullet.setOwner(shooter);
             bullet.applyProfile(profile.copy());
             bullet.setShotRecord(ShotRecord.of(fireId, fullMagazine));

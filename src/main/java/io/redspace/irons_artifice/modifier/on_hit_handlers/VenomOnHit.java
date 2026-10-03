@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.modifier.on_hit_handlers;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.server.level.ServerLevel;
@@ -70,7 +70,7 @@ public class VenomOnHit implements OnHitEffect {
 
     private void splashEffects(ServerLevel level, Vec3 center, int color, Vec3 impactMotion) {
         RandomSource random = level.getRandom();
-        ColorParticleOption splash = ColorParticleOption.create(IronsArtificeRegistries.Particles.SPLASH.get(), ARGB.opaque(color));
+        ColorParticleOption splash = ColorParticleOption.create(IronsArtificeParticles.SPLASH.get(), ARGB.opaque(color));
         Vec3 bias = impactMotion.lengthSqr() > 1.0E-6 ? impactMotion.normalize().scale(0.15) : Vec3.ZERO;
 
         for (int i = 0; i < 7; i++) {

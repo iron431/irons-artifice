@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.entity;
 
 import io.redspace.irons_artifice.entity.ai.RangedGunAttackGoal;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -72,7 +72,7 @@ public class Gunslinger extends AbstractIllager {
     }
 
     public static ItemStack createDefaultLoadout() {
-        return new ItemStack(IronsArtificeRegistries.Items.FLINTLOCK_PISTOL.get());
+        return new ItemStack(IronsArtificeItems.FLINTLOCK_PISTOL.get());
     }
 
     @Override

@@ -21,7 +21,7 @@ import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunshotSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundLocalSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -105,7 +105,7 @@ public final class ClientHelper {
         float speed = (float) msg.deltaMovement().length();
         Vec3 reflected = Utils.reflect(direction, msg.normal());
         level.addAlwaysVisibleParticle(new ColorTransitionParticleOption(
-                IronsArtificeRegistries.Particles.BULLET_IMPACT.get(), 0x862900, 0x0F0600, 0.125f, 0f, 1f, 0.75f, 0.35f, 0.35f, 0
+                IronsArtificeParticles.BULLET_IMPACT.get(), 0x862900, 0x0F0600, 0.125f, 0f, 1f, 0.75f, 0.35f, 0.35f, 0
         ), true, pos.x, pos.y, pos.z, direction.x, direction.y, direction.z);
         BlockPos impactedBlock = BlockPos.containing(pos.add(direction.scale(0.1)));
         BlockState blockState = level.getBlockState(impactedBlock);
@@ -114,15 +114,15 @@ public final class ClientHelper {
         for (int i = 0; i < particleCount; i++) {
             Vec3 motion = new Vec3(level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1).subtract(direction.scale(0.25)).normalize();
             motion = motion.scale(particleSpeed);
-            level.addParticle(new BlockParticleOption(IronsArtificeRegistries.Particles.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
+            level.addParticle(new BlockParticleOption(IronsArtificeParticles.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
             motion = motion.scale(0.25);
-            level.addParticle(new BlockParticleOption(IronsArtificeRegistries.Particles.BLOCK_DUST.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
+            level.addParticle(new BlockParticleOption(IronsArtificeParticles.BLOCK_DUST.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
         }
         for (int i = 0; i < particleCount; i++) {
             Vec3 motion = new Vec3(level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1, level.getRandom().nextFloat() * 2 - 1)
                     .add(reflected.scale(3)).normalize();
             motion = motion.scale(particleSpeed * 2);
-            level.addParticle(new BlockParticleOption(IronsArtificeRegistries.Particles.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
+            level.addParticle(new BlockParticleOption(IronsArtificeParticles.BLOCK_IMPACT.get(), blockState), pos.x, pos.y, pos.z, motion.x, motion.y, motion.z);
         }
     }
 

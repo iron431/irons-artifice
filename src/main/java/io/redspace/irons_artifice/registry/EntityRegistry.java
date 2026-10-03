@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * @deprecated Use {@link IronsArtificeRegistries.Entities}.
+ * @deprecated Use {@link IronsArtificeEntities}.
  */
 @Deprecated
 public final class EntityRegistry {
@@ -17,17 +17,17 @@ public final class EntityRegistry {
     }
 
     @Deprecated
-    public static final DeferredRegister.Entities ENTITY_TYPES = IronsArtificeRegistries.Entities.ENTITY_TYPES;
+    public static final DeferredRegister.Entities ENTITY_TYPES = IronsArtificeEntities.ENTITY_TYPES;
 
     @Deprecated
-    public static final DeferredHolder<EntityType<?>, EntityType<Bullet>> BULLET = IronsArtificeRegistries.Entities.BULLET;
+    public static final DeferredHolder<EntityType<?>, EntityType<Bullet>> BULLET = IronsArtificeEntities.BULLET;
 
     @Deprecated
-    public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = IronsArtificeRegistries.Entities.CHAIN;
+    public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = IronsArtificeEntities.CHAIN;
 
     @Deprecated
-    public static final DeferredHolder<EntityType<?>, EntityType<Gunslinger>> GUNSLINGER = IronsArtificeRegistries.Entities.GUNSLINGER;
+    public static final DeferredHolder<EntityType<?>, EntityType<Gunslinger>> GUNSLINGER = IronsArtificeEntities.GUNSLINGER;
 
     @Deprecated
-    public static final DeferredHolder<EntityType<?>, EntityType<Illificer>> ILLIFICER = IronsArtificeRegistries.Entities.ILLIFICER;
+    public static final DeferredHolder<EntityType<?>, EntityType<Illificer>> ILLIFICER = IronsArtificeEntities.ILLIFICER;
 }

@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.entity.ai.RangedGunAttackGoal;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -121,7 +121,7 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
     }
 
     public static ItemStack createLoadout(ServerLevel level) {
-        ItemStack gun = new ItemStack(IronsArtificeRegistries.Items.ARQUEBUS.get());
+        ItemStack gun = new ItemStack(IronsArtificeItems.ARQUEBUS.get());
         List<ItemStack> rolled = rollLoadout(level);
         GunContainer container = new GunContainer(gun);
         int slot = 0;

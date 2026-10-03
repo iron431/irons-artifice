@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.datagen;
 
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -21,17 +21,17 @@ public class ItemTagDataGenerator extends IntrinsicHolderTagsProvider<Item> {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         this.tag(ItemTags.HEAD_ARMOR)
-                .add(IronsArtificeRegistries.Items.COWBOY_HAT.get())
-                .add(IronsArtificeRegistries.Items.TRICORNE_HAT.get())
+                .add(IronsArtificeItems.COWBOY_HAT.get())
+                .add(IronsArtificeItems.TRICORNE_HAT.get())
         ;
 
         var guns = this.tag(IronsArtificeTags.GUNS);
-        for (var holder : IronsArtificeRegistries.Items.ITEMS.getEntries()) {
+        for (var holder : IronsArtificeItems.ITEMS.getEntries()) {
             Item item = holder.get();
             if (item instanceof GunItem) {
                 guns.add(item);
             }
         }
-        this.tag(IronsArtificeTags.AMMO).add(IronsArtificeRegistries.Items.BULLET.get());
+        this.tag(IronsArtificeTags.AMMO).add(IronsArtificeItems.BULLET.get());
     }
 }

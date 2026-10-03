@@ -4,7 +4,7 @@ import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleOption;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
-import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -33,6 +33,6 @@ public class GravityWellOnHit implements OnHitEffect {
                 }
         );
         // todo: vfx/sound
-        Utils.spawnParticles(level, new MuzzleFlashParticleOption(IronsArtificeRegistries.Particles.EXPLOSION_96.get(), 0.9F, 0.25f, 1f), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
+        Utils.spawnParticles(level, new MuzzleFlashParticleOption(IronsArtificeParticles.EXPLOSION_96.get(), 0.9F, 0.25f, 1f), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
     }
 }
