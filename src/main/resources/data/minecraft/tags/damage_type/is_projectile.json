@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "irons_artifice:bullet",
-    "irons_artifice:soul_bullet"
+    "irons_artifice:bullet"
   ]
 }

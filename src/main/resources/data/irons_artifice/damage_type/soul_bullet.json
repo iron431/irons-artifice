@@ -1,6 +1,0 @@
-{
-  "message_id": "irons_artifice.soul_bullet",
-  "exhaustion": 0.1,
-  "scaling": "when_caused_by_living_non_player",
-  "effects": "burning"
-}

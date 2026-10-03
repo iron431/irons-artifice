@@ -2,7 +2,6 @@ package io.redspace.irons_artifice.entity;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.BulletImpactEvent;
-import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
@@ -113,8 +112,6 @@ public class SoulfireCoin extends Entity {
         Value damage = components.getOrDefault(ShotComponents.DAMAGE).copy();
         damage.addModifier(new ValueModifier(DAMAGE_BONUS, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
         components.set(ShotComponents.DAMAGE, damage);
-
-        components.set(ShotComponents.DAMAGE_SOURCE, DamageSources::soulBullet);
 
         PostHitEffects postHit = components.getOrDefault(ShotComponents.POST_HIT_EFFECTS).copy();
         postHit.getOrCreate(SoulFirePostHit.class, () -> new SoulFirePostHit(SOUL_FIRE_TICKS));

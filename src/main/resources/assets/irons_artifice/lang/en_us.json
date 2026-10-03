@@ -146,10 +146,6 @@
   "death.attack.irons_artifice.bullet.stopped_cold.item": "%1$s was stopped cold by %2$s using %3$s",
   "death.attack.irons_artifice.bullet.bullet": "%1$s was shot by %2$s. With a bullet.",
   "death.attack.irons_artifice.bullet.bullet.item": "%1$s was shot by %2$s. With a bullet. From %3$s.",
-  "death.attack.irons_artifice.soul_bullet": "%1$s's soul was returned to sender by %2$s",
-  "death.attack.irons_artifice.soul_bullet.item": "%1$s's soul was returned to sender by %2$s using %3$s",
-  "death.attack.irons_artifice.soul_bullet.reaped": "%1$s was reaped by %2$s",
-  "death.attack.irons_artifice.soul_bullet.reaped.item": "%1$s was reaped by %2$s using %3$s",
 
   "advancements.irons_artifice.root.title": "Iron's Arms 'n Artifice",
   "advancements.irons_artifice.root.description": "First we arm, then we artifice.",

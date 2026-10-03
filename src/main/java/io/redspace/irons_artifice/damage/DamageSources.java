@@ -11,7 +11,6 @@ import org.jspecify.annotations.Nullable;
 
 public final class DamageSources {
     public static final ResourceKey<DamageType> BULLET_DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("bullet"));
-    public static final ResourceKey<DamageType> SOUL_BULLET_DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("soul_bullet"));
 
     public static RandomizableDamageSource bullet(Level level, Entity bullet, @Nullable Entity owner) {
         return bullet(level.registryAccess(), bullet, owner);
@@ -30,17 +29,6 @@ public final class DamageSources {
                 "death.attack.irons_artifice.bullet.cut_down",
                 "death.attack.irons_artifice.bullet.stopped_cold",
                 "death.attack.irons_artifice.bullet.bullet"
-        );
-    }
-
-    public static RandomizableDamageSource soulBullet(Level level, Entity bullet, @Nullable Entity owner) {
-        return new RandomizableDamageSource(
-                level.registryAccess().getOrThrow(SOUL_BULLET_DAMAGE_TYPE),
-                bullet,
-                owner
-        ).setDeathMessages(
-                "death.attack.irons_artifice.soul_bullet",
-                "death.attack.irons_artifice.soul_bullet.reaped"
         );
     }
 }
