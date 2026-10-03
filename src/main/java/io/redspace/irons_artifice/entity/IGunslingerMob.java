@@ -38,10 +38,10 @@ public interface IGunslingerMob {
     }
 
     static void applyDefaultMobNerfs(@NotNull Mob mob, @NotNull ShotProfile profile) {
-        profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL));
         int difficultyIndex = mob.level().getDifficulty().getId();
         int spread = 4 - difficultyIndex;
-        profile.modifyValue(ShotComponents.BULLET_SPEED, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
-        profile.modifyValue(ShotComponents.SPREAD, new ValueModifier(spread, ValueModifier.Operation.ADD, ValueModifier.Type.HARMFUL));
+        profile.modifyValue(ShotComponents.BULLET_SPEED, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL));
+        profile.modifyValue(ShotComponents.SPREAD, new ValueModifier(spread, ValueModifier.Operation.ADD));
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 public final class HairTriggerModifier extends ValueStackModifier {
     public HairTriggerModifier() {
         super(Map.of(
-                ShotComponents.FIRE_RATE, new ValueModifier(0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.FIRE_RATE, new ValueModifier(0.5, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 }

@@ -18,8 +18,8 @@ public final class SeekingModifier extends ValueStackModifier {
 
     public SeekingModifier() {
         super(Map.of(
-                ShotComponents.SEEKING, new ValueModifier(0.10, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL),
-                ShotComponents.GRAVITY, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL)
+                ShotComponents.SEEKING, new ValueModifier(0.10, ValueModifier.Operation.ADD),
+                ShotComponents.GRAVITY, new ValueModifier(-0.25, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 

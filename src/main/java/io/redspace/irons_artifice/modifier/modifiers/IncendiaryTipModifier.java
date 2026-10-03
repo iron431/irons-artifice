@@ -24,7 +24,7 @@ public final class IncendiaryTipModifier extends ValueStackModifier {
 
     public IncendiaryTipModifier() {
         super(Map.of(
-                ShotComponents.DAMAGE, new ValueModifier(0.10, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.DAMAGE, new ValueModifier(0.10, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 

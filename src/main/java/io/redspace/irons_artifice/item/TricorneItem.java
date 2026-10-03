@@ -69,6 +69,6 @@ public class TricorneItem extends BaseGeoItem {
         if (shotProfile.magazineContents().count() != shotProfile.gun().magazineCapacity()) {
             return;
         }
-        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(DAMAGE_BUFF_PERCENT, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(DAMAGE_BUFF_PERCENT, ValueModifier.Operation.MULTIPLY_TOTAL));
     }
 }

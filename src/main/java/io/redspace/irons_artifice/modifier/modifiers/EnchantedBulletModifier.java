@@ -24,7 +24,7 @@ public final class EnchantedBulletModifier extends ValueStackModifier {
 
     public EnchantedBulletModifier() {
         super(Map.of(
-                ShotComponents.AMMO_CONSUME_CHANCE, new ValueModifier(-INFINITY_CHANCE, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL)
+                ShotComponents.AMMO_CONSUME_CHANCE, new ValueModifier(-INFINITY_CHANCE, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 

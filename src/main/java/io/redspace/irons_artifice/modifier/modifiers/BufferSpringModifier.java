@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public final class BufferSpringModifier implements GunModifier {
     @Override
     public void apply(ShotComponentMap components) {
-        components.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        components.modifyValue(ShotComponents.CHARACTER_BLOWBACK, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL));
     }
 
     @Override

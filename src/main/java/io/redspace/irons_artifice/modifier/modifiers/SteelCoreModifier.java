@@ -9,7 +9,7 @@ import java.util.Map;
 public final class SteelCoreModifier extends ValueStackModifier {
     public SteelCoreModifier() {
         super(Map.of(
-                ShotComponents.PIERCING, new ValueModifier(2, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.PIERCING, new ValueModifier(2, ValueModifier.Operation.ADD)
         ));
     }
 }

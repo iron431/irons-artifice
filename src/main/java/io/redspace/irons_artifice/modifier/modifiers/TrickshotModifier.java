@@ -12,7 +12,7 @@ import java.util.Map;
 public final class TrickshotModifier extends ValueStackModifier {
     public TrickshotModifier() {
         super(Map.of(
-                ShotComponents.RICOCHET, new ValueModifier(3, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.RICOCHET, new ValueModifier(3, ValueModifier.Operation.ADD)
         ));
     }
 

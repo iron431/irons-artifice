@@ -21,7 +21,7 @@ public final class MechanicalAccelerator implements GunModifier {
 
     @Override
     public void apply(ShotComponentMap components) {
-        components.modifyValue(ShotComponents.ACCELERATING, new ValueModifier(1, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL));
+        components.modifyValue(ShotComponents.ACCELERATING, new ValueModifier(1, ValueModifier.Operation.ADD));
     }
 
     @Override
@@ -38,8 +38,7 @@ public final class MechanicalAccelerator implements GunModifier {
         }
         profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(
                 percent,
-                ValueModifier.Operation.MULTIPLY_TOTAL,
-                ValueModifier.Type.BENEFICIAL
+                ValueModifier.Operation.MULTIPLY_TOTAL
         ));
     }
 

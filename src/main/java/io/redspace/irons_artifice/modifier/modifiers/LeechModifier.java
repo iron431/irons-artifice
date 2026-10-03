@@ -27,7 +27,7 @@ public final class LeechModifier extends ValueStackModifier {
 
     public LeechModifier() {
         super(Map.of(
-                ShotComponents.LEECH, new ValueModifier(1, ValueModifier.Operation.ADD, ValueModifier.Type.NEUTRAL)
+                ShotComponents.LEECH, new ValueModifier(1, ValueModifier.Operation.ADD)
         ));
     }
 
@@ -54,8 +54,7 @@ public final class LeechModifier extends ValueStackModifier {
         profile.modify(ShotComponents.MUZZLE_FLASH, flash -> flash.addTint(MUZZLE_TINT));
         profile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(
                 DAMAGE_BONUS,
-                ValueModifier.Operation.MULTIPLY_TOTAL,
-                ValueModifier.Type.BENEFICIAL
+                ValueModifier.Operation.MULTIPLY_TOTAL
         ));
     }
 

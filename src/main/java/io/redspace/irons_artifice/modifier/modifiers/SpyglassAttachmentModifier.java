@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 public class SpyglassAttachmentModifier extends ValueStackModifier {
     public SpyglassAttachmentModifier() {
         super(Map.of(
-                ShotComponents.SPREAD, new ValueModifier(-1, ValueModifier.Operation.ADD, ValueModifier.Type.HARMFUL)
+                ShotComponents.SPREAD, new ValueModifier(-1, ValueModifier.Operation.ADD)
         ));
     }
 
