@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.client.particle;
 
-import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -30,7 +30,7 @@ public class ImpactBlockParticle extends TerrainParticle {
         super.tick();
         if (this.emitter && blockState != null) {
             if (age < 10) {
-                level.addParticle(new BlockParticleOption(ParticleRegistry.BLOCK_DUST.get(), blockState), x, y, z, xd * 0.5, yd * 0.5, zd * 0.5);
+                level.addParticle(new BlockParticleOption(IronsArtificeRegistries.Particles.BLOCK_DUST.get(), blockState), x, y, z, xd * 0.5, yd * 0.5, zd * 0.5);
             } else {
                 blockState = null;
             }

@@ -7,7 +7,7 @@ import io.redspace.irons_artifice.gun.BlockDamageManager;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -82,7 +82,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
         }
 
         level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL, 2.5f, 1.4f);
-        Utils.spawnParticles(level, new MuzzleFlashParticleOption(ParticleRegistry.EXPLOSION_96.get(), -1, -1, -1), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
+        Utils.spawnParticles(level, new MuzzleFlashParticleOption(IronsArtificeRegistries.Particles.EXPLOSION_96.get(), -1, -1, -1), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
         Utils.spawnParticles(level, ParticleTypes.SMOKE, center.x, center.y, center.z, 8, 0.4, 0.4, 0.4, 0.02, false);
         Utils.spawnParticles(level, ParticleTypes.LAVA, center.x, center.y, center.z, 6, 0.35, 0.35, 0.35, 0.01, false);
     }

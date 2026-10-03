@@ -5,8 +5,7 @@ import io.redspace.irons_artifice.datagen.LoadoutLootProvider;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.mixin.MobAccessor;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -57,7 +56,7 @@ public class DrownedPirateHelper {
                         level.addFreshEntity(pirate);
                     }
                 }
-                level.playSound(null, BlockPos.containing(pos), SoundRegistry.PIRATE_AMBUSH.get(), SoundSource.NEUTRAL, 2.5f, 1);
+                level.playSound(null, BlockPos.containing(pos), IronsArtificeRegistries.Sounds.PIRATE_AMBUSH.get(), SoundSource.NEUTRAL, 2.5f, 1);
                 break;
             }
         }
@@ -66,7 +65,7 @@ public class DrownedPirateHelper {
     public static Drowned createDrownedPirate(ServerLevel level) {
         Drowned drowned = new Drowned(EntityType.DROWNED, level);
         // drop chances intentionally left unchanged
-        drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ItemRegistry.TRICORNE_HAT.get()));
+        drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(IronsArtificeRegistries.Items.TRICORNE_HAT.get()));
         drowned.setItemSlot(EquipmentSlot.MAINHAND, createLoadout(level));
         ((MobAccessor) drowned).setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
         return drowned;

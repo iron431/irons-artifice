@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.datagen;
 import com.geckolib.renderer.internal.GeckolibItemSpecialRenderer;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -34,10 +34,10 @@ public class ItemModelDataGenerator extends ModelProvider {
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        for (var item : ItemRegistry.ITEMS.getEntries()) {
+        for (var item : IronsArtificeRegistries.Items.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
                 Identifier displayParent = GECKOLIB_GUN_DISPLAY;
-                if (item == ItemRegistry.BLACKPOWDER_REVOLVER || item == ItemRegistry.SIX_SHOOTER) {
+                if (item == IronsArtificeRegistries.Items.BLACKPOWDER_REVOLVER || item == IronsArtificeRegistries.Items.SIX_SHOOTER) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
                 gunModel(itemModels, item.get(), displayParent);
@@ -77,7 +77,7 @@ public class ItemModelDataGenerator extends ModelProvider {
     }
 
     private static List<DeferredItem<GunItem>> geckolibGuns() {
-        return ItemRegistry.ITEMS.getEntries().stream()
+        return IronsArtificeRegistries.Items.ITEMS.getEntries().stream()
                 .filter(holder -> holder.get() instanceof GunItem)
                 .map(h -> (DeferredItem<GunItem>) h)
                 .toList();
@@ -90,6 +90,6 @@ public class ItemModelDataGenerator extends ModelProvider {
 
     @Override
     protected Stream<? extends Holder<Item>> getKnownItems() {
-        return ItemRegistry.ITEMS.getEntries().stream().map(holder -> holder);
+        return IronsArtificeRegistries.Items.ITEMS.getEntries().stream().map(holder -> holder);
     }
 }

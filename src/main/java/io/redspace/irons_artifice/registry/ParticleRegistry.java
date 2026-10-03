@@ -1,92 +1,58 @@
 package io.redspace.irons_artifice.registry;
 
-import io.redspace.irons_artifice.IronsArtifice;
-import io.redspace.irons_artifice.client.particle.BulletTrailParticleType;
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
 import io.redspace.irons_artifice.client.particle.FairyDustParticleOption;
-import io.redspace.irons_artifice.client.particle.FairyDustParticleType;
 import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleOption;
-import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleType;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+/**
+ * @deprecated Use {@link IronsArtificeRegistries.Particles}.
+ */
+@Deprecated
 public final class ParticleRegistry {
-    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(Registries.PARTICLE_TYPE, IronsArtifice.MODID);
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<BlockParticleOption>> BLOCK_IMPACT =
-            PARTICLE_TYPES.register("block_impact", () -> new ParticleType<BlockParticleOption>(false) {
-                @Override
-                public MapCodec<BlockParticleOption> codec() {
-                    return BlockParticleOption.codec(this);
-                }
-
-                @Override
-                public StreamCodec<? super RegistryFriendlyByteBuf, BlockParticleOption> streamCodec() {
-                    return BlockParticleOption.streamCodec(this);
-                }
-            });
-    public static final DeferredHolder<ParticleType<?>, ParticleType<BlockParticleOption>> BLOCK_DUST =
-            PARTICLE_TYPES.register("block_dust", () -> new ParticleType<BlockParticleOption>(false) {
-                @Override
-                public MapCodec<BlockParticleOption> codec() {
-                    return BlockParticleOption.codec(this);
-                }
-
-                @Override
-                public StreamCodec<? super RegistryFriendlyByteBuf, BlockParticleOption> streamCodec() {
-                    return BlockParticleOption.streamCodec(this);
-                }
-            });
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> BULLET_TRAIL =
-            PARTICLE_TYPES.register("bullet_trail", () -> new BulletTrailParticleType(false));
-
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> BULLET_IMPACT =
-            PARTICLE_TYPES.register("bullet_impact", () -> new BulletTrailParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_LARGE =
-            PARTICLE_TYPES.register("muzzle_flash_large", () -> new MuzzleFlashParticleType(false));
-    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_TRIANGLE =
-            PARTICLE_TYPES.register("muzzle_flash_triangle", () -> new MuzzleFlashParticleType(false));
-    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_SMALL_STAR =
-            PARTICLE_TYPES.register("muzzle_flash_small_star", () -> new MuzzleFlashParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> EXPLOSION_96 =
-            PARTICLE_TYPES.register("explosion", () -> new MuzzleFlashParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> LIGHTNING_TRAIL =
-            PARTICLE_TYPES.register("lightning_trail", () -> new BulletTrailParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> FIRE_TRAIL =
-            PARTICLE_TYPES.register("fire_trail", () -> new BulletTrailParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<FairyDustParticleOption>> FAIRY_DUST =
-            PARTICLE_TYPES.register("fairy_dust", () -> new FairyDustParticleType(false));
-
-    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> SPLASH =
-            PARTICLE_TYPES.register("splash", () -> new ParticleType<ColorParticleOption>(false) {
-                @Override
-                public MapCodec<ColorParticleOption> codec() {
-                    return ColorParticleOption.codec(this);
-                }
-
-                @Override
-                public StreamCodec<? super RegistryFriendlyByteBuf, ColorParticleOption> streamCodec() {
-                    return ColorParticleOption.streamCodec(this);
-                }
-            });
-
-    public static void register(IEventBus modEventBus) {
-        PARTICLE_TYPES.register(modEventBus);
+    private ParticleRegistry() {
     }
+
+    @Deprecated
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = IronsArtificeRegistries.Particles.PARTICLE_TYPES;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<BlockParticleOption>> BLOCK_IMPACT = IronsArtificeRegistries.Particles.BLOCK_IMPACT;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<BlockParticleOption>> BLOCK_DUST = IronsArtificeRegistries.Particles.BLOCK_DUST;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> BULLET_TRAIL = IronsArtificeRegistries.Particles.BULLET_TRAIL;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> BULLET_IMPACT = IronsArtificeRegistries.Particles.BULLET_IMPACT;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_LARGE = IronsArtificeRegistries.Particles.MUZZLE_FLASH_LARGE;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_TRIANGLE = IronsArtificeRegistries.Particles.MUZZLE_FLASH_TRIANGLE;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_SMALL_STAR = IronsArtificeRegistries.Particles.MUZZLE_FLASH_SMALL_STAR;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> EXPLOSION_96 = IronsArtificeRegistries.Particles.EXPLOSION_96;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> LIGHTNING_TRAIL = IronsArtificeRegistries.Particles.LIGHTNING_TRAIL;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorTransitionParticleOption>> FIRE_TRAIL = IronsArtificeRegistries.Particles.FIRE_TRAIL;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<FairyDustParticleOption>> FAIRY_DUST = IronsArtificeRegistries.Particles.FAIRY_DUST;
+
+    @Deprecated
+    public static final DeferredHolder<ParticleType<?>, ParticleType<ColorParticleOption>> SPLASH = IronsArtificeRegistries.Particles.SPLASH;
 }

@@ -11,7 +11,9 @@ import net.minecraft.util.Unit;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class DataComponentRegistry {
     public static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, IronsArtifice.MODID);

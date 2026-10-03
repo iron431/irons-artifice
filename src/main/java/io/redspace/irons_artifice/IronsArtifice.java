@@ -4,15 +4,11 @@ import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.events.CommonSetup;
 import io.redspace.irons_artifice.network.PayloadRegistry;
-import io.redspace.irons_artifice.registry.AttributeRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import io.redspace.irons_artifice.registry.MenuRegistry;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -36,23 +32,23 @@ public class IronsArtifice {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.irons_artifice"))
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> ItemRegistry.FLINTLOCK_PISTOL.get().getDefaultInstance())
+            .icon(() -> IronsArtificeRegistries.Items.FLINTLOCK_PISTOL.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                for (var i : ItemRegistry.ITEMS.getEntries()) {
+                for (var i : IronsArtificeRegistries.Items.ITEMS.getEntries()) {
                     output.accept(i.get());
                 }
             }).build());
 
     public IronsArtifice(IEventBus modEventBus, ModContainer modContainer) {
-        AttributeRegistry.register(modEventBus);
+        IronsArtificeRegistries.Attributes.register(modEventBus);
         CriterionRegistry.register(modEventBus);
-        ItemRegistry.register(modEventBus);
+        IronsArtificeRegistries.Items.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
-        EntityRegistry.register(modEventBus);
+        IronsArtificeRegistries.Entities.register(modEventBus);
         MenuRegistry.register(modEventBus);
         DataAttachmentRegistry.register(modEventBus);
-        ParticleRegistry.register(modEventBus);
-        SoundRegistry.register(modEventBus);
+        IronsArtificeRegistries.Particles.register(modEventBus);
+        IronsArtificeRegistries.Sounds.register(modEventBus);
         modEventBus.addListener(PayloadRegistry::register);
         modEventBus.addListener(CommonSetup::entityAttributes);
         modEventBus.addListener(CommonSetup::buildCreativeTabs);

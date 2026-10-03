@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -41,7 +41,7 @@ public final class EnchantedBulletModifier extends ValueStackModifier {
         var shooter = event.getEntity();
         if (!shouldConsumeAmmoForEnchantedBullet(shooter, event.getShotProfile())) {
             event.setCanceled(true);
-            PlayableSound.of(SoundRegistry.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
+            PlayableSound.of(IronsArtificeRegistries.Sounds.INFINITY_BULLET, 1, 0.9f, 1.1f).play(shooter.level(), shooter.position(), SoundSource.NEUTRAL);
             if (shooter instanceof Player player) {
                 player.sendOverlayMessage(Component.translatable("irons_artifice.tooltip.refunded_ammo", event.getAmmoToConsume()).withStyle(ChatFormatting.LIGHT_PURPLE));
             }

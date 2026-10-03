@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.entity;
 
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -69,7 +69,7 @@ public class ChainEntity extends Entity {
     }
 
     public ChainEntity(Level level, LivingEntity first, LivingEntity second) {
-        this(EntityRegistry.CHAIN.get(), level);
+        this(IronsArtificeRegistries.Entities.CHAIN.get(), level);
         setFirst(first);
         setSecond(second);
         setPos(midpoint(first, second));

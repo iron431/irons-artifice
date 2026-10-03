@@ -1,8 +1,7 @@
 package io.redspace.irons_artifice.datagen;
 
 import io.redspace.irons_artifice.IronsArtifice;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.EntityLootSubProvider;
@@ -32,12 +31,12 @@ public class EntityLootProvider extends EntityLootSubProvider {
 
     @Override
     protected Stream<EntityType<?>> getKnownEntityTypes() {
-        return Stream.of(EntityRegistry.ILLIFICER.get());
+        return Stream.of(IronsArtificeRegistries.Entities.ILLIFICER.get());
     }
 
     @Override
     public void generate() {
-        this.add(EntityRegistry.ILLIFICER.get(), LootTable.lootTable()
+        this.add(IronsArtificeRegistries.Entities.ILLIFICER.get(), LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.EMERALD)
@@ -47,7 +46,7 @@ public class EntityLootProvider extends EntityLootSubProvider {
                 )
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(ItemRegistry.BLACKPOWDER.get())
+                        .add(LootItem.lootTableItem(IronsArtificeRegistries.Items.BLACKPOWDER.get())
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
                                 .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
                                         this.registries, UniformGenerator.between(0.0F, 1.0F))))
@@ -68,7 +67,7 @@ public class EntityLootProvider extends EntityLootSubProvider {
                         .add(NestedLootTable.lootTableReference(EntityType.DROWNED.getDefaultLootTable().orElseThrow())))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
-                        .add(LootItem.lootTableItem(ItemRegistry.BLACKPOWDER.get())
+                        .add(LootItem.lootTableItem(IronsArtificeRegistries.Items.BLACKPOWDER.get())
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 6.0F)))
                                 .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
                                         this.registries, UniformGenerator.between(0.0F, 1.0F)))))

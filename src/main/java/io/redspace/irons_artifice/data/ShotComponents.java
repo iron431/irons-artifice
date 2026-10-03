@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.data.ComponentType.Sentiment;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.modifier.OnHitEffects;
 import io.redspace.irons_artifice.modifier.PostHitEffects;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import net.minecraft.sounds.SoundEvents;
 
 import java.util.Optional;
@@ -49,7 +49,7 @@ public final class ShotComponents {
             GunShotSoundSettings.of(SoundEvents.FIREWORK_ROCKET_BLAST, 0.9f, 1.1f, -1f, 0f, 48f),
             PlayableSound.of(PlayableSound.holder(SoundEvents.DISPENSER_FAIL), 0.75f, 1.4f, 1.6f)));
     public static final ComponentType<ImpactSoundStack> IMPACT_SOUND = new ComponentType<>(IronsArtifice.id("impact_sound"), () -> new ImpactSoundStack(
-            Optional.of(PlayableSound.of(SoundRegistry.BULLET_IMPACT_GENERIC, 2f, .8f, 1.2f)), Optional.empty()
+            Optional.of(PlayableSound.of(IronsArtificeRegistries.Sounds.BULLET_IMPACT_GENERIC, 2f, .8f, 1.2f)), Optional.empty()
     ));
     public static final ComponentType<ParticleStack> PARTICLE_TRAIL = new ComponentType<>(IronsArtifice.id("particle_trail"), ParticleStack::new);
     public static final ComponentType<MuzzleFlashSettings> MUZZLE_FLASH = new ComponentType<>(IronsArtifice.id("muzzle_flash"), MuzzleFlashSettings.DEFAULT);

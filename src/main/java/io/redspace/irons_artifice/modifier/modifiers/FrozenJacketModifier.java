@@ -22,7 +22,7 @@ public final class FrozenJacketModifier implements GunModifier {
                 FrozenShrapnelOnHit.TRAIL_COLOR_FROM, FrozenShrapnelOnHit.TRAIL_COLOR_TO
         ));
         components.getOrCreate(ShotComponents.MUZZLE_FLASH).addTint(MUZZLE_TINT);
-//        components.getOrCreate(ShotComponents.GUNSHOT_SOUND).addAccent(PlayableSound.of(SoundRegistry.FROZEN_JACKET_ACCENT_SHOOT, 3f, 0.9f, 1.1f));
+//        components.getOrCreate(ShotComponents.GUNSHOT_SOUND).addAccent(PlayableSound.of(IronsArtificeRegistries.Sounds.FROZEN_JACKET_ACCENT_SHOOT, 3f, 0.9f, 1.1f));
     }
 
     @Override

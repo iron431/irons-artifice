@@ -9,8 +9,7 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeRegistries;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -56,7 +55,7 @@ public class FrozenShrapnelOnHit implements OnHitEffect {
         for (int i = 0; i < SHRAPNEL_COUNT; i++) {
             Vec3 direction = Utils.directionWithinCone(axis, CONE_HALF_ANGLE_DEG, random);
             ShotProfile childProfile = createChildProfile(parentProfile, childDamage);
-            Bullet child = new Bullet(EntityRegistry.BULLET.get(), level);
+            Bullet child = new Bullet(IronsArtificeRegistries.Entities.BULLET.get(), level);
             child.setOwner(bullet.getOwner());
             child.applyProfile(childProfile);
             if (bullet.getShotRecord() != null) {
@@ -80,7 +79,7 @@ public class FrozenShrapnelOnHit implements OnHitEffect {
         components.set(ShotComponents.BULLET_DRAG, Value.of(DRAG));
         ParticleStack trail = new ParticleStack();
         trail.add(new ColorTransitionParticleOption(
-                ParticleRegistry.BULLET_TRAIL.get(), TRAIL_COLOR_FROM, TRAIL_COLOR_TO, 1f, 0f, 1f, 1f, 0.45f, 0f, 0
+                IronsArtificeRegistries.Particles.BULLET_TRAIL.get(), TRAIL_COLOR_FROM, TRAIL_COLOR_TO, 1f, 0f, 1f, 1f, 0.45f, 0f, 0
         ));
         components.set(ShotComponents.PARTICLE_TRAIL, trail);
         components.getOrCreate(ShotComponents.ON_HIT).remove(FrozenShrapnelOnHit.class);
