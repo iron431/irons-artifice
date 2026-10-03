@@ -1,10 +1,13 @@
 package io.redspace.irons_artifice.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.client.compat.IrisHelper;
 import io.redspace.irons_artifice.data.ParticleBurst;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -14,6 +17,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -32,6 +36,10 @@ public final class MuzzleFlashEmitter {
     }
 
     public static void tryEmit(int entityId, PoseStack poseStack) {
+        // The shadow map is drawn from the sun's point of view, so its poses do not map back to the world.
+        if (IrisHelper.isRenderingShadowPass()) {
+            return;
+        }
         ClientboundMuzzleFlashPacket packet = PENDING.remove(entityId);
         if (packet == null) {
             return;
@@ -58,13 +66,19 @@ public final class MuzzleFlashEmitter {
     }
 
     private static Vec3 worldPosFromBone(PoseStack poseStack, float extraForwardOffset) {
-        Vector3f origin = poseStack.last().pose().transformPosition(new Vector3f());
-        Vector3f forward = poseStack.last().pose().transformDirection(new Vector3f(0f, 0f, -1f));
+        // Model view times pose always lands in camera space, however a renderer splits the camera rotation between
+        // the two. Undoing the camera rotation then gives the offset from the camera in world space.
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Matrix4f poseToWorld = new Matrix4f()
+                .rotation(camera.rotation())
+                .mul(RenderSystem.getModelViewMatrix())
+                .mul(poseStack.last().pose());
+        Vector3f origin = poseToWorld.transformPosition(new Vector3f());
+        Vector3f forward = poseToWorld.transformDirection(new Vector3f(0f, 0f, -1f));
         if (forward.lengthSquared() > 1.0e-6f) {
             forward.normalize();
         }
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-        return camera.add(origin.x, origin.y, origin.z)
+        return camera.position().add(origin.x, origin.y, origin.z)
                 .add(forward.x * extraForwardOffset, forward.y * extraForwardOffset, forward.z * extraForwardOffset);
     }
 
