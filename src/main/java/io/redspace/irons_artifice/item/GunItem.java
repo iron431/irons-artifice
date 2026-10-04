@@ -20,6 +20,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
+import io.redspace.irons_artifice.utils.MinecraftInstanceHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -189,7 +190,7 @@ public class GunItem extends BaseGeoItem {
         Consumer<Component> builder = tooltipComponents::add;
         Consumer<Component> statBuilder = (component) -> builder.accept(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
-        ShotProfile shotProfile = GunplayManager.compose(null, this.gunProfile, itemStack);
+        ShotProfile shotProfile = GunplayManager.compose(MinecraftInstanceHelper.getPlayer(), this.gunProfile, itemStack);
         String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
         int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
         int bulletSpeedPercent = (int) (100 * shotProfile.value(ShotComponents.BULLET_SPEED) / Bullet.BASE_SPEED);
