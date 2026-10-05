@@ -43,6 +43,7 @@ public final class ShotComponents {
     public static final ComponentType<Value> LEECH = new ComponentType<>(IronsArtifice.id("leech"), () -> Value.of(0));
     public static final ComponentType<Value> SOUL_CHANCE = new ComponentType<>(IronsArtifice.id("soul_chance"), () -> Value.of(0));
     public static final ComponentType<SoulToken> SOUL_TOKEN = new ComponentType<>(IronsArtifice.id("soul_token"), SoulToken::spent);
+    public static final ComponentType<Value> SOUL_DAMAGE = new ComponentType<>(IronsArtifice.id("soul_damage"), () -> Value.of(0));
 
     // UX/VFX
     public static final ComponentType<RecoilProfile> CAMERA_RECOIL = new ComponentType<>(IronsArtifice.id("camera_recoil"), () -> RecoilProfile.simple(10, 0));

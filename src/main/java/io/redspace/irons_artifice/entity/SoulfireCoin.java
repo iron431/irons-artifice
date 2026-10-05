@@ -2,10 +2,10 @@ package io.redspace.irons_artifice.entity;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.api.BulletImpactEvent;
+import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
-import io.redspace.irons_artifice.data.Value;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.modifier.PostHitEffects;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulFirePostHit;
@@ -30,6 +30,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
@@ -75,6 +77,16 @@ public class SoulfireCoin extends Entity {
     }
 
     @SubscribeEvent
+    public static void onDamage(LivingIncomingDamageEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel serverLevel && event.getSource().getDirectEntity() instanceof Bullet bullet && !event.getSource().is(DamageSources.SOUL_DAMAGE_TYPE)) {
+            double soulDamage = bullet.getProfile().components().getOrDefault(ShotComponents.SOUL_DAMAGE).compute();
+            if (soulDamage > 0) {
+                event.getEntity().hurtServer(serverLevel, DamageSources.soul(serverLevel, bullet, bullet.getOwner()), (float) (soulDamage * event.getAmount()));
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onBulletImpact(BulletImpactEvent event) {
         if (!(event.getRayTraceResult() instanceof EntityHitResult hit) || !(hit.getEntity() instanceof SoulfireCoin soulfireCoin)) {
             return;
@@ -109,9 +121,7 @@ public class SoulfireCoin extends Entity {
     private static void empower(Bullet bullet) {
         ShotComponentMap components = bullet.getProfile().components();
 
-        Value damage = components.getOrDefault(ShotComponents.DAMAGE).copy();
-        damage.addModifier(new ValueModifier(DAMAGE_BONUS, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
-        components.set(ShotComponents.DAMAGE, damage);
+        components.getOrCreate(ShotComponents.SOUL_DAMAGE).addModifier(new ValueModifier(DAMAGE_BONUS, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL));
 
         PostHitEffects postHit = components.getOrDefault(ShotComponents.POST_HIT_EFFECTS).copy();
         postHit.getOrCreate(SoulFirePostHit.class, () -> new SoulFirePostHit(SOUL_FIRE_TICKS));
