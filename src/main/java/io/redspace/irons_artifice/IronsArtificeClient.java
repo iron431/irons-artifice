@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
 import io.redspace.irons_artifice.client.entity.GunslingerRenderer;
 import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
-import io.redspace.irons_artifice.client.gui.ClientBulletPouchTooltip;
+import io.redspace.irons_artifice.client.gui.ClientBulletContainerItemTooltip;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
@@ -26,7 +26,7 @@ import io.redspace.irons_artifice.client.particle.SplashParticle;
 import io.redspace.irons_artifice.client.gun.GunArmPoses;
 import io.redspace.irons_artifice.client.particle.TintedExplosionParticle;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
-import io.redspace.irons_artifice.item.BulletPouchTooltip;
+import io.redspace.irons_artifice.item.BulletContainerTooltip;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunModifierScreen;
 import io.redspace.irons_artifice.modifier.modifiers.BayonetAttachmentModifier;
@@ -168,7 +168,7 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
-        event.register(BulletPouchTooltip.class, tooltip -> new ClientBulletPouchTooltip(tooltip.contents()));
+        event.register(BulletContainerTooltip.class, tooltip -> new ClientBulletContainerItemTooltip(tooltip.contents()));
     }
 
     @SubscribeEvent

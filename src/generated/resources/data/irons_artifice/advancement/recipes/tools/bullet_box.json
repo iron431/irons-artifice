@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "irons_artifice:bullet_pouch"
+        "recipe": "irons_artifice:bullet_box"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "irons_artifice:bullet_pouch"
+      "irons_artifice:bullet_box"
     ]
   }
 }

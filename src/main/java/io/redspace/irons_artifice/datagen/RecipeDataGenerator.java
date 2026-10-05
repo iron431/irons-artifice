@@ -63,14 +63,14 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('^', ItemRegistry.BLACKPOWDER.get())
                 .unlockedBy("has_blackpowder", this.has(ItemRegistry.BLACKPOWDER))
                 .save(this.output, recipeId("bullet_from_copper"));
-        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.TOOLS, ItemRegistry.BULLET_POUCH.get())
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.TOOLS, ItemRegistry.BULLET_BOX.get())
+                .pattern("###")
                 .pattern("***")
-                .pattern("***")
-                .pattern("LLL")
+                .pattern("###")
                 .define('*', ItemRegistry.BULLET)
-                .define('L', Items.LEATHER)
+                .define('#', commonTag("ingots/gold"))
                 .unlockedBy("has_bullet", this.has(ItemRegistry.BULLET))
-                .save(this.output, recipeId("bullet_pouch"));
+                .save(this.output);
         /* **********************************
          * Armor
          ********************************** */

@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.mixin;
 
-import io.redspace.irons_artifice.client.gui.BulletPouchMouseActions;
+import io.redspace.irons_artifice.client.gui.BulletContainerMouseActions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ItemSlotMouseAction;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,6 +17,6 @@ public abstract class AbstractContainerScreenMixin {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void irons_artifice$addPouchMouseAction(CallbackInfo ci) {
-        this.addItemSlotMouseAction(new BulletPouchMouseActions(Minecraft.getInstance()));
+        this.addItemSlotMouseAction(new BulletContainerMouseActions(Minecraft.getInstance()));
     }
 }

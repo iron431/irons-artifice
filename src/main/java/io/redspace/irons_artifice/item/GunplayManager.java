@@ -377,8 +377,8 @@ public final class GunplayManager {
             ItemStack stack = inventory.getItem(i);
             if (stack.is(IronsArtificeTags.AMMO)) {
                 total += stack.getCount();
-            } else if (stack.getItem() instanceof BulletPouchItem) {
-                total += BulletPouchItem.count(stack);
+            } else if (stack.getItem() instanceof BulletContainerItem) {
+                total += BulletContainerItem.count(stack);
             }
         }
         return total;
@@ -397,8 +397,8 @@ public final class GunplayManager {
         }
         for (int i = 0; i < inventory.getContainerSize() && remaining > 0; i++) {
             ItemStack stack = inventory.getItem(i);
-            if (stack.getItem() instanceof BulletPouchItem) {
-                remaining -= BulletPouchItem.drain(stack, remaining);
+            if (stack.getItem() instanceof BulletContainerItem) {
+                remaining -= BulletContainerItem.drain(stack, remaining);
             }
         }
     }

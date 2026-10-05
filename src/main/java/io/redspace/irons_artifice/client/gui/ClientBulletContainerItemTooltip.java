@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.client.gui;
 
-import io.redspace.irons_artifice.item.BulletPouchContents;
+import io.redspace.irons_artifice.item.BulletContainerContents;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.List;
 
-public class ClientBulletPouchTooltip implements ClientTooltipComponent {
+public class ClientBulletContainerItemTooltip implements ClientTooltipComponent {
     private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/bundle/slot_highlight_back");
     private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/bundle/slot_highlight_front");
     private static final Identifier SLOT_BACKGROUND_SPRITE = Identifier.withDefaultNamespace("container/bundle/slot_background");
@@ -27,9 +27,9 @@ public class ClientBulletPouchTooltip implements ClientTooltipComponent {
     private static final int LINE_HEIGHT = 9;
     private static final int DESCRIPTION_COLOR = 0xFFAAAAAA;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
-    private final BulletPouchContents contents;
+    private final BulletContainerContents contents;
 
-    public ClientBulletPouchTooltip(BulletPouchContents contents) {
+    public ClientBulletContainerItemTooltip(BulletContainerContents contents) {
         this.contents = contents;
     }
 
@@ -126,7 +126,7 @@ public class ClientBulletPouchTooltip implements ClientTooltipComponent {
     }
 
     private Component emptyDescription() {
-        return Component.translatable("item.irons_artifice.bullet_pouch.empty.description", contents.capacity());
+        return Component.translatable("irons_artifice.tooltip.bullet_container.description", contents.capacity());
     }
 
     private int emptyDescriptionHeight(Font font) {

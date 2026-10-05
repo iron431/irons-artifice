@@ -26,17 +26,17 @@ import net.minecraft.world.level.Level;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class BulletPouchItem extends Item {
-    private static final BulletPouchContents MISSING_CONTENTS = BulletPouchContents.empty(0);
+public class BulletContainerItem extends Item {
+    private static final BulletContainerContents MISSING_CONTENTS = BulletContainerContents.empty(0);
 
-    public BulletPouchItem(Properties properties, int capacity) {
+    public BulletContainerItem(Properties properties, int capacity) {
         super(properties
                 .stacksTo(1)
-                .component(DataComponentRegistry.BULLET_POUCH, BulletPouchContents.empty(capacity))
+                .component(DataComponentRegistry.BULLET_POUCH, BulletContainerContents.empty(capacity))
         );
     }
 
-    public static BulletPouchContents contents(ItemStack pouch) {
+    public static BulletContainerContents contents(ItemStack pouch) {
         return pouch.getOrDefault(DataComponentRegistry.BULLET_POUCH.get(), MISSING_CONTENTS);
     }
 
@@ -52,7 +52,7 @@ public class BulletPouchItem extends Item {
         return contents(pouch).selectedIndex();
     }
 
-    private static void write(ItemStack pouch, BulletPouchContents.Mutable mutable) {
+    private static void write(ItemStack pouch, BulletContainerContents.Mutable mutable) {
         pouch.set(DataComponentRegistry.BULLET_POUCH.get(), mutable.toImmutable());
     }
 
@@ -60,8 +60,8 @@ public class BulletPouchItem extends Item {
         int moved = 0;
         for (int i = 0; i < inventory.getContainerSize() && !source.isEmpty(); i++) {
             ItemStack stack = inventory.getItem(i);
-            if (stack.getItem() instanceof BulletPouchItem && stack.getCount() == 1) {
-                BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(stack));
+            if (stack.getItem() instanceof BulletContainerItem && stack.getCount() == 1) {
+                BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(stack));
                 moved += contents.insert(source);
                 write(stack, contents);
             }
@@ -73,14 +73,14 @@ public class BulletPouchItem extends Item {
         if (pouch.getCount() != 1) {
             return 0;
         }
-        BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(pouch));
+        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
         int removed = contents.drain(amount);
         write(pouch, contents);
         return removed;
     }
 
     public static void toggleSelected(ItemStack pouch, int index) {
-        BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(pouch));
+        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
         contents.toggleSelected(index);
         write(pouch, contents);
     }
@@ -91,8 +91,8 @@ public class BulletPouchItem extends Item {
             return false;
         }
         ItemStack other = slot.getItem();
-        BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(pouch));
-        if (action == ClickAction.PRIMARY && BulletPouchContents.accepts(other)) {
+        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
+        if (action == ClickAction.PRIMARY && BulletContainerContents.accepts(other)) {
             int room = contents.room();
             ItemStack taken = room > 0 ? slot.safeTake(other.getCount(), room, player) : ItemStack.EMPTY;
             boolean inserted = contents.insert(taken) > 0;
@@ -122,8 +122,8 @@ public class BulletPouchItem extends Item {
         if (pouch.getCount() != 1) {
             return false;
         }
-        BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(pouch));
-        if (action == ClickAction.PRIMARY && BulletPouchContents.accepts(carried)) {
+        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
+        if (action == ClickAction.PRIMARY && BulletContainerContents.accepts(carried)) {
             boolean inserted = slot.allowModification(player) && contents.insert(carried) > 0;
             write(pouch, contents);
             playSound(player, inserted ? SoundEvents.BUNDLE_INSERT : SoundEvents.BUNDLE_INSERT_FAIL);
@@ -139,7 +139,7 @@ public class BulletPouchItem extends Item {
             playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
             return true;
         }
-        toggleSelected(pouch, BulletPouchContents.NO_SELECTION);
+        toggleSelected(pouch, BulletContainerContents.NO_SELECTION);
         return false;
     }
 
@@ -149,7 +149,7 @@ public class BulletPouchItem extends Item {
         if (pouch.getCount() != 1) {
             return InteractionResult.PASS;
         }
-        BulletPouchContents.Mutable contents = new BulletPouchContents.Mutable(contents(pouch));
+        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
         ItemStack removed = contents.removeOne();
         if (removed.isEmpty()) {
             return InteractionResult.PASS;
@@ -173,7 +173,7 @@ public class BulletPouchItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack pouch) {
-        BulletPouchContents contents = contents(pouch);
+        BulletContainerContents contents = contents(pouch);
         if (contents.capacity() <= 0) {
             return 0;
         }
@@ -193,7 +193,7 @@ public class BulletPouchItem extends Item {
     @Override
     public void appendHoverText(ItemStack pouch, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         super.appendHoverText(pouch, context, display, builder, flag);
-        BulletPouchContents contents = contents(pouch);
+        BulletContainerContents contents = contents(pouch);
         builder.accept(Component.translatable("irons_artifice.tooltip.bullet_pouch", contents.count(), contents.capacity()).withStyle(ChatFormatting.GRAY));
     }
 
@@ -203,13 +203,13 @@ public class BulletPouchItem extends Item {
         if (!display.shows(DataComponentRegistry.BULLET_POUCH.get())) {
             return Optional.empty();
         }
-        return Optional.of(new BulletPouchTooltip(contents(pouch)));
+        return Optional.of(new BulletContainerTooltip(contents(pouch)));
     }
 
     @Override
     public void onDestroyed(ItemEntity entity) {
-        BulletPouchContents contents = contents(entity.getItem());
-        entity.getItem().set(DataComponentRegistry.BULLET_POUCH.get(), BulletPouchContents.empty(contents.capacity()));
+        BulletContainerContents contents = contents(entity.getItem());
+        entity.getItem().set(DataComponentRegistry.BULLET_POUCH.get(), BulletContainerContents.empty(contents.capacity()));
         ItemUtils.onContainerDestroyed(entity, contents.copies());
     }
 }

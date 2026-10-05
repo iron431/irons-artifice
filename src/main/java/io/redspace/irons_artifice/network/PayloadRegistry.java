@@ -11,7 +11,7 @@ import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundOpenModifierMenuPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundReloadGunPacket;
-import io.redspace.irons_artifice.network.packets.ServerboundSelectPouchItemPacket;
+import io.redspace.irons_artifice.network.packets.ServerboundSelectBulletContainerItemPacket;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -37,9 +37,9 @@ public final class PayloadRegistry {
                 ServerboundReloadGunPacket::handle
         );
         registrar.playToServer(
-                ServerboundSelectPouchItemPacket.TYPE,
-                ServerboundSelectPouchItemPacket.STREAM_CODEC,
-                ServerboundSelectPouchItemPacket::handle
+                ServerboundSelectBulletContainerItemPacket.TYPE,
+                ServerboundSelectBulletContainerItemPacket.STREAM_CODEC,
+                ServerboundSelectBulletContainerItemPacket::handle
         );
 
         registrar.playToClient(

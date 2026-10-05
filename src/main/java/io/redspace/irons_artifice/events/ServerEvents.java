@@ -6,8 +6,8 @@ import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.DrownedPirateHelper;
-import io.redspace.irons_artifice.item.BulletPouchContents;
-import io.redspace.irons_artifice.item.BulletPouchItem;
+import io.redspace.irons_artifice.item.BulletContainerContents;
+import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
@@ -111,11 +111,11 @@ public class ServerEvents {
         Player player = event.getPlayer();
         UUID target = itemEntity.getTarget();
         boolean claimable = target == null || target.equals(player.getUUID());
-        if (itemEntity.hasPickUpDelay() || !claimable || !BulletPouchContents.accepts(bullets)) {
+        if (itemEntity.hasPickUpDelay() || !claimable || !BulletContainerContents.accepts(bullets)) {
             return;
         }
         ItemStack original = bullets.copy();
-        int moved = BulletPouchItem.storeInPouches(player.getInventory(), bullets);
+        int moved = BulletContainerItem.storeInPouches(player.getInventory(), bullets);
         if (moved <= 0) {
             return;
         }

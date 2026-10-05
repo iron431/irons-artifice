@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "irons_artifice:item/bullet_pouch"
+    "layer0": "irons_artifice:item/bullet_box"
   }
 }

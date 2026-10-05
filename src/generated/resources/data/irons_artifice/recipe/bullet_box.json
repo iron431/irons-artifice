@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "*": "irons_artifice:bullet",
-    "L": "minecraft:leather"
+    "#": "#c:ingots/gold",
+    "*": "irons_artifice:bullet"
   },
   "pattern": [
+    "###",
     "***",
-    "***",
-    "LLL"
+    "###"
   ],
   "result": {
-    "id": "irons_artifice:bullet_pouch"
+    "id": "irons_artifice:bullet_box"
   }
 }

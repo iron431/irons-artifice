@@ -16,36 +16,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class BulletPouchContents {
+public final class BulletContainerContents {
     public static final int NO_SELECTION = -1;
     private static final int GRID_CELLS = 12;
     private static final int GRID_COLUMNS = 4;
-    public static final Codec<BulletPouchContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(BulletPouchContents::capacity),
-            ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletPouchContents::stacks)
-    ).apply(instance, BulletPouchContents::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, BulletPouchContents> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, BulletPouchContents::capacity,
-            ItemStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()), BulletPouchContents::stacks,
-            BulletPouchContents::new
+    public static final Codec<BulletContainerContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(BulletContainerContents::capacity),
+            ItemStackTemplate.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletContainerContents::stacks)
+    ).apply(instance, BulletContainerContents::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, BulletContainerContents> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, BulletContainerContents::capacity,
+            ItemStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()), BulletContainerContents::stacks,
+            BulletContainerContents::new
     );
 
     private final int capacity;
     private final List<ItemStackTemplate> stacks;
     private final int selectedIndex;
 
-    public BulletPouchContents(int capacity, List<ItemStackTemplate> stacks) {
+    public BulletContainerContents(int capacity, List<ItemStackTemplate> stacks) {
         this(capacity, stacks, NO_SELECTION);
     }
 
-    private BulletPouchContents(int capacity, List<ItemStackTemplate> stacks, int selectedIndex) {
+    private BulletContainerContents(int capacity, List<ItemStackTemplate> stacks, int selectedIndex) {
         this.capacity = capacity;
         this.stacks = List.copyOf(stacks);
         this.selectedIndex = selectedIndex;
     }
 
-    public static BulletPouchContents empty(int capacity) {
-        return new BulletPouchContents(capacity, List.of());
+    public static BulletContainerContents empty(int capacity) {
+        return new BulletContainerContents(capacity, List.of());
     }
 
     public static boolean accepts(ItemStack stack) {
@@ -97,7 +97,7 @@ public final class BulletPouchContents {
 
     @Override
     public boolean equals(Object other) {
-        return this == other || other instanceof BulletPouchContents contents && capacity == contents.capacity && stacks.equals(contents.stacks);
+        return this == other || other instanceof BulletContainerContents contents && capacity == contents.capacity && stacks.equals(contents.stacks);
     }
 
     @Override
@@ -115,7 +115,7 @@ public final class BulletPouchContents {
         private final List<ItemStack> stacks = new ArrayList<>();
         private int selectedIndex;
 
-        public Mutable(BulletPouchContents contents) {
+        public Mutable(BulletContainerContents contents) {
             capacity = contents.capacity;
             for (ItemStackTemplate template : contents.stacks) {
                 ItemStack stack = template.create();
@@ -213,12 +213,12 @@ public final class BulletPouchContents {
             return index >= 0 && index < stacks.size();
         }
 
-        public BulletPouchContents toImmutable() {
+        public BulletContainerContents toImmutable() {
             List<ItemStackTemplate> templates = new ArrayList<>(stacks.size());
             for (ItemStack stack : stacks) {
                 templates.add(ItemStackTemplate.fromNonEmptyStack(stack));
             }
-            return new BulletPouchContents(capacity, templates, selectedIndex);
+            return new BulletContainerContents(capacity, templates, selectedIndex);
         }
     }
 }
