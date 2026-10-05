@@ -17,9 +17,9 @@ import java.util.function.Consumer;
 
 public final class SoulfireCoinModifier implements GunModifier {
     public static final double SOUL_CHANCE = 0.50;
-    public static final int TRAIL_COLOR_FROM = 0x8aeafb;
+    public static final int TRAIL_COLOR_FROM = 0x60f5fa;
     public static final int TRAIL_COLOR_TO = 0x492f9c;
-    public static final int MUZZLEFLASH = 0x99d7ff;
+    public static final int MUZZLEFLASH = 0x60f5fa;
 
     @Override
     public void apply(ShotComponentMap components) {
