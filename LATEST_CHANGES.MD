@@ -1,7 +1,20 @@
+### Additions
+- Added Soulfire Coin Modifier
+  - Chance to create a Soul-Empowering Coin on hit
+- Added Bullet Box item
+  - Can store up to 256 Bullets, like a bundle
+- Added Korean translations, thanks to spongebob98636e
+
 ### Changes
-- Updated Russian localization, thanks to nestter
-- Updated Ukraine localization, thanks to Starman
-- Updated Chinese localization, thanks to 1mtwtfss1
-- Recipe for Hair Trigger now requires 2 Copper Ingots instead of a Breeze Rod
-- Recipe for Gun Oil now requires Simple Mechanical Components, instead of regular Mechanical Components
-- Added the Bullet Pouch: holds up to 256 bullets, feeds reloads, and collects bullets you pick up
+- Blackpowder Charge Modifier now stacks explicitly, gaining +1 Radius for each additional modifier
+
+### Fixes
+- Fixed Muzzle Flash spawning when using shaders
+- (1.21.1) Fixed attachment rendering when using shaders
+
+### API
+- Added `SimpleMobEffectPostHit`, a generic handler for applying mob effects as a `PostHitEffect`
+- Added `ShotComponents.ON_SHOT` component, of type `OnShotEffects`, which is a stack of `OnShotEffect`
+  - Added `OnShotEffect` handler, giving `void onShot(ServerLevel level, LivingEntity shooter, ShotProfile profile);` whenever the gun shoots
+- Added `BulletContainerItem` and related bundle-like handling classes
+  - Added `BulletContainerContents`, a resizable bundle-like item component for Bullet Container Items
