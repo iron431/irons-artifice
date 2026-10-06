@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": "minecraft:soul_lantern",
+    "S": "minecraft:netherite_scrap"
+  },
+  "pattern": [
+    "SLS"
+  ],
+  "result": {
+    "id": "irons_artifice:soulfire_coin_modifier"
+  }
+}

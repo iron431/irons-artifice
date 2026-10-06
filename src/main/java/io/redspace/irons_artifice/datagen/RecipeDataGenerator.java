@@ -387,6 +387,13 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", this.has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
                 .save(this.output);
+        // Soulfire Coin
+        ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SOULFIRE_COIN.get())
+                .pattern("SLS")
+                .define('S', Items.NETHERITE_SCRAP)
+                .define('L', Items.SOUL_LANTERN)
+                .unlockedBy("has_precursor", this.has(Items.SOUL_LANTERN))
+                .save(this.output);
         // Singularity Charge
         ShapedRecipeBuilder.shaped(this.registries.lookupOrThrow(Registries.ITEM), RecipeCategory.MISC, ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get())
                 .pattern(" #B")
