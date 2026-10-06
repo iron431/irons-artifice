@@ -81,6 +81,7 @@
   "irons_artifice.component_type.burn_duration_on_hit": "+%ss Burn on Hit",
   "irons_artifice.component_type.poison_amplifier_on_hit": "+%s Poison Amplifier",
   "irons_artifice.component_type.poison_duration_on_hit": "+%ss Poison on Hit",
+  "irons_artifice.component_type.explosion_radius": "+%s Explosion Radius",
   "irons_artifice.component_type.bullet_drag": "Bullet Drag Coefficient",
   "irons_artifice.component_type.underwater_drag": "Underwater Drag Coefficient",
   "irons_artifice.component_type.leech": "Max Leeching Shots",
