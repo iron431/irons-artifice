@@ -3,6 +3,7 @@ package io.redspace.irons_artifice;
 import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.events.CommonSetup;
+import io.redspace.irons_artifice.gametest.TestFunctionRegistry;
 import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
@@ -51,6 +52,7 @@ public class IronsArtifice {
         DataAttachmentRegistry.register(modEventBus);
         ParticleRegistry.register(modEventBus);
         SoundRegistry.register(modEventBus);
+        TestFunctionRegistry.register(modEventBus);
         modEventBus.addListener(PayloadRegistry::register);
         modEventBus.addListener(CommonSetup::entityAttributes);
         modEventBus.addListener(CommonSetup::buildCreativeTabs);
