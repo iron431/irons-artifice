@@ -34,7 +34,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
 
     public MuzzleFlashParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet sprites,
-                               float tintR, float tintG, float tintB) {
+                               float tintR, float tintG, float tintB, float scale) {
         super(level, x, y, z, xa, ya, za);
         this.setSprite(sprites.get(0, 1));
         this.sprites = sprites;
@@ -43,7 +43,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
         this.xd = xa;
         this.yd = ya;
         this.zd = za;
-        this.quadSize = 1;
+        this.quadSize = scale;
         this.rCol = tinted ? tintR : 1f;
         this.gCol = tinted ? tintG : 1f;
         this.bCol = tinted ? tintB : 1f;
@@ -166,7 +166,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
                                                  double xa, double ya, double za) {
-            return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
+            return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b(), options.scale());
         }
     }
 }

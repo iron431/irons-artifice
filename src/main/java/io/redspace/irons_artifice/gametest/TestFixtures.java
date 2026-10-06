@@ -39,12 +39,7 @@ import java.util.function.Consumer;
 
 public final class TestFixtures {
 
-    /**
-     * Positive Z: the axis the arenas are laid out along, and the direction to fire when the shot
-     * only has to go somewhere repeatable. A shot that has to connect is aimed by
-     * {@link #aimAtHitbox} instead -- fired flat, a zombie's shot passes within a fifth of a block
-     * of the top of its target's hitbox, and ordinary spread walks it over a few times in a hundred.
-     */
+    /** The axis the arenas are laid out along. A shot that has to connect uses {@link #aimAtHitbox}. */
     public static final Vec3 FORWARD = new Vec3(0.0, 0.0, 1.0);
 
     /**
@@ -58,10 +53,7 @@ public final class TestFixtures {
         return new Vec2(pitch, yaw);
     }
 
-    /**
-     * A gun stack loaded with {@code rounds} and carrying {@code modifiers} in the container
-     * {@link io.redspace.irons_artifice.item.GunplayManager#compose} reads them from.
-     */
+    /** A gun stack loaded with {@code rounds}, carrying {@code modifiers} where {@code GunplayManager.compose} reads them. */
     public static ItemStack gunWith(Item gun, int rounds, Item... modifiers) {
         ItemStack stack = new ItemStack(gun);
         GunItem.setMagazine(stack, new MagazineContents(rounds));
@@ -113,11 +105,6 @@ public final class TestFixtures {
         return shooter;
     }
 
-    /**
-     * Clears the per-entity firing state. Fire delay and pending shots are attachments on the
-     * shooter rather than components on the stack, so a shooter reused for a second shot in one
-     * test comes back FIRE_DELAY_ACTIVE without this.
-     */
     public static void resetShotState(LivingEntity shooter) {
         FireDelayState.clear(shooter);
         PendingShot.clear(shooter);
@@ -128,15 +115,11 @@ public final class TestFixtures {
     }
 
     // ---------------------------------------------------------------------------------------
-    // The control-versus-variant lane harness.
-    //
-    // A modifier is only ever "more damage" or "more knockback" or "more bullets" relative to the
-    // same gun without it, so every modifier test fires one gun down two lanes of
-    // TestCatalog.RANGE_TWO_LANE at once -- lane 0 unmodified, lane 1 carrying the modifiers
-    // under test -- and asserts a relation between the two. Nothing below knows a balance number.
+    // The control-versus-variant lane harness. Every modifier test fires one gun down two lanes
+    // of RANGE_TWO_LANE at once, lane 0 unmodified and lane 1 carrying the modifiers under test,
+    // and asserts a relation between the two. Nothing below knows a balance number.
     // ---------------------------------------------------------------------------------------
 
-    /** Lane indices for the two-lane range. Lane 0 fires the unmodified control shot. */
     public static final int CONTROL_LANE = 0;
     public static final int VARIANT_LANE = 1;
 
@@ -149,40 +132,26 @@ public final class TestFixtures {
     /** Under the 1024 attribute ceiling. */
     private static final double TOUGH_TARGET_HEALTH = 200.0;
 
-    /** Where the shooter for the given lane stands, in structure-relative coordinates. */
     public static BlockPos laneOrigin(int lane) {
         return new BlockPos(lane == CONTROL_LANE ? LANE_X_CONTROL : LANE_X_VARIANT, LANE_Y, LANE_Z_ORIGIN);
     }
 
-    /** A position in the given lane, the given number of blocks downrange of its origin. */
     public static BlockPos targetPos(int lane, int distance) {
         return laneOrigin(lane).offset(0, 0, distance);
     }
 
-    /**
-     * A zombie with no free will and raised health: it survives several shots, so its health
-     * measures damage, and it does not wander, so its displacement measures knockback. The carved
-     * pumpkin is {@link #shieldFromDaylight}.
-     */
+    /** A zombie with no free will and raised health, so its health measures damage and its displacement measures knockback. */
     public static LivingEntity toughTarget(GameTestHelper helper, BlockPos relativePos) {
         return toughTarget(helper, relativePos, EntityType.ZOMBIE);
     }
 
-    /**
-     * As above, with a chosen mob type, for an on-hit effect a zombie cannot show at all. Every
-     * undead mob is immune to poison in {@code LivingEntity.canBeAffected} (the
-     * {@code minecraft:ignores_poison_and_regen} tag), so
-     * {@code ModifierTests.venomCapsulePoisons} fires at a pig -- a zombie would fail its
-     * variant half whether or not the modifier works.
-     */
+    /** As above with a chosen mob type. Undead are immune to poison, so a status-effect test picks something else. */
     public static LivingEntity toughTarget(GameTestHelper helper, BlockPos relativePos,
                                            EntityType<? extends Mob> entityType) {
         Mob target = helper.spawnWithNoFreeWill(entityType, relativePos);
         AttributeInstance maxHealth = target.getAttribute(Attributes.MAX_HEALTH);
         if (maxHealth == null) {
-            throw new GameTestAssertException(
-                    "target has no MAX_HEALTH attribute, so its health cannot be raised and the "
-                            + "damage it reports would be capped at its default health");
+            throw new GameTestAssertException("target has no MAX_HEALTH attribute");
         }
         maxHealth.setBaseValue(TOUGH_TARGET_HEALTH);
         target.setHealth((float) TOUGH_TARGET_HEALTH);
@@ -195,12 +164,7 @@ public final class TestFixtures {
         living.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.CARVED_PUMPKIN));
     }
 
-    /**
-     * What one lane's shot did, measured once the shot has settled. {@code shooter} and
-     * {@code target} are the live entities, for anything the other three do not carry -- a mob
-     * effect, frozen ticks, the shooter's recoil. {@link #shieldFromDaylight} covers both, so
-     * either one's health can be read without a sunburn in it.
-     */
+    /** What one lane's shot did, measured once it settled. {@code bulletsSpawned} is sampled around {@code tryFire}, so later spawns are not in it. */
     public record LaneResult(float damageTaken,
                              Vec3 targetDisplacement,
                              int bulletsSpawned,
@@ -208,11 +172,9 @@ public final class TestFixtures {
                              LivingEntity shooter) {
     }
 
-    /** Two lanes' results, for a test that asserts a relation between them. */
     public record LaneComparison(LaneResult control, LaneResult variant) {
     }
 
-    /** One value per lane. */
     public record PerLane<T>(T control, T variant) {
     }
 
@@ -247,36 +209,27 @@ public final class TestFixtures {
         return (float) composedProfile(helper, shooter).value(ShotComponents.SPREAD);
     }
 
-    /** Every clearance in a geometry test derives from its cone; a retune has to be re-derived, not absorbed. */
+    /** A geometry test's clearances derive from its cone; a retune has to be re-derived, not absorbed. */
     public static void assertConeIs(GameTestHelper helper, String lane, float actualDegrees, float designDegrees) {
         helper.assertTrue(actualDegrees == designDegrees,
                 "the " + lane + " lane fires through the " + designDegrees
                         + "-degree cone this test's geometry assumes (it fires through " + actualDegrees + ")");
     }
 
-    /** A mob is airborne for its first two ticks and an airborne shooter's spread is multiplied by {@code IN_AIR_PENALTY}. */
+    /** A mob is airborne for its first two ticks, and an airborne shooter's spread is multiplied by {@code IN_AIR_PENALTY}. */
     static final int GROUNDING_TICKS = 2;
 
-    /** A flat shot from a zombie's eye leaves a fifth of a block of hitbox above the aim line. */
     static Vec3 aimAtHitbox(LivingEntity shooter, LivingEntity target) {
         return target.getBoundingBox().getCenter().subtract(shooter.getEyePosition()).normalize();
     }
 
     /**
-     * Arms both lanes with the same gun, the variant lane also carrying the given modifiers, and
-     * returns the handle that fires them. Call {@link LaneShots#thenCompare} on it; the handle is
-     * the only thing that fires a shot or ends the test, so a caller that drops it gets a bare
-     * timeout at the tick budget with no message of its own.
-     * <p>
-     * Nothing fires here. Both lanes fire on one tick, {@link #GROUNDING_TICKS} later, so the two
-     * shots see the same world and a block-breaking or area-effect modifier in one lane cannot
-     * reach the other's measurements. Bullet counts are sampled either side of each
-     * {@code tryFire}, and the health and position baselines on that same tick: bullets travel over
-     * a block per tick and vanish on impact, so a later count would miss them.
+     * Arms both lanes with the same gun, the variant lane also carrying {@code variantModifiers}.
+     * Nothing fires until a terminal method on the returned {@link LaneShots} is called; a caller
+     * that drops it gets a bare timeout.
      *
-     * @param targetDistance blocks downrange to place each lane's target
-     * @param settleTicks    ticks to wait before measuring; long enough for the bullet to travel
-     *                       {@code targetDistance} and for any on-hit effect to run
+     * @param settleTicks ticks to wait after firing before measuring; long enough for the bullet
+     *                    to travel {@code targetDistance} and any on-hit effect to run
      */
     public static LaneShots fireLanes(GameTestHelper helper,
                                       Item gun,
@@ -286,11 +239,6 @@ public final class TestFixtures {
         return fireLanes(helper, gun, targetDistance, settleTicks, EntityType.ZOMBIE, variantModifiers);
     }
 
-    /**
-     * As above, with {@code targetType} for both targets instead of a zombie -- see
-     * {@link #toughTarget(GameTestHelper, BlockPos, EntityType)}. Both shooters stay zombies;
-     * nothing about firing depends on what is holding the gun.
-     */
     public static LaneShots fireLanes(GameTestHelper helper,
                                       Item gun,
                                       int targetDistance,
@@ -316,29 +264,20 @@ public final class TestFixtures {
                 new ArmedLane(variantShooter, variantTarget));
     }
 
-    /** One lane, loaded and standing, before its shot goes off. */
     private record ArmedLane(LivingEntity shooter, LivingEntity target) {
     }
 
-    /** One lane's shot as it left the muzzle, plus the geometry it went out with. */
     private record FiredLane(FireOutcome outcome, @Nullable ShotGeometry geometry, LaneShot shot) {
     }
 
     /**
-     * Everything about one shot that decides whether it could have hit, sampled the instant before
-     * it went off. {@link LaneShots#assertShooterAddedNoSpread} and
-     * {@link LaneShots#assertConeFitsTheTarget} read it, so a scenario that misses for a reason no
-     * test would guess says so by name.
+     * Whether a shot could have hit, sampled before it went off.
      *
-     * @param movedSinceLastTick        how far the shooter travelled last tick, which is what
-     *                                  {@code getSpreadForEntity} reads its speed from
-     * @param gunSpreadDegrees          the composed {@code SPREAD}: what gun and modifiers asked for
-     * @param effectiveSpreadDegrees    what {@code getSpreadForEntity} handed the bullet, once the
-     *                                  shooter's own state was counted
-     * @param reachAtTarget             how far off the aim line the widest shot in that cone can be
-     *                                  by the time it arrives
-     * @param targetVerticalHalfExtent  how far the hitbox reaches above the point aimed at, which
-     *                                  {@link #aimAtHitbox} makes its center
+     * @param movedSinceLastTick       what {@code getSpreadForEntity} reads the shooter's speed from
+     * @param gunSpreadDegrees         the composed {@code SPREAD}
+     * @param effectiveSpreadDegrees   what {@code getSpreadForEntity} handed the bullet
+     * @param reachAtTarget            how far off the aim line the widest shot in the cone is on arrival
+     * @param targetVerticalHalfExtent how far the hitbox reaches above its center, which {@link #aimAtHitbox} aims at
      */
     private record ShotGeometry(boolean onGround,
                                 double movedSinceLastTick,
@@ -348,19 +287,7 @@ public final class TestFixtures {
                                 double targetVerticalHalfExtent) {
     }
 
-    /**
-     * Measures {@link ShotGeometry} before {@code tryFire}, so nothing the shot itself does can
-     * perturb it -- recoil blowback included, which stages a {@code deltaMovement} the shooter acts
-     * on next tick, after which {@code getSpreadForEntity} reads a moved {@code position()}.
-     * <p>
-     * Reads public mod API only: {@code GunplayManager.compose} (which posts
-     * {@code ComposeShotEvent}, so {@code IGunslingerMob.applyDefaultMobNerfs}' spread is included)
-     * and {@code getSpreadForEntity}. Nothing is reimplemented and no production code was opened up.
-     *
-     * @return {@code null} when the shooter holds no gun: the shot is about to come back
-     *         {@code NO_GUN}, and {@link LaneShots#measureAndCompare}'s FIRED check, which runs
-     *         first, is the one that should speak
-     */
+    /** Null when the shooter holds no gun; the FIRED check reports that case. */
     private static @Nullable ShotGeometry shotGeometry(LivingEntity shooter, LivingEntity target) {
         if (!(shooter.getMainHandItem().getItem() instanceof GunItem gunItem)) {
             return null;
@@ -408,7 +335,7 @@ public final class TestFixtures {
             }, claim);
         }
 
-        /** For a modifier that reaches a target the control shot cannot: the control missing is a precondition, the variant landing is part of the claim. */
+        /** For a modifier that reaches a target the control cannot: the control missing is a precondition, the variant landing is part of the claim. */
         public void thenCompareExpectingControlMiss(Consumer<LaneComparison> claim) {
             schedule(LaneShots::assertControlMissed, LaneShots::assertVariantLanded, claim);
         }
@@ -426,7 +353,7 @@ public final class TestFixtures {
                     .thenSucceed();
         }
 
-        /** Fires both lanes on one tick and records what each shot looked like at the muzzle. */
+        /** Both lanes fire on one tick so an area effect in one cannot reach the other's measurements. */
         private void fire() {
             withFailureNet(helper, "firing the lanes", () -> {
                 float controlHealthBefore = control.target().getHealth();
@@ -453,14 +380,12 @@ public final class TestFixtures {
             });
         }
 
-        /** Measures both lanes, then runs the precondition and the claim, the claim guarded and under the expectation. */
         private void measureAndCompare(BiConsumer<GameTestHelper, LaneComparison> precondition,
                                        BiConsumer<GameTestHelper, LaneComparison> claimGuard,
                                        Consumer<LaneComparison> claim) {
             withFailureNet(helper, "measuring the settled lanes", () -> {
                 if (firedControl == null || firedVariant == null) {
-                    // fire() already failed this test through the same net; a bare NPE from
-                    // measuring shots never taken would replace its message.
+                    // fire() already failed the test.
                     return;
                 }
                 assertFired(helper, "control", firedControl.outcome());
@@ -480,61 +405,46 @@ public final class TestFixtures {
             });
         }
 
-        /** Checks the shooter added no spread of its own beyond what the gun and its modifiers composed. */
         private void assertShooterAddedNoSpread(String lane, @Nullable ShotGeometry geometry) {
             if (geometry == null) {
-                // Not holding a gun; the FIRED check above already failed with NO_GUN, which is the
-                // useful message.
                 return;
             }
             helper.assertTrue(geometry.onGround(),
-                    "the " + lane + " lane's shooter had settled onto the arena floor before firing "
-                            + "(it had not, so IN_AIR_PENALTY widened its shot cone and it can miss "
-                            + "a target it is aimed straight at)");
+                    "the " + lane + " lane's shooter was on the ground before firing");
             helper.assertTrue(geometry.effectiveSpreadDegrees() == geometry.gunSpreadDegrees(),
-                    "the " + lane + " lane's shooter added nothing of its own to the gun's spread "
-                            + "(the gun composes to " + geometry.gunSpreadDegrees()
-                            + " degrees, the shot went out at " + geometry.effectiveSpreadDegrees()
-                            + " -- the shooter had moved " + geometry.movedSinceLastTick()
-                            + " blocks on its previous tick, and getSpreadForEntity adds up to 20 "
-                            + "degrees for a shooter it reads as moving)");
+                    "the " + lane + " lane's shooter added no spread of its own (gun " + geometry.gunSpreadDegrees()
+                            + ", fired at " + geometry.effectiveSpreadDegrees() + "; it moved "
+                            + geometry.movedSinceLastTick() + " blocks last tick)");
         }
 
-        /** Checks the shot cone is narrow enough for the target to absorb all of it. */
         private void assertConeFitsTheTarget(String lane, @Nullable ShotGeometry geometry) {
             if (geometry == null) {
                 return;
             }
             helper.assertTrue(geometry.reachAtTarget() < geometry.targetVerticalHalfExtent(),
-                    "the " + lane + " lane's shot cone fits inside the target it is aimed at ("
-                            + geometry.effectiveSpreadDegrees() + " degrees of spread reaches "
-                            + geometry.reachAtTarget() + " blocks off the aim line at this range, "
-                            + "against " + geometry.targetVerticalHalfExtent() + " blocks from the "
-                            + "hitbox centre to its top -- move the target closer or fire a tighter "
-                            + "gun, because this one sprays past what it is shooting at)");
+                    "the " + lane + " lane's shot cone fits inside its target ("
+                            + geometry.effectiveSpreadDegrees() + " degrees reaches " + geometry.reachAtTarget()
+                            + " blocks off the aim line, hitbox half extent " + geometry.targetVerticalHalfExtent() + ")");
         }
 
-        /** Checks the control lane's shot landed within the settle window. */
         private static void assertControlLanded(GameTestHelper helper, LaneComparison comparison, int settleTicks) {
             helper.assertTrue(comparison.control().damageTaken() > 0.0F,
-                    "the control lane's shot landed within its " + settleTicks
-                            + "-tick settle window (it dealt no damage, so either it missed or "
-                            + "the settle window is too short for the distance)");
+                    "the control lane's shot landed within its " + settleTicks + "-tick settle window");
         }
 
-        static void assertControlMissed(GameTestHelper helper, LaneComparison comparison) {
+        private static void assertControlMissed(GameTestHelper helper, LaneComparison comparison) {
             helper.assertTrue(comparison.control().damageTaken() <= 0.0F,
                     "the control lane's shot did not reach its target (it dealt "
-                            + comparison.control().damageTaken() + ", so this scenario does not stop the unmodified shot)");
+                            + comparison.control().damageTaken() + ")");
         }
 
-        static void assertVariantLanded(GameTestHelper helper, LaneComparison comparison) {
+        private static void assertVariantLanded(GameTestHelper helper, LaneComparison comparison) {
             helper.assertTrue(comparison.variant().damageTaken() > 0.0F,
-                    "the variant lane's shot reached its target (it dealt no damage)");
+                    "the variant lane's shot reached its target");
         }
     }
 
-    /** A sequence step catches only {@code GameTestAssertException}, so anything else kills the run. */
+    /** A sequence step catches only {@code GameTestAssertException}; anything else escapes the test runner. */
     static void withFailureNet(GameTestHelper helper, String what, Runnable step) {
         try {
             step.run();
@@ -547,7 +457,6 @@ public final class TestFixtures {
         }
     }
 
-    /** One lane's shot as sampled at the muzzle, plus the baselines its settled result needs. */
     private record LaneShot(LivingEntity shooter,
                             LivingEntity target,
                             int bulletsSpawned,
@@ -563,7 +472,6 @@ public final class TestFixtures {
         }
     }
 
-    /** Counts live bullets anywhere in the test structure. */
     private static int countBullets(GameTestHelper helper) {
         return helper.getEntities(EntityRegistry.BULLET.get()).size();
     }
@@ -573,8 +481,8 @@ public final class TestFixtures {
     }
 
     /**
-     * Fires two aimed lanes on one tick after grounding, checks both went off through the cone the
-     * test was laid out against, captures each lane's bullet by owner, and runs {@code atTheMuzzle}.
+     * Fires two aimed lanes on one tick after grounding, checks both went off through
+     * {@code designConeDegrees}, captures each lane's bullet by owner, and runs {@code atTheMuzzle}.
      */
     public static FlightShots fireAimedLanes(GameTestHelper helper, AimedLane control, AimedLane variant,
                                              float designConeDegrees, Consumer<PerLane<Bullet>> atTheMuzzle) {
@@ -645,7 +553,7 @@ public final class TestFixtures {
         return bullet;
     }
 
-    /** {@code tickCount} counts exactly the {@code Bullet.tick} calls that ran, so a rate over N ticks needs N here. */
+    /** {@code tickCount} counts exactly the {@code Bullet.tick} calls that ran. */
     public static void assertBulletTicksElapsed(GameTestHelper helper, String lane, Bullet bullet,
                                                 int tickCountBefore, int expected) {
         int elapsed = inFlight(helper, lane, bullet).tickCount - tickCountBefore;

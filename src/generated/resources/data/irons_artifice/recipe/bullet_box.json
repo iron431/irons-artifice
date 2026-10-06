@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "tag": "c:ingots/gold"
+    },
+    "*": {
+      "item": "irons_artifice:bullet"
+    }
+  },
+  "pattern": [
+    "###",
+    "***",
+    "###"
+  ],
+  "result": {
+    "count": 1,
+    "id": "irons_artifice:bullet_box"
+  }
+}

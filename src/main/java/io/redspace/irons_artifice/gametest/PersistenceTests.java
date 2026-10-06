@@ -35,10 +35,6 @@ public final class PersistenceTests {
         return stack;
     }
 
-    /**
-     * Compares every restored component's content against {@code original}, not just its presence:
-     * a codec that round-trips the right component with the wrong value passes a presence check.
-     */
     private static void assertLoadedValues(GameTestHelper helper, ItemStack original, ItemStack restored,
                                             String stage) {
         helper.assertValueEqual(GunItem.getMagazine(restored).count(), GunItem.getMagazine(original).count(),
@@ -47,9 +43,7 @@ public final class PersistenceTests {
         ReloadState originalReload = ReloadState.get(original);
         ReloadState restoredReload = ReloadState.get(restored);
         helper.assertTrue(restoredReload != null, "reload state present after " + stage);
-        // ReloadState.equals() omits progress, a live tick value kept out of equals/hashCode so a
-        // ticking reload does not spam the network -- so record equality alone would accept a codec
-        // that drops or mangles it.
+        // ReloadState.equals() omits progress.
         helper.assertValueEqual(restoredReload, originalReload, "reload state content after " + stage);
         helper.assertValueEqual(restoredReload.progress(), originalReload.progress(),
                 "reload state progress after " + stage);
@@ -67,8 +61,6 @@ public final class PersistenceTests {
         AttachmentMap restoredAttachments = restored.get(DataComponentRegistry.ATTACHMENT.get());
         helper.assertTrue(restoredAttachments != null && !restoredAttachments.isEmpty(),
                 "attachment map present after " + stage);
-        // AttachmentMap's constructor normalizes through Map.copyOf, but its record equals
-        // compares by content, so a copyOf result and a HashMap still compare equal.
         helper.assertValueEqual(restoredAttachments, originalAttachments, "attachment map content after " + stage);
     }
 

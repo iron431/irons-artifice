@@ -1,12 +1,13 @@
 package io.redspace.irons_artifice.modifier.modifiers;
 
 import io.redspace.irons_artifice.api.ComposeShotEvent;
-import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
+import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
+import io.redspace.irons_artifice.modifier.on_shot_handlers.LeechCostOnShot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,6 +30,12 @@ public final class LeechModifier extends ValueStackModifier {
         super(Map.of(
                 ShotComponents.LEECH, new ValueModifier(1, ValueModifier.Operation.ADD, ValueModifier.Type.NEUTRAL)
         ));
+    }
+
+    @Override
+    public void apply(ShotComponentMap components) {
+        super.apply(components);
+        components.getOrCreate(ShotComponents.ON_SHOT).getOrCreate(LeechCostOnShot.class, LeechCostOnShot::new);
     }
 
     @Override
@@ -59,20 +66,7 @@ public final class LeechModifier extends ValueStackModifier {
         ));
     }
 
-    @SubscribeEvent
-    public static void payHealthAfterLeechingShot(GunShootEvent.Post event) {
-        if (!canLeech(event.getEntity(), event.getShotProfile())) {
-            return;
-        }
-        LivingEntity shooter = event.getEntity();
-        if (hasInfiniteMaterials(shooter)) {
-            return;
-        }
-        shooter.setHealth(Math.max(0.1f, shooter.getHealth() - HEALTH_COST));
-        shooter.hurtMarked = true;
-    }
-
-    private static boolean canLeech(LivingEntity shooter, ShotProfile profile) {
+    public static boolean canLeech(LivingEntity shooter, ShotProfile profile) {
         int leechShots = (int) profile.value(ShotComponents.LEECH);
         if (leechShots <= 0) {
             return false;
@@ -84,7 +78,7 @@ public final class LeechModifier extends ValueStackModifier {
         return shooter.getHealth() > minHealth;
     }
 
-    private static boolean hasInfiniteMaterials(LivingEntity shooter) {
+    public static boolean hasInfiniteMaterials(LivingEntity shooter) {
         return shooter instanceof Player player && player.hasInfiniteMaterials();
     }
 }

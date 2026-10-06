@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.entity;
 import dev.ryanhcode.sable.companion.SableCompanion;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.ShotRecord;
+import io.redspace.irons_artifice.api.BulletImpactEvent;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.ParticleStack;
 import io.redspace.irons_artifice.data.ShotComponentMap;
@@ -47,7 +48,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,7 +87,7 @@ public class Bullet extends Projectile {
         super(type, level);
     }
 
-    enum HitState {
+    public enum HitState {
         CONTINUE,
         STOP,
         DISCARD;
@@ -118,6 +119,10 @@ public class Bullet extends Projectile {
         piercedEntities.add(entity.getId());
     }
 
+    public void clearPierced() {
+        piercedEntities.clear();
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_GRAVITY, 0.05f);
@@ -128,7 +133,10 @@ public class Bullet extends Projectile {
 
     @Override
     protected boolean canHitEntity(@NotNull Entity entity) {
-        return super.canHitEntity(entity) && !piercedEntities.contains(entity.getId()) && Utils.canHarm(getOwner(), entity);
+        boolean reachable = entity.getType().is(IronsArtificeTags.BULLET_TARGETS)
+                ? entity.isAlive() && !entity.isInvulnerable()
+                : super.canHitEntity(entity);
+        return reachable && !piercedEntities.contains(entity.getId()) && Utils.canHarm(getOwner(), entity);
     }
 
     public float resolveDamage() {
@@ -345,9 +353,9 @@ public class Bullet extends Projectile {
         // setup default hit state
         hitState = HitState.DISCARD;
         brokeBlocksThisTick = false;
-        if (EventHooks.onProjectileImpact(this, hitResult)) {
-            // event contract states projectile continues flying if the event is cancelled
-            hitState = HitState.CONTINUE;
+        BulletImpactEvent impact = NeoForge.EVENT_BUS.post(new BulletImpactEvent(this, hitResult, hitState));
+        hitState = impact.getHitState();
+        if (impact.isCanceled()) {
             return;
         }
         super.onHit(hitResult);
@@ -439,7 +447,7 @@ public class Bullet extends Projectile {
             Vec3 v = getDeltaMovement();
             living.knockback(knockback, -v.x, -v.z);
         }
-        if (piercingRemaining > 0) {
+        if (piercingRemaining > 0 && hitState != HitState.STOP) {
             this.hitState = HitState.CONTINUE;
             piercingRemaining--;
         }

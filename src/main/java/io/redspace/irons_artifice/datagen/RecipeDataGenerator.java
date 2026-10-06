@@ -61,6 +61,14 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('^', ItemRegistry.BLACKPOWDER.get())
                 .unlockedBy("has_blackpowder", has(ItemRegistry.BLACKPOWDER))
                 .save(output, recipeId("bullet_from_copper"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ItemRegistry.BULLET_BOX.get())
+                .pattern("###")
+                .pattern("***")
+                .pattern("###")
+                .define('*', ItemRegistry.BULLET)
+                .define('#', commonTag("ingots/gold"))
+                .unlockedBy("has_bullet", has(ItemRegistry.BULLET))
+                .save(output);
         /* **********************************
          * Armor
          ********************************** */
@@ -375,6 +383,13 @@ public class RecipeDataGenerator extends RecipeProvider {
                 .define('R', Items.REDSTONE)
                 .define('M', ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS)
                 .unlockedBy("has_precursor", has(ItemRegistry.SIMPLE_MECHANICAL_COMPONENTS))
+                .save(output);
+        // Soulfire Coin
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SOULFIRE_COIN.get())
+                .pattern("SLS")
+                .define('S', Items.NETHERITE_SCRAP)
+                .define('L', Items.SOUL_LANTERN)
+                .unlockedBy("has_precursor", has(Items.SOUL_LANTERN))
                 .save(output);
         // Singularity Charge
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ItemRegistry.SINGULARITY_CHARGE_MODIFIER.get())

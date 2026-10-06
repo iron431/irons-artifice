@@ -17,7 +17,10 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.modifier.modifiers.LeechModifier;
+import io.redspace.irons_artifice.modifier.modifiers.SoulfireCoinModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainShotOnHit;
+import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulCoinSpawnOnHit;
+import io.redspace.irons_artifice.modifier.on_shot_handlers.RollSoulCoinChanceOnShot;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.ironslib.registry.IronsLibRegistries;
 import io.redspace.irons_artifice.registry.EntityRegistry;
@@ -72,8 +75,6 @@ public final class ModifierTests {
     private static final int SPIRAL_WATER_END_Z = 30;
     /** Water cuts an unmodified bullet's speed from its third tick; eight ticks is short of what it then needs to arrive. */
     private static final int SPIRAL_SETTLE_TICKS = 8;
-    private static final LaneOptions REAR_TARGET_LANES = LaneOptions.DEFAULT;
-    private static final LaneOptions SHRAPNEL_LANES = LaneOptions.DEFAULT;
 
     static final List<ModifierTest> ENTRIES = List.of(
             // ---- two lanes ----
@@ -125,12 +126,12 @@ public final class ModifierTests {
                             "scattershot spawned more projectiles than the unmodified shot (control "
                                     + lanes.control().bulletsSpawned() + ", variant " + lanes.variant().bulletsSpawned() + ")")),
             lanes(ItemRegistry.STEEL_CORE, "steel_core_pierces_second_target",
-                    REAR_TARGET_LANES,
+                    LaneOptions.DEFAULT,
                     helper -> new PerLane<>(
                             watch(toughTarget(helper, TestFixtures.targetPos(TestFixtures.CONTROL_LANE,
-                                    REAR_TARGET_LANES.targetDistance() + REAR_TARGET_GAP))),
+                                    LaneOptions.DEFAULT.targetDistance() + REAR_TARGET_GAP))),
                             watch(toughTarget(helper, TestFixtures.targetPos(TestFixtures.VARIANT_LANE,
-                                    REAR_TARGET_LANES.targetDistance() + REAR_TARGET_GAP)))),
+                                    LaneOptions.DEFAULT.targetDistance() + REAR_TARGET_GAP)))),
                     (helper, rear, lanes) -> {
                         // The harness guards the cone against the front target only; the rear one is two blocks further.
                         TestFixtures.assertConeIs(helper, "control",
@@ -141,6 +142,7 @@ public final class ModifierTests {
                                 "steel core's shot carried through to the target " + REAR_TARGET_GAP + " blocks behind");
                     }),
             lanes(ItemRegistry.BLACKPOWDER_CHARGE, "blackpowder_charge_damages_bystander",
+                    LaneOptions.DEFAULT,
                     helper -> bystanders(helper, BYSTANDER_OFFSET, Side.AWAY_FROM_CENTRE),
                     (helper, bystanders, lanes) -> {
                         helper.assertTrue(bystanders.control().damage() <= 0.0F,
@@ -149,6 +151,7 @@ public final class ModifierTests {
                                 "blackpowder charge damaged the bystander within its blast radius");
                     }),
             lanes(ItemRegistry.CHAIN_LIGHTNING, "chain_lightning_damages_bystander",
+                    LaneOptions.DEFAULT,
                     helper -> bystanders(helper, BYSTANDER_OFFSET, Side.AWAY_FROM_CENTRE),
                     (helper, bystanders, lanes) -> {
                         helper.assertTrue(bystanders.control().damage() <= 0.0F,
@@ -158,6 +161,7 @@ public final class ModifierTests {
                     }),
             // Two blocks keeps a pulled bystander from colliding with the target and rebounding.
             lanes(ItemRegistry.SINGULARITY_CHARGE_MODIFIER, "singularity_charge_pulls_bystander",
+                    LaneOptions.DEFAULT,
                     helper -> bystanders(helper, SINGULARITY_BYSTANDER_OFFSET, Side.TOWARD_CENTRE),
                     (helper, bystanders, lanes) -> {
                         double control = towardnessProjection(bystanders.control(), lanes.control().target());
@@ -195,13 +199,12 @@ public final class ModifierTests {
                     }),
             // Shrapnel spawns on impact, after bulletsSpawned() is sampled, so a sampler counts it.
             lanes(ItemRegistry.FROZEN_JACKET, "frozen_jacket_freezes",
-                    SHRAPNEL_LANES,
+                    LaneOptions.DEFAULT,
                     helper -> {
                         BulletTally tally = new BulletTally();
                         helper.startSequence()
-                                .thenExecuteAfter(TestFixtures.GROUNDING_TICKS, () -> {
-                                })
-                                .thenExecuteFor(SHRAPNEL_LANES.settleTicks(), () -> tally.sample(helper));
+                                .thenIdle(TestFixtures.GROUNDING_TICKS)
+                                .thenExecuteFor(LaneOptions.DEFAULT.settleTicks(), () -> tally.sample(helper));
                         return tally;
                     },
                     (helper, tally, lanes) -> {
@@ -262,6 +265,16 @@ public final class ModifierTests {
                 helper.assertTrue(plain != null && oiled != null, "both reloads left state on their stacks");
                 helper.assertTrue(oiled.durationTicks() < plain.durationTicks(),
                         "gun oil shortened the reload (plain " + plain.durationTicks() + ", oiled " + oiled.durationTicks() + ")");
+            }),
+            // The coin spawn is a roll on SOUL_CHANCE, so the claim reads the composed chance and handlers, not a hit.
+            compose(ItemRegistry.SOULFIRE_COIN, "soulfire_coin_installs_soul_handlers", (helper, control, variant) -> {
+                helper.assertValueEqual(control.profile().value(ShotComponents.SOUL_CHANCE), 0.0,
+                        "a plain gun composes no soul chance");
+                helper.assertFalse(installsSoulHandlers(control.profile()), "a plain gun installs no soul coin handlers");
+                helper.assertValueEqual(variant.profile().value(ShotComponents.SOUL_CHANCE), SoulfireCoinModifier.SOUL_CHANCE,
+                        "soulfire coin composed SoulfireCoinModifier.SOUL_CHANCE");
+                helper.assertTrue(installsSoulHandlers(variant.profile()),
+                        "soulfire coin installed RollSoulCoinChanceOnShot and SoulCoinSpawnOnHit");
             }),
             // ---- fire in place ----
             // The blunderbuss composes a non-zero CHARACTER_BLOWBACK; the musket composes zero.
@@ -340,6 +353,12 @@ public final class ModifierTests {
     private static boolean hasMuzzleAttachment(ItemStack stack) {
         AttachmentMap attachments = stack.get(DataComponentRegistry.ATTACHMENT.get());
         return attachments != null && attachments.attachments().containsKey("attachment_muzzle");
+    }
+
+    /** Whether the profile carries both halves of the soul coin pipeline: the roll on shot and the spawn on hit. */
+    private static boolean installsSoulHandlers(ShotProfile profile) {
+        return profile.peek(ShotComponents.ON_SHOT).all().stream().anyMatch(RollSoulCoinChanceOnShot.class::isInstance)
+                && profile.peek(ShotComponents.ON_HIT).all().stream().anyMatch(SoulCoinSpawnOnHit.class::isInstance);
     }
 
     /** Distinct bullets seen per lane, sorted by which lane origin each is nearer on X. */

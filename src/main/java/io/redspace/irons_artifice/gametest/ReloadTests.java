@@ -13,16 +13,6 @@ import net.minecraft.world.item.ItemStack;
 
 public final class ReloadTests {
 
-    /**
-     * A mob shooter rather than {@code TestFixtures.shooter}, matching {@link #reloadBlocksFiring},
-     * which has no choice: its shot reaches {@code tryFire}'s broadcast-sound path once the reload
-     * is removed, and a mock {@code ServerPlayer} cannot receive that broadcast (see
-     * {@link TestFixtures#firingShooter}). A mob is safe here for a related reason --
-     * {@code ReloadCueStack#play} sends its custom-payload sound packet only to a
-     * {@code ServerPlayer}, and falls back to the ordinary {@code Level#playSound} broadcast for
-     * anything else. Nothing this test calls goes near
-     * {@code GunplayManager.requiresAmmo}'s {@code Player} cast, so no coverage is lost.
-     */
     static void reloadProgressesToCompletion(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
@@ -33,10 +23,7 @@ public final class ReloadTests {
         helper.assertTrue(GunItem.isReloading(held), "the gun reports reloading once a reload starts");
         helper.assertFalse(started.isFinished(), "a freshly started reload is not finished");
 
-        // Drive the production path, ReloadState.tickReload, rather than increment/isFinished on a
-        // local: it is what advances progress on the stack and calls ReloadState.remove on
-        // completion. Nothing in the test level ticks a held reload, so the test does it here, the
-        // way reloadTopLoadAppliesSkip drives applySkip.
+        // Nothing in the test level ticks a held reload, so drive ReloadState.tickReload here.
         ReloadState finished = null;
         for (int tick = 0; tick < started.durationTicks() + 1 && finished == null; tick++) {
             finished = ReloadState.tickReload(held, gunItem, shooter);
@@ -71,35 +58,20 @@ public final class ReloadTests {
         helper.succeed();
     }
 
-    /**
-     * The top-load skip path the two tests above do not touch. {@code ReloadState.tickReload} calls
-     * {@code applySkip} itself, but only after each tick's increment, so the skip boundary -- just
-     * before against just inside the insert loop -- reads more clearly by calling {@code increment}
-     * and {@code applySkip} directly.
-     * <p>
-     * Left uncovered: a partial top-load through {@code GunplayManager.attemptStartReload} with a
-     * real gun's {@code TopLoadConfig} and ammo count, and the "rounds land in the magazine" half
-     * through {@code attemptFinishReload}. Nothing here drives the item-use tick that calls them.
-     */
     static void reloadTopLoadAppliesSkip(GameTestHelper helper) {
         ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
 
-        // This test's own numbers, not gun balance ones: at roundsToLoad = 1,
-        // TopLoadConfig.resumeFrom(1) reduces to loopEnd exactly, since loopDuration * (1 - 1) is
-        // zero, so skipTo lands on loopEnd below.
+        // At one round, TopLoadConfig.resumeFrom(1) is exactly loopEnd.
         TopLoadConfig topLoad = new TopLoadConfig(0.2, 0.8, 0.6);
         ReloadState state = ReloadState.start(gun, 20, 1.0, 1, topLoad);
 
         helper.assertTrue(state.hasSkip(),
                 "a top-load config whose skip target is past its skip point reports hasSkip");
 
-        // Before skipAt (progress 0.1 < 0.2): applySkip leaves progress where increment left it.
         ReloadState beforeWindow = state.increment(2);
         helper.assertValueEqual(beforeWindow.applySkip().progress(), beforeWindow.progress(),
                 "before the insert loop, applySkip leaves progress untouched");
 
-        // Inside the insert loop (progress 0.25, within [0.2, 0.8)): applySkip jumps progress to
-        // the configured skip target, which is loopEnd for a single round.
         ReloadState insideWindow = state.increment(5);
         helper.assertValueEqual(insideWindow.applySkip().progress(), topLoad.loopEnd(),
                 "reaching the insert loop jumps progress to the configured skip target");

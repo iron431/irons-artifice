@@ -29,6 +29,7 @@ public class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> INSTANT_RELOAD = registerSoundEvent("item.cowboy_hat.instant_reload");
     public static final DeferredHolder<SoundEvent, SoundEvent> INFINITY_BULLET = registerSoundEvent("modifier.enchanted_bullet.proc");
     public static final DeferredHolder<SoundEvent, SoundEvent> PIRATE_AMBUSH = registerSoundEvent("entity.drowned_pirate.ambush");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SOULFIRE_COIN_HIT = registerSoundEvent("modifier.soulfire_coin.hit");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> BAYONET_USE = registerSoundEvent("item.bayonet.use");
     public static final DeferredHolder<SoundEvent, SoundEvent> BAYONET_HIT = registerSoundEvent("item.bayonet.hit");

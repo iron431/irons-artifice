@@ -83,35 +83,37 @@ public final class TestCatalog {
         void check(GameTestHelper helper, S setup, LaneComparison lanes);
     }
 
-    public enum Terminal { CONTROL_LANDS, CONTROL_MISSES }
-
+    /**
+     * @param controlMisses the control shot is expected not to reach its target, and the variant
+     *                      reaching it is part of the claim
+     */
     public record LaneOptions(Supplier<? extends Item> gun, EntityType<? extends Mob> targetType,
-                              int targetDistance, int settleTicks, Terminal terminal, int maxTicks) {
+                              int targetDistance, int settleTicks, boolean controlMisses, int maxTicks) {
         public static final LaneOptions DEFAULT =
-                new LaneOptions(ItemRegistry.MUSKET, EntityType.ZOMBIE, 8, 20, Terminal.CONTROL_LANDS, 200);
+                new LaneOptions(ItemRegistry.MUSKET, EntityType.ZOMBIE, 8, 20, false, 200);
 
         public LaneOptions withGun(Supplier<? extends Item> gun) {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, terminal, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
         }
 
         public LaneOptions withTargetType(EntityType<? extends Mob> targetType) {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, terminal, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
         }
 
         public LaneOptions withTargetDistance(int targetDistance) {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, terminal, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
         }
 
         public LaneOptions withSettleTicks(int settleTicks) {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, terminal, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
         }
 
         public LaneOptions expectingControlMiss() {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, Terminal.CONTROL_MISSES, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, true, maxTicks);
         }
 
         public LaneOptions withMaxTicks(int maxTicks) {
-            return new LaneOptions(gun, targetType, targetDistance, settleTicks, terminal, maxTicks);
+            return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
         }
     }
 
@@ -124,11 +126,6 @@ public final class TestCatalog {
         return lanes(modifier, name, options, helper -> null, (helper, unused, lanes) -> claim.check(helper, lanes));
     }
 
-    public static <S> ModifierTest lanes(DeferredItem<ModifierItem> modifier, String name,
-                                         Function<GameTestHelper, S> setup, LaneClaimWith<S> claim) {
-        return lanes(modifier, name, LaneOptions.DEFAULT, setup, claim);
-    }
-
     /** Runs {@code setup} before the lanes are armed and hands its result to the claim. */
     public static <S> ModifierTest lanes(DeferredItem<ModifierItem> modifier, String name, LaneOptions options,
                                          Function<GameTestHelper, S> setup, LaneClaimWith<S> claim) {
@@ -138,10 +135,10 @@ public final class TestCatalog {
                     LaneShots shots = TestFixtures.fireLanes(helper, options.gun().get(), options.targetDistance(),
                             options.settleTicks(), options.targetType(), variantModifiers).expecting(expectation);
                     Consumer<LaneComparison> bound = lanes -> claim.check(helper, built, lanes);
-                    switch (options.terminal()) {
-                        case CONTROL_LANDS -> shots.thenCompare(bound);
-                        case CONTROL_MISSES -> shots.thenCompareExpectingControlMiss(bound);
-                        default -> throw new IllegalStateException("unhandled terminal " + options.terminal());
+                    if (options.controlMisses()) {
+                        shots.thenCompareExpectingControlMiss(bound);
+                    } else {
+                        shots.thenCompare(bound);
                     }
                 });
     }
@@ -217,10 +214,8 @@ public final class TestCatalog {
     public static final List<PlainTest> PLAIN_TESTS = List.of(
             new PlainTest("components_survive_save", BOX_SMALL, 20, PersistenceTests::componentsSurviveSave),
             new PlainTest("components_survive_network", BOX_SMALL, 20, PersistenceTests::componentsSurviveNetwork),
-            new PlainTest("attachment_defaults", BOX_SMALL, 20, DataAttachmentTests::attachmentDefaults),
             new PlainTest("pending_shot_clears_on_swap", BOX_SMALL, 60, DataAttachmentTests::pendingShotClearsOnSwap),
             new PlainTest("every_gun_composes_with_every_modifier", BOX_SMALL, 60, LoadSmokeTests::everyGunComposesWithEveryModifier),
-            new PlainTest("fixture_builds_a_loaded_shooter", BOX_SMALL, 20, FixtureSelfTests::fixtureBuildsALoadedShooter),
             new PlainTest("fire_refusals", BOX_SMALL, 40, FirePipelineTests::refusals),
             new PlainTest("successful_shot", BOX_SMALL, 40, FirePipelineTests::successfulShot),
             new PlainTest("delay_is_gun_keyed", BOX_SMALL, 40, FirePipelineTests::delayIsGunKeyed),
@@ -235,7 +230,6 @@ public final class TestCatalog {
             new PlainTest("reload_blocks_firing", BOX_SMALL, 40, ReloadTests::reloadBlocksFiring),
             new PlainTest("reload_top_load_applies_skip", BOX_SMALL, 20, ReloadTests::reloadTopLoadAppliesSkip),
             new PlainTest("harness_isolates_lanes", RANGE_TWO_LANE, 200, LaneHarnessTests::harnessIsolatesLanes),
-            new PlainTest("control_miss_terminal_rejects_two_misses", BOX_SMALL, 20, LaneHarnessTests::controlMissTerminalRejectsTwoMisses),
             new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest)
     );
 

@@ -24,14 +24,26 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class BlackpowderChargeOnHit implements OnHitEffect {
-    private static final float RADIUS = 3f;
+    public static final float BASE_RADIUS = 3f;
+    public static final float RADIUS_PER_STACK = 1f;
     private static final float DAMAGE_FRACTION = 1f;
+
+    private int stacks;
+
+    public void addStack() {
+        stacks++;
+    }
+
+    public float radius() {
+        return BASE_RADIUS + (stacks - 1) * RADIUS_PER_STACK;
+    }
 
     @Override
     public void onHit(ServerLevel level, Bullet bullet, HitResult hitResult, HitEntityAccumulator accumulator) {
+        float radius = radius();
         Vec3 center = hitResult.getLocation().subtract(bullet.getDeltaMovement().normalize().scale(0.25));
-        float radiusSq = RADIUS * RADIUS;
-        AABB area = AABB.ofSize(center, RADIUS * 2, RADIUS * 2, RADIUS * 2);
+        float radiusSq = radius * radius;
+        AABB area = AABB.ofSize(center, radius * 2, radius * 2, radius * 2);
         float baseDamage = bullet.resolveDamage() * DAMAGE_FRACTION;
         Entity owner = bullet.getOwner();
 
@@ -44,7 +56,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
             if (distSq > radiusSq) {
                 continue;
             }
-            float falloff = 1f - (float) Math.sqrt(distSq) / RADIUS;
+            float falloff = 1f - (float) Math.sqrt(distSq) / radius;
             float damage = baseDamage * falloff;
             if (damage <= 0) {
                 continue;
@@ -59,8 +71,8 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
                 && !(owner instanceof Mob && !level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))) {
             float blockDamageMultiplier = (float) profile.value(ShotComponents.BLOCK_DAMAGE_MULTIPLIER);
             BlockPos.betweenClosed(
-                    BlockPos.containing(center.x - RADIUS, center.y - RADIUS, center.z - RADIUS),
-                    BlockPos.containing(center.x + RADIUS, center.y + RADIUS, center.z + RADIUS)
+                    BlockPos.containing(center.x - radius, center.y - radius, center.z - radius),
+                    BlockPos.containing(center.x + radius, center.y + radius, center.z + radius)
             ).forEach(pos -> {
                 BlockState state = level.getBlockState(pos);
                 if (state.isAir()) {
@@ -70,7 +82,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
                 if (distSq > radiusSq) {
                     return;
                 }
-                float falloff = 1f - (float) Math.sqrt(distSq) / RADIUS;
+                float falloff = 1f - (float) Math.sqrt(distSq) / radius;
                 float damage = baseDamage * blockDamageMultiplier * falloff;
                 if (damage <= 0) {
                     return;
@@ -82,7 +94,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
         }
 
         level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL, 2.5f, 1.4f);
-        Utils.spawnParticles(level, new MuzzleFlashParticleOption(ParticleRegistry.EXPLOSION_96.get(), -1, -1, -1), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
+        Utils.spawnParticles(level, new MuzzleFlashParticleOption(ParticleRegistry.EXPLOSION_96.get(), -1, -1, -1, radius / BASE_RADIUS), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
         Utils.spawnParticles(level, ParticleTypes.SMOKE, center.x, center.y, center.z, 8, 0.4, 0.4, 0.4, 0.02, false);
         Utils.spawnParticles(level, ParticleTypes.LAVA, center.x, center.y, center.z, 6, 0.35, 0.35, 0.35, 0.01, false);
     }

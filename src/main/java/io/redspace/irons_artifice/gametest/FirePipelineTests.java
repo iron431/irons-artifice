@@ -11,7 +11,6 @@ import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 public final class FirePipelineTests {
 
     static void refusals(GameTestHelper helper) {
-        ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
+        LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
 
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.NO_GUN, "empty hand is refused as NO_GUN");
@@ -44,8 +43,6 @@ public final class FirePipelineTests {
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.RELOADING, "mid reload is refused as RELOADING");
 
-        // TestFixtures.shooter's fake player never ticks, so the ReloadState set above goes
-        // nowhere once the test ends.
         helper.succeed();
     }
 
@@ -63,9 +60,6 @@ public final class FirePipelineTests {
         helper.assertValueEqual(outcome, FireOutcome.FIRED, "loaded gun fires");
         helper.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), before - 1,
                 "one round consumed");
-        // Not just "> 0": a port that mis-derives the delay -- dropping the FIRE_RATE divisor in
-        // ShotProfile.fireDelayTicks(), say -- still starts a nonzero cycle. expectedDelayTicks
-        // comes from the same compose(...) control the rest of the suite uses, not a balance number.
         helper.assertValueEqual(FireDelayState.get(shooter).duration(), expectedDelayTicks,
                 "the started fire delay's duration matches profile.fireDelayTicks()");
         helper.assertEntitiesPresent(EntityRegistry.BULLET.get(), 1);
@@ -79,36 +73,30 @@ public final class FirePipelineTests {
         ItemStack musket = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), musket);
 
-        // GeoItem.getOrAssignId is public and is what GunplayManager.playFireAnimation calls.
-        // Assigning real, distinct ids up front is what lets this observe per-gun keying: a
-        // never-rendered stack is always keyed UNKEYED, which blocks every gun whatever the keying
-        // logic does. That case is asserted separately below.
+        // A stack that was never rendered has no GeckoLib id and its delay is keyed UNKEYED, which
+        // blocks every gun; assign real ids first so per-gun keying is observable.
         long musketId = GeoItem.getOrAssignId(shooter.getMainHandItem(), level);
         ItemStack pistol = TestFixtures.gunWith(ItemRegistry.FLINTLOCK_PISTOL.get(), 1);
         long pistolId = GeoItem.getOrAssignId(pistol, level);
-        helper.assertTrue(musketId != pistolId,
-                "sanity: the musket and pistol stacks were assigned distinct GeckoLib ids");
+        helper.assertTrue(musketId != pistolId, "the musket and pistol stacks have distinct GeckoLib ids");
 
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "musket fires");
         helper.assertTrue(FireDelayState.isActive(shooter, shooter.getMainHandItem()),
-                "delay blocks the musket that fired, keyed by its real GeckoLib id");
+                "delay blocks the musket that fired");
         helper.assertFalse(FireDelayState.isActive(shooter, pistol),
-                "delay does not block a different, distinctly-keyed gun");
+                "delay does not block a different gun");
 
-        // The UNKEYED case. A never-rendered stack starts one, because tryFire records the firing
-        // stack's GeckoLib id into the new FireDelayState before playFireAnimation assigns one, and
-        // isActive treats it as blocking every gun rather than only the one that fired.
         TestFixtures.resetShotState(shooter);
         ItemStack neverRendered = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, neverRendered);
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
-                FireOutcome.FIRED, "second gun fires without ever being assigned a GeckoLib id");
+                FireOutcome.FIRED, "a never-rendered gun fires");
         helper.assertValueEqual(FireDelayState.get(shooter).gunId(), FireDelayState.UNKEYED,
-                "a never-rendered stack's cycle is keyed as UNKEYED rather than to a real gun id");
+                "a never-rendered stack's cycle is keyed UNKEYED");
         ItemStack otherGun = TestFixtures.gunWith(ItemRegistry.FLINTLOCK_PISTOL.get(), 1);
         helper.assertTrue(FireDelayState.isActive(shooter, otherGun),
-                "an UNKEYED delay blocks a different gun too, per FireDelayState.isActive's documented fallback");
+                "an UNKEYED delay blocks every gun");
 
         helper.succeed();
     }

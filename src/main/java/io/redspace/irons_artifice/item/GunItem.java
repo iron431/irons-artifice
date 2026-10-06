@@ -54,6 +54,7 @@ public class GunItem extends BaseGeoItem {
     public static final DataTicket<Float> MUZZLE_OFFSET_TICKET = new DataTicket<>(IronsArtifice.id("muzzle_offset").toString(), Float.class);
     public static final String TRIGGERED_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_ACTIONS;
     public static final String IDLE_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_IDLE;
+    public static final int AMMO_BAR_COLOR = 0xFFAA00;
 
     private final GunProfile gunProfile;
 
@@ -260,8 +261,7 @@ public class GunItem extends BaseGeoItem {
         if (isReloading(stack)) {
             return 0xAAAAAA;
         } else {
-            // hell yeah
-            return 0xFFAA00;
+            return AMMO_BAR_COLOR;
         }
     }
 
