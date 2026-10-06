@@ -2,6 +2,7 @@ package io.redspace.irons_artifice.registry;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.Guns;
+import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.item.CowboyHatItem;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.TricorneItem;
@@ -134,6 +135,7 @@ public final class ItemRegistry {
             "suppressor_attachment_modifier", properties -> new ModifierItem(properties.stacksTo(1), new SuppressorAttachmentModifier()));
 
     public static final DeferredItem<Item> BULLET = ITEMS.registerSimpleItem("bullet");
+    public static final DeferredItem<BulletContainerItem> BULLET_BOX = ITEMS.registerItem("bullet_box", properties -> new BulletContainerItem(properties, 256));
     public static final DeferredItem<Item> BLACKPOWDER = ITEMS.registerSimpleItem("blackpowder");
     public static final DeferredItem<Item> SIMPLE_MECHANICAL_COMPONENTS = ITEMS.registerSimpleItem("simple_mechanical_components");
     public static final DeferredItem<Item> MECHANICAL_COMPONENTS = ITEMS.registerSimpleItem("mechanical_components");

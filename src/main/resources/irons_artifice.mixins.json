@@ -4,6 +4,7 @@
   "package": "io.redspace.irons_artifice.mixin",
   "client": [
     "AbstractClientPlayerMixin",
+    "AbstractContainerScreenMixin",
     "DrownedModelMixin",
     "GuiCrosshairMixin",
     "ItemInHandRendererMixin",

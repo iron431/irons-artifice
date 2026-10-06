@@ -2,6 +2,7 @@ package io.redspace.irons_artifice.registry;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.AttachmentMap;
+import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import net.minecraft.core.component.DataComponentPatch;
@@ -36,6 +37,10 @@ public final class DataComponentRegistry {
             COMPONENTS.registerComponentType("attachment", builder -> builder
                     .persistent(AttachmentMap.CODEC)
                     .networkSynchronized(AttachmentMap.STREAM_CODEC));
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulletContainerContents>> BULLET_POUCH =
+            COMPONENTS.registerComponentType("bullet_pouch", builder -> builder
+                    .persistent(BulletContainerContents.CODEC)
+                    .networkSynchronized(BulletContainerContents.STREAM_CODEC));
 
     public static void register(IEventBus modEventBus) {
         COMPONENTS.register(modEventBus);

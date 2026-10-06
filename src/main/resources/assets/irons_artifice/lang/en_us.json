@@ -11,6 +11,7 @@
   "item.irons_artifice.illificer_spawn_egg": "Illificer Spawn Egg",
   "item.irons_artifice.clockwork_rifle": "Clockwork Rifle",
   "item.irons_artifice.bullet": "Bullet",
+  "item.irons_artifice.bullet_box": "Bullet Box",
   "item.irons_artifice.blackpowder": "Blackpowder",
   "item.irons_artifice.lead_core_modifier": "Lead Core Modifier",
   "item.irons_artifice.scattershot_modifier": "Scattershot Modifier",
@@ -115,6 +116,7 @@
   "irons_artifice.tooltip.damage_per_bullet": "%s/%s Damage",
   "irons_artifice.tooltip.ammo_capacity": "%s Ammo Capacity",
   "irons_artifice.tooltip.bullet_count": "%s Bullets",
+  "irons_artifice.tooltip.bullet_pouch": "%s / %s Bullets",
   "irons_artifice.tooltip.bullet_speed": "%s Blocks/s",
   "irons_artifice.tooltip.bullet_speed_percent": "%s Bullet Speed",
   "irons_artifice.tooltip.damage": "%s Damage",
@@ -127,6 +129,7 @@
   "irons_artifice.tooltip.refunded_ammo": "Refunded %s ammo!",
   "irons_artifice.tooltip.accelerated_percent": "%s%% Accelerated",
   "irons_artifice.tooltip.max_range": "%s Max Range",
+  "irons_artifice.tooltip.bullet_container.description": "Holds up to %s bullets",
 
   "death.attack.irons_artifice.bullet": "%1$s was shot by %2$s",
   "death.attack.irons_artifice.bullet.item": "%1$s was shot by %2$s using %3$s",
