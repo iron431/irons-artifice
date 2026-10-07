@@ -94,13 +94,14 @@ public class BlockDamageManager {
         IronsArtifice.LOGGER.debug("Dealing {} damage ({}/{}) to {} at {}", damage, blockCurrentHealth, blockMaxHealth, state.getBlock(), pos);
         float destroyProgress = 1 - blockCurrentHealth / blockMaxHealth;
         if (destroyProgress >= 1) {
+            level.destroyBlockProgress(id, pos, -1);
+            manager.remove(pos);
             if (!(bullet.getOwner() instanceof Player player) || !NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled()) {
                 level.destroyBlock(pos, false);
                 level.levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+                return true;
             }
-            level.destroyBlockProgress(id, pos, -1);
-            manager.remove(pos);
-            return true;
+            return false;
         } else {
             manager.put(pos, new BlockHealth(blockCurrentHealth, blockMaxHealth, level.getGameTime(), id));
             int stage = (int) (destroyProgress * 10);
