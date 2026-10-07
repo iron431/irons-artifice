@@ -11,8 +11,6 @@
 ### Fixes
 - Fixed Muzzle Flash spawning when using shaders
 - (1.21.1) Fixed attachment rendering when using shaders
-- Fixed Sable compat
-- Fixed creative tab ordering
 
 ### API
 - Added `SimpleMobEffectPostHit`, a generic handler for applying mob effects as a `PostHitEffect`

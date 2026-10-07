@@ -5,26 +5,25 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
 public class ClientBulletContainerItemTooltip implements ClientTooltipComponent {
-    private static final int SLOT_BACKGROUND_COLOR = 0xFF8B8B8B;
-    private static final int SLOT_HIGHLIGHT_BACK_COLOR = 0xFFC6C6C6;
-    private static final int SLOT_BORDER_COLOR = 0xFF373737;
-    private static final int SLOT_HIGHLIGHT_FRONT_COLOR = 0x80FFFFFF;
-    private static final int SLOT_SIZE = 24;
-    private static final int ITEM_INSET = 4;
+    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/bundle/slot");
+    private static final int SLOT_WIDTH = 18;
+    private static final int SLOT_HEIGHT = 20;
+    private static final int ITEM_INSET = 1;
     private static final int GRID_COLUMNS = 4;
-    private static final int GRID_WIDTH = 96;
+    private static final int GRID_WIDTH = GRID_COLUMNS * SLOT_WIDTH;
     private static final int BOTTOM_MARGIN = 4;
     private static final int LINE_HEIGHT = 9;
     private static final int DESCRIPTION_COLOR = 0xFFAAAAAA;
@@ -59,14 +58,15 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     private void renderGrid(Font font, GuiGraphics graphics, int left, int top) {
         List<ItemStack> shown = shownStacks();
         boolean overflowing = contents.size() > shown.size();
-        int bottom = top + gridHeight();
+        int rows = gridRows();
         int slotNumber = 1;
-        for (int row = 1; row <= gridRows(); row++) {
+        for (int row = 1; row <= rows; row++) {
             for (int column = 1; column <= GRID_COLUMNS; column++) {
-                int drawX = left + (column - 1) * SLOT_SIZE;
-                int drawY = bottom - row * SLOT_SIZE;
+                int drawX = left + (column - 1) * SLOT_WIDTH;
+                int drawY = top + (rows - row) * SLOT_HEIGHT;
                 if (overflowing && column == 1 && row == 1) {
-                    graphics.drawCenteredString(font, "+" + hiddenCount(shown), drawX + SLOT_SIZE / 2, drawY + 10, TEXT_COLOR);
+                    graphics.blitSprite(SLOT_SPRITE, drawX, drawY, SLOT_WIDTH, SLOT_HEIGHT);
+                    graphics.drawCenteredString(font, "+" + hiddenCount(shown), drawX + SLOT_WIDTH / 2, drawY + 6, TEXT_COLOR);
                 } else if (slotNumber <= shown.size()) {
                     int index = shown.size() - slotNumber;
                     renderSlot(font, graphics, shown.get(index), index, drawX, drawY);
@@ -77,13 +77,11 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     }
 
     private void renderSlot(Font font, GuiGraphics graphics, ItemStack stack, int index, int drawX, int drawY) {
-        boolean highlighted = index == contents.selectedIndex();
-        graphics.fill(drawX, drawY, drawX + SLOT_SIZE, drawY + SLOT_SIZE, highlighted ? SLOT_HIGHLIGHT_BACK_COLOR : SLOT_BACKGROUND_COLOR);
-        graphics.renderOutline(drawX, drawY, SLOT_SIZE, SLOT_SIZE, SLOT_BORDER_COLOR);
+        graphics.blitSprite(SLOT_SPRITE, drawX, drawY, SLOT_WIDTH, SLOT_HEIGHT);
         graphics.renderItem(stack, drawX + ITEM_INSET, drawY + ITEM_INSET, index);
         graphics.renderItemDecorations(font, stack, drawX + ITEM_INSET, drawY + ITEM_INSET);
-        if (highlighted) {
-            graphics.fillGradient(RenderType.guiOverlay(), drawX, drawY, drawX + SLOT_SIZE, drawY + SLOT_SIZE, SLOT_HIGHLIGHT_FRONT_COLOR, SLOT_HIGHLIGHT_FRONT_COLOR, 0);
+        if (index == contents.selectedIndex()) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, drawX + ITEM_INSET, drawY + ITEM_INSET, 0);
         }
     }
 
@@ -125,7 +123,7 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     }
 
     private int gridHeight() {
-        return gridRows() * SLOT_SIZE;
+        return gridRows() * SLOT_HEIGHT;
     }
 
     private Component emptyDescription() {
