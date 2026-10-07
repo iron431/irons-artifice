@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -170,7 +171,8 @@ public class BulletContainerItem extends Item {
 
     @Override
     public boolean isBarVisible(ItemStack pouch) {
-        return true;
+        BulletContainerContents contents = contents(pouch);
+        return !contents.isEmpty();
     }
 
     @Override
@@ -184,7 +186,7 @@ public class BulletContainerItem extends Item {
 
     @Override
     public int getBarColor(ItemStack pouch) {
-        return GunItem.AMMO_BAR_COLOR;
+        return FastColor.ARGB32.colorFromFloat(1.0F, 0.44F, 0.53F, 1.0F);
     }
 
     @Override
