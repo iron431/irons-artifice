@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.item;
 
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -98,7 +99,7 @@ public class BulletContainerItem extends Item {
             ItemStack taken = room > 0 ? slot.safeTake(other.getCount(), room, player) : ItemStack.EMPTY;
             boolean inserted = contents.insert(taken) > 0;
             write(pouch, contents);
-            playSound(player, inserted ? SoundEvents.BUNDLE_INSERT : SoundEvents.BUNDLE_INSERT_FAIL);
+            playSound(player, inserted ? SoundRegistry.BULLET_BOX_INSERT.get() : SoundEvents.BUNDLE_INSERT_FAIL);
             return true;
         }
         if (action == ClickAction.SECONDARY && other.isEmpty()) {
@@ -108,7 +109,7 @@ public class BulletContainerItem extends Item {
             }
             ItemStack remainder = slot.safeInsert(removed);
             if (remainder.isEmpty()) {
-                playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+                playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
             } else {
                 contents.putBack(remainder);
             }
@@ -127,7 +128,7 @@ public class BulletContainerItem extends Item {
         if (action == ClickAction.PRIMARY && BulletContainerContents.accepts(carried)) {
             boolean inserted = slot.allowModification(player) && contents.insert(carried) > 0;
             write(pouch, contents);
-            playSound(player, inserted ? SoundEvents.BUNDLE_INSERT : SoundEvents.BUNDLE_INSERT_FAIL);
+            playSound(player, inserted ? SoundRegistry.BULLET_BOX_INSERT.get() : SoundEvents.BUNDLE_INSERT_FAIL);
             return true;
         }
         if (action == ClickAction.SECONDARY && carried.isEmpty() && slot.allowModification(player)) {
@@ -137,7 +138,7 @@ public class BulletContainerItem extends Item {
             }
             write(pouch, contents);
             carriedAccess.set(removed);
-            playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+            playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
             return true;
         }
         toggleSelected(pouch, BulletContainerContents.NO_SELECTION);
@@ -159,7 +160,7 @@ public class BulletContainerItem extends Item {
         if (!level.isClientSide()) {
             player.getInventory().placeItemBackInInventory(removed);
         }
-        playSound(player, SoundEvents.BUNDLE_REMOVE_ONE);
+        playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
         return InteractionResult.SUCCESS;
     }
 
