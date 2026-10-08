@@ -15,12 +15,15 @@ import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -29,10 +32,18 @@ import org.joml.Matrix3f;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
+    // Gun animations supply the arm pose; custom entity models must not change its geometry.
+    private static final PlayerModel<AbstractClientPlayer> WIDE_HANDS = new PlayerModel<>(
+            LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64).bakeRoot(), false);
+    private static final PlayerModel<AbstractClientPlayer> SLIM_HANDS = new PlayerModel<>(
+            LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64).bakeRoot(), true);
+    private final List<Runnable> handRenders = new ArrayList<>();
 
     public GunInHandRenderer(GeoModel<GunItem> model) {
         super(model);
@@ -40,10 +51,24 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
 
     @Override
     public void preRender(@NotNull PoseStack poseStack, GunItem animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+        if (!isReRender) {
+            handRenders.clear();
+        }
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         if (isLeftHandPerspective(this.renderPerspective)) {
             PoseStack.Pose last = poseStack.last();
             last.pose().scale(-1f, 1f, 1f);
+        }
+    }
+
+    @Override
+    public void renderFinal(@NotNull PoseStack poseStack, GunItem animatable, @NotNull BakedGeoModel model, @NotNull MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay, int colour) {
+        super.renderFinal(poseStack, animatable, model, bufferSource, buffer, partialTick, packedLight, packedOverlay, colour);
+        // Finish the gun and its attachments before switching to the player's skin buffer.
+        try {
+            handRenders.forEach(Runnable::run);
+        } finally {
+            handRenders.clear();
         }
     }
 
@@ -100,16 +125,19 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (player == null) {
             return;
         }
-        if (!(Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player) instanceof PlayerRenderer renderer)) {
-            return;
-        }
         if (leftArm && currentOccupancy(player) != HandOccupancy.BOTH) {
             return;
         }
         ResourceLocation skinTexture = player.getSkin().texture();
         final RenderType renderType = getRenderType(this.animatable, skinTexture, bufferSource, partialTick);
-        ModelPart modelPart = leftArm ? renderer.getModel().leftArm : renderer.getModel().rightArm;
-        atBonePivot(poseStack, bone, pose -> renderFirstPersonHand(bufferSource, renderType, modelPart, pose, packedLight));
+        PlayerModel<AbstractClientPlayer> handModel = player.getSkin().model() == PlayerSkin.Model.SLIM ? SLIM_HANDS : WIDE_HANDS;
+        ModelPart modelPart = leftArm ? handModel.leftArm : handModel.rightArm;
+        atBonePivot(poseStack, bone, pose -> {
+            PoseStack savedPose = new PoseStack();
+            savedPose.last().pose().set(pose.last().pose());
+            savedPose.last().normal().set(pose.last().normal());
+            handRenders.add(() -> renderFirstPersonHand(bufferSource, renderType, modelPart, savedPose, packedLight));
+        });
     }
 
     protected void renderFirstPersonHand(@NotNull MultiBufferSource bufferSource, @NotNull RenderType renderType, @NotNull ModelPart modelPart, @NotNull PoseStack poseStack, int packedLight) {
