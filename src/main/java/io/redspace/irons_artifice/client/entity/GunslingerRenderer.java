@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 
 public class GunslingerRenderer extends IllagerRenderer<Gunslinger> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/illager/pillager.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/illager/pillager.png");
 
     public GunslingerRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.PILLAGER)), 0.5F);

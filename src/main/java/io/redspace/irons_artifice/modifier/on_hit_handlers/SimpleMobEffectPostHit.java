@@ -3,7 +3,6 @@ package io.redspace.irons_artifice.modifier.on_hit_handlers;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.utils.Utils;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -14,11 +13,11 @@ import net.minecraft.world.phys.HitResult;
 
 public final class SimpleMobEffectPostHit implements PostHitEffect {
 
-    private final Holder<MobEffect> mobEffect;
+    private final MobEffect mobEffect;
     private int durationTicks;
     private int amplifier;
 
-    public SimpleMobEffectPostHit(Holder<MobEffect> mobEffect, int durationTicks, int amplifier) {
+    public SimpleMobEffectPostHit(MobEffect mobEffect, int durationTicks, int amplifier) {
         this.mobEffect = mobEffect;
         this.durationTicks = durationTicks;
         this.amplifier = amplifier;
@@ -45,7 +44,7 @@ public final class SimpleMobEffectPostHit implements PostHitEffect {
         if (!(entity instanceof LivingEntity living)) {
             return;
         }
-        if (mobEffect.value().getCategory() == MobEffectCategory.HARMFUL && !Utils.canHarm(bullet.getOwner(), entity)) {
+        if (mobEffect.getCategory() == MobEffectCategory.HARMFUL && !Utils.canHarm(bullet.getOwner(), entity)) {
             return;
         }
         MobEffectInstance existing = living.getEffect(mobEffect);

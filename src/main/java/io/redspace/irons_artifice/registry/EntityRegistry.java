@@ -9,22 +9,22 @@ import io.redspace.irons_artifice.entity.SoulfireCoin;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 
 public final class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(Registries.ENTITY_TYPE, IronsArtifice.MODID);
 
-    public static final DeferredHolder<EntityType<?>, EntityType<Bullet>> BULLET = ENTITY_TYPES.register(
+    public static final RegistryObject<EntityType<Bullet>> BULLET = ENTITY_TYPES.register(
             "bullet",
             () -> EntityType.Builder.<Bullet>of(Bullet::new, MobCategory.MISC)
                     .sized(0.25f, 0.25f)
                     .build("bullet")
     );
 
-    public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = ENTITY_TYPES.register(
+    public static final RegistryObject<EntityType<ChainEntity>> CHAIN = ENTITY_TYPES.register(
             "chain",
             () -> EntityType.Builder.<ChainEntity>of(ChainEntity::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f)
@@ -33,7 +33,7 @@ public final class EntityRegistry {
                     .build("chain")
     );
 
-    public static final DeferredHolder<EntityType<?>, EntityType<SoulfireCoin>> SOUL = ENTITY_TYPES.register(
+    public static final RegistryObject<EntityType<SoulfireCoin>> SOUL = ENTITY_TYPES.register(
             "soul",
             () -> EntityType.Builder.<SoulfireCoin>of(SoulfireCoin::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f)
@@ -42,7 +42,7 @@ public final class EntityRegistry {
                     .build("soul")
     );
 
-    public static final DeferredHolder<EntityType<?>, EntityType<Gunslinger>> GUNSLINGER = ENTITY_TYPES.register(
+    public static final RegistryObject<EntityType<Gunslinger>> GUNSLINGER = ENTITY_TYPES.register(
             "gunslinger",
             () -> EntityType.Builder.of(Gunslinger::new, MobCategory.MONSTER)
                     .sized(0.6f, 1.95f)
@@ -50,7 +50,7 @@ public final class EntityRegistry {
                     .build("gunslinger")
     );
 
-    public static final DeferredHolder<EntityType<?>, EntityType<Illificer>> ILLIFICER = ENTITY_TYPES.register(
+    public static final RegistryObject<EntityType<Illificer>> ILLIFICER = ENTITY_TYPES.register(
             "illificer",
             () -> EntityType.Builder.of(Illificer::new, MobCategory.MONSTER)
                     .sized(0.6f, 1.95f)

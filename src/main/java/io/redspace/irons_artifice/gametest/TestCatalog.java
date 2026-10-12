@@ -18,7 +18,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -66,7 +66,7 @@ public final class TestCatalog {
         void run(GameTestHelper helper, Item[] variantModifiers, Expectation expectation);
     }
 
-    public record ModifierTest(DeferredItem<ModifierItem> modifier, String name, ResourceLocation arena, int maxTicks,
+    public record ModifierTest(RegistryObject<ModifierItem> modifier, String name, ResourceLocation arena, int maxTicks,
                                ModifierTestBody body) {
         public String sadPathName() {
             return name + "_without_modifier";
@@ -117,17 +117,17 @@ public final class TestCatalog {
         }
     }
 
-    public static ModifierTest lanes(DeferredItem<ModifierItem> modifier, String name, LaneClaim claim) {
+    public static ModifierTest lanes(RegistryObject<ModifierItem> modifier, String name, LaneClaim claim) {
         return lanes(modifier, name, LaneOptions.DEFAULT, claim);
     }
 
-    public static ModifierTest lanes(DeferredItem<ModifierItem> modifier, String name, LaneOptions options,
+    public static ModifierTest lanes(RegistryObject<ModifierItem> modifier, String name, LaneOptions options,
                                      LaneClaim claim) {
         return lanes(modifier, name, options, helper -> null, (helper, unused, lanes) -> claim.check(helper, lanes));
     }
 
     /** Runs {@code setup} before the lanes are armed and hands its result to the claim. */
-    public static <S> ModifierTest lanes(DeferredItem<ModifierItem> modifier, String name, LaneOptions options,
+    public static <S> ModifierTest lanes(RegistryObject<ModifierItem> modifier, String name, LaneOptions options,
                                          Function<GameTestHelper, S> setup, LaneClaimWith<S> claim) {
         return new ModifierTest(modifier, name, RANGE_TWO_LANE, options.maxTicks(),
                 (helper, variantModifiers, expectation) -> {
@@ -161,7 +161,7 @@ public final class TestCatalog {
     }
 
     /** No shot: composes a plain musket and one carrying the modifier, each held by its own mob. */
-    public static ModifierTest compose(DeferredItem<ModifierItem> modifier, String name, ComposeClaim claim) {
+    public static ModifierTest compose(RegistryObject<ModifierItem> modifier, String name, ComposeClaim claim) {
         return new ModifierTest(modifier, name, BOX_SMALL, 20, (helper, variantModifiers, expectation) -> {
             Composed control = composed(helper, new BlockPos(1, 2, 1),
                     TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0));
@@ -172,7 +172,7 @@ public final class TestCatalog {
         });
     }
 
-    public static ModifierTest bespoke(DeferredItem<ModifierItem> modifier, String name, ResourceLocation arena,
+    public static ModifierTest bespoke(RegistryObject<ModifierItem> modifier, String name, ResourceLocation arena,
                                        int maxTicks, ModifierTestBody body) {
         return new ModifierTest(modifier, name, arena, maxTicks, body);
     }
@@ -184,7 +184,7 @@ public final class TestCatalog {
     }
 
     /** Two shooters in the box fire once on the same tick; the claim reads them straight after. */
-    public static ModifierTest fireInPlace(DeferredItem<ModifierItem> modifier, String name,
+    public static ModifierTest fireInPlace(RegistryObject<ModifierItem> modifier, String name,
                                            Supplier<? extends Item> gun, ShooterClaim claim) {
         return new ModifierTest(modifier, name, BOX_SMALL, 20, (helper, variantModifiers, expectation) -> {
             LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1),

@@ -1,40 +1,30 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.sounds.GunShotSoundSettings;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public record ClientboundGunshotSoundPacket(SoundSource source, double x, double y, double z,
-                                             List<GunShotSoundSettings> sounds)
-        implements CustomPacketPayload {
+                                             List<GunShotSoundSettings> sounds) {
 
-    public static final Type<ClientboundGunshotSoundPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "gunshot_sound"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundGunshotSoundPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundGunshotSoundPacket::encode, ClientboundGunshotSoundPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundGunshotSoundPacket msg) {
+    public static void encode(ClientboundGunshotSoundPacket msg, FriendlyByteBuf buf) {
         buf.writeEnum(msg.source);
         buf.writeDouble(msg.x);
         buf.writeDouble(msg.y);
         buf.writeDouble(msg.z);
         buf.writeVarInt(msg.sounds.size());
         for (GunShotSoundSettings sound : msg.sounds) {
-            GunShotSoundSettings.STREAM_CODEC.encode(buf, sound);
+            GunShotSoundSettings.write(buf, sound);
         }
     }
 
-    private static ClientboundGunshotSoundPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundGunshotSoundPacket decode(FriendlyByteBuf buf) {
         SoundSource source = buf.readEnum(SoundSource.class);
         double x = buf.readDouble();
         double y = buf.readDouble();
@@ -42,17 +32,12 @@ public record ClientboundGunshotSoundPacket(SoundSource source, double x, double
         int size = buf.readVarInt();
         List<GunShotSoundSettings> sounds = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            sounds.add(GunShotSoundSettings.STREAM_CODEC.decode(buf));
+            sounds.add(GunShotSoundSettings.read(buf));
         }
         return new ClientboundGunshotSoundPacket(source, x, y, z, sounds);
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void handle(ClientboundGunshotSoundPacket payload, IPayloadContext context) {
+    public static void handle(ClientboundGunshotSoundPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleGunshotSound(payload);
     }
 }

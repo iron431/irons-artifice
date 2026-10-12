@@ -1,0 +1,38 @@
+{
+  "parent": "irons_artifice:mag_fed",
+  "criteria": {
+    "seven_sockets": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "irons_artifice:arquebus"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.seven_sockets.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:arquebus"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.seven_sockets.title"
+    }
+  },
+  "requirements": [
+    [
+      "seven_sockets"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

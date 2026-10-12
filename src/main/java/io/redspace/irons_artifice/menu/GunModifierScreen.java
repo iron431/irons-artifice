@@ -23,7 +23,7 @@ import static io.redspace.irons_artifice.menu.GunModifierMenu.SLOT_SIZE;
 
 public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> {
     private static final ResourceLocation BG_TEXTURE = IronsArtifice.id("textures/gui/gun_modifier_screen.png");
-    private static final ResourceLocation SLOT_SPRITE = IronsArtifice.id("modifier_screen/slot");
+    private static final ResourceLocation SLOT_TEXTURE = IronsArtifice.id("textures/gui/sprites/modifier_screen/slot.png");
     private static final float PREVIEW_SCALE = 16.0F * 3.0F;
 
     public GunModifierScreen(GunModifierMenu menu, Inventory inventory, Component title) {
@@ -39,13 +39,14 @@ public class GunModifierScreen extends AbstractContainerScreen<GunModifierMenu> 
         int margin = (SLOT_SIZE - 16) / 2;
         for (var slot : menu.getModifierSlots()) {
             this.addRenderableOnly((graphics, mx, my, a) ->
-                    graphics.blitSprite(SLOT_SPRITE, leftPos + slot.x - margin, topPos + slot.y - margin, SLOT_SIZE, SLOT_SIZE)
+                    graphics.blit(SLOT_TEXTURE, leftPos + slot.x - margin, topPos + slot.y - margin, 0.0F, 0.0F, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE)
             );
         }
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         // AbstractContainerScreen#render does not draw the hovered slot's tooltip; every vanilla subclass does.
         this.renderTooltip(graphics, mouseX, mouseY);

@@ -4,27 +4,27 @@ import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
+import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ServerboundFireGunPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundOpenModifierMenuPacket;
 import io.redspace.irons_artifice.network.packets.ServerboundReloadGunPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.TickEvent;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class InputHandler {
 
     private static boolean attackHeldLastTick = false;
 
     @SubscribeEvent
-    static void onAttackInput(InputEvent.InteractionKeyMappingTriggered event) {
+    public static void onAttackInput(InputEvent.InteractionKeyMappingTriggered event) {
         if (!event.isAttack()) {
             return;
         }
@@ -39,7 +39,10 @@ public final class InputHandler {
     // lowest priority means our screens open last and are on top
     // looking at you, curios
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    static void onClientTick(ClientTickEvent.Post event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null) {
@@ -61,7 +64,7 @@ public final class InputHandler {
         if (minecraft.screen == null && !player.isSpectator() && player.getMainHandItem().getItem() instanceof GunItem
                 && !GunItem.isReloading(player.getMainHandItem())) {
             // todo: run on client first, only send on successful reload result
-            PacketDistributor.sendToServer(ServerboundReloadGunPacket.INSTANCE);
+            PayloadRegistry.sendToServer(ServerboundReloadGunPacket.INSTANCE);
             return true;
         }
         return false;
@@ -69,7 +72,7 @@ public final class InputHandler {
 
     private static boolean tryOpenModifierMenu(LocalPlayer player) {
         if (player.getMainHandItem().getItem() instanceof GunItem) {
-            PacketDistributor.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
+            PayloadRegistry.sendToServer(ServerboundOpenModifierMenuPacket.INSTANCE);
             return true;
         }
         return false;
@@ -99,7 +102,7 @@ public final class InputHandler {
 
     private static void tryFire(ShotProfile profile, LocalPlayer player) {
         if (GunplayManager.tryFire(player, player.getLookAngle()).fired()) {
-            PacketDistributor.sendToServer(new ServerboundFireGunPacket(player.getLookAngle()));
+            PayloadRegistry.sendToServer(new ServerboundFireGunPacket(player.getLookAngle()));
             RecoilManager.applyRecoil(profile);
         }
     }

@@ -2,8 +2,8 @@ package io.redspace.irons_artifice.api;
 
 import io.redspace.irons_artifice.gun.ShotProfile;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.bus.api.ICancellableEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.event.entity.living.LivingEvent;
 
 
 public abstract class AmmoEvent extends LivingEvent {
@@ -17,7 +17,8 @@ public abstract class AmmoEvent extends LivingEvent {
     /**
      * Server-only event called to consume ammo from the shooter's inventory. Can only be canceled, not mutated.
      */
-    public static class Consume extends AmmoEvent implements ICancellableEvent {
+    @Cancelable
+    public static class Consume extends AmmoEvent {
         private final int ammoToConsume;
 
         public Consume(LivingEntity entity, ShotProfile shotProfile, int ammoToConsume) {

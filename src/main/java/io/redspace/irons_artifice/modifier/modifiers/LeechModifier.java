@@ -12,13 +12,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public final class LeechModifier extends ValueStackModifier {
     public static final float HEALTH_COST = 2.0f;
     public static final double DAMAGE_BONUS = 0.25;
@@ -79,6 +79,6 @@ public final class LeechModifier extends ValueStackModifier {
     }
 
     public static boolean hasInfiniteMaterials(LivingEntity shooter) {
-        return shooter instanceof Player player && player.hasInfiniteMaterials();
+        return shooter instanceof Player player && player.getAbilities().instabuild;
     }
 }

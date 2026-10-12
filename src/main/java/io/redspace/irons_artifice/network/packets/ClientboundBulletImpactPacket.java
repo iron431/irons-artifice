@@ -1,24 +1,15 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ClientboundBulletImpactPacket(Vec3 position, Vec3 deltaMovement, Vec3 normal, double damage)
-        implements CustomPacketPayload {
+import java.util.function.Supplier;
 
-    public static final Type<ClientboundBulletImpactPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_impact"));
+public record ClientboundBulletImpactPacket(Vec3 position, Vec3 deltaMovement, Vec3 normal, double damage) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundBulletImpactPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundBulletImpactPacket::encode, ClientboundBulletImpactPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundBulletImpactPacket msg) {
+    public static void encode(ClientboundBulletImpactPacket msg, FriendlyByteBuf buf) {
         buf.writeDouble(msg.position.x);
         buf.writeDouble(msg.position.y);
         buf.writeDouble(msg.position.z);
@@ -31,19 +22,14 @@ public record ClientboundBulletImpactPacket(Vec3 position, Vec3 deltaMovement, V
         buf.writeDouble(msg.damage);
     }
 
-    private static ClientboundBulletImpactPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundBulletImpactPacket decode(FriendlyByteBuf buf) {
         Vec3 pos = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         Vec3 deltaMovement = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         Vec3 normal = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         return new ClientboundBulletImpactPacket(pos, deltaMovement, normal, buf.readDouble());
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void handle(ClientboundBulletImpactPacket payload, IPayloadContext context) {
+    public static void handle(ClientboundBulletImpactPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleBulletImpact(payload);
     }
 }

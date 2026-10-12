@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.entity;
 
 import io.redspace.irons_artifice.entity.ai.RangedGunAttackGoal;
 import io.redspace.irons_artifice.registry.ItemRegistry;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -60,9 +60,10 @@ public class Gunslinger extends AbstractIllager {
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
-                                                  MobSpawnType spawnReason, @Nullable SpawnGroupData spawnGroupData) {
+                                                  MobSpawnType spawnReason, @Nullable SpawnGroupData spawnGroupData,
+                                                  @Nullable CompoundTag spawnTag) {
         this.populateDefaultEquipmentSlots(level.getRandom(), difficulty);
-        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData, spawnTag);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class Gunslinger extends AbstractIllager {
     }
 
     @Override
-    public void applyRaidBuffs(ServerLevel level, int wave, boolean isCaptain) {
+    public void applyRaidBuffs(int wave, boolean isCaptain) {
     }
 
     @Override

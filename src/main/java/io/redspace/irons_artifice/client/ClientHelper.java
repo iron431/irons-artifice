@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.client;
 
-import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.constant.DataTickets;
 import io.redspace.irons_artifice.client.particle.ColorTransitionParticleOption;
 import io.redspace.irons_artifice.client.particle.FairyDustParticleOption;
@@ -50,7 +50,7 @@ public final class ClientHelper {
     public static void handleLocalDryFire(Player player, PlayableSound sound) {
         if (player.level().getGameTime() > localDryFireTime + 8) {
             localDryFireTime = player.level().getGameTime();
-            player.level().playSound(player, player.getX(), player.getY(), player.getZ(), sound.soundEventHolder(), player.getSoundSource(), sound.volume(), sound.samplePitch(player.getRandom()));
+            player.level().playSound(player, player.getX(), player.getY(), player.getZ(), sound.soundEventHolder().value(), player.getSoundSource(), sound.volume(), sound.samplePitch(player.getRandom()));
         }
     }
 

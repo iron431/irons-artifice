@@ -9,9 +9,10 @@ import io.redspace.irons_artifice.registry.ItemRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class DrownedPirateHelper {
                 pos = new Vec3(pos.x, y, pos.z);
             }
             AABB box = AABB.ofSize(pos, 5, 3, 5);
-            if (level.isFluidAtPosition(BlockPos.containing(pos), f -> f.is(Tags.Fluids.WATER)) && level.noCollision(box)) {
+            if (level.isFluidAtPosition(BlockPos.containing(pos), f -> f.is(FluidTags.WATER)) && level.noCollision(box)) {
                 for (int j = 0; j < 3; j++) {
                     Drowned pirate = DrownedPirateHelper.createDrownedPirate(level);
                     pirate.setPos(pos.add(Utils.randomVec3(3)));
@@ -85,8 +86,8 @@ public class DrownedPirateHelper {
         return gun;
     }
 
-    public static List<ItemStack> rollLootTable(ServerLevel level, ResourceKey<LootTable> lootTableResourceKey) {
-        LootTable table = level.getServer().reloadableRegistries().getLootTable(lootTableResourceKey);
+    public static List<ItemStack> rollLootTable(ServerLevel level, ResourceLocation lootTable) {
+        LootTable table = level.getServer().getLootData().getLootTable(lootTable);
         LootParams params = new LootParams.Builder(level).create(LootContextParamSets.EMPTY);
         return table.getRandomItems(params);
     }

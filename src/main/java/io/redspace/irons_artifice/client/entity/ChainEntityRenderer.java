@@ -101,23 +101,23 @@ public class ChainEntityRenderer extends EntityRenderer<ChainEntity> {
         }
 
         // frontface
-        consumer.addVertex(pose, (float) from.x + halfWidth, (float) from.y + halfHeight, (float) from.z)
-                .setColor(-1).setUv(uMax, uvMin).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) from.x - halfWidth, (float) from.y - halfHeight, (float) from.z)
-                .setColor(-1).setUv(uMin, uvMin).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) to.x - halfWidth, (float) to.y - halfHeight, (float) to.z)
-                .setColor(-1).setUv(uMin, uvMax).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) to.x + halfWidth, (float) to.y + halfHeight, (float) to.z)
-                .setColor(-1).setUv(uMax, uvMax).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
+        consumer.vertex(pose.pose(), (float) from.x + halfWidth, (float) from.y + halfHeight, (float) from.z)
+                .color(-1).uv(uMax, uvMin).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) from.x - halfWidth, (float) from.y - halfHeight, (float) from.z)
+                .color(-1).uv(uMin, uvMin).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) to.x - halfWidth, (float) to.y - halfHeight, (float) to.z)
+                .color(-1).uv(uMin, uvMax).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) to.x + halfWidth, (float) to.y + halfHeight, (float) to.z)
+                .color(-1).uv(uMax, uvMax).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
         // backface
-        consumer.addVertex(pose, (float) from.x - halfWidth, (float) from.y - halfHeight, (float) from.z)
-                .setColor(-1).setUv(uMin, uvMin).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) from.x + halfWidth, (float) from.y + halfHeight, (float) from.z)
-                .setColor(-1).setUv(uMax, uvMin).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) to.x + halfWidth, (float) to.y + halfHeight, (float) to.z)
-                .setColor(-1).setUv(uMax, uvMax).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
-        consumer.addVertex(pose, (float) to.x - halfWidth, (float) to.y - halfHeight, (float) to.z)
-                .setColor(-1).setUv(uMin, uvMax).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, 0,1,0);
+        consumer.vertex(pose.pose(), (float) from.x - halfWidth, (float) from.y - halfHeight, (float) from.z)
+                .color(-1).uv(uMin, uvMin).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) from.x + halfWidth, (float) from.y + halfHeight, (float) from.z)
+                .color(-1).uv(uMax, uvMin).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) to.x + halfWidth, (float) to.y + halfHeight, (float) to.z)
+                .color(-1).uv(uMax, uvMax).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
+        consumer.vertex(pose.pose(), (float) to.x - halfWidth, (float) to.y - halfHeight, (float) to.z)
+                .color(-1).uv(uMin, uvMax).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), 0, 1, 0).endVertex();
     }
 
     @Override

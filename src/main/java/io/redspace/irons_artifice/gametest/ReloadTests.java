@@ -46,13 +46,13 @@ public final class ReloadTests {
 
         ReloadState.start(held, 20, 1.0, 1, null);
 
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.RELOADING, "firing mid reload is refused as RELOADING");
-        helper.assertValueEqual(GunItem.getMagazine(held).count(), 1,
+        TestFixtures.assertValueEqual(GunItem.getMagazine(held).count(), 1,
                 "the refused shot left the magazine untouched");
 
         ReloadState.remove(held);
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "firing works once the reload is gone");
 
         helper.succeed();
@@ -69,11 +69,11 @@ public final class ReloadTests {
                 "a top-load config whose skip target is past its skip point reports hasSkip");
 
         ReloadState beforeWindow = state.increment(2);
-        helper.assertValueEqual(beforeWindow.applySkip().progress(), beforeWindow.progress(),
+        TestFixtures.assertValueEqual(beforeWindow.applySkip().progress(), beforeWindow.progress(),
                 "before the insert loop, applySkip leaves progress untouched");
 
         ReloadState insideWindow = state.increment(5);
-        helper.assertValueEqual(insideWindow.applySkip().progress(), topLoad.loopEnd(),
+        TestFixtures.assertValueEqual(insideWindow.applySkip().progress(), topLoad.loopEnd(),
                 "reaching the insert loop jumps progress to the configured skip target");
 
         helper.succeed();

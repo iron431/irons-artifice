@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -37,14 +38,15 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class Illificer extends AbstractIllager implements IGunslingerMob {
 
     public Illificer(EntityType<? extends Illificer> type, Level level) {
@@ -68,7 +70,7 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
 
     @Override
     public IllagerArmPose getArmPose() {
-        if (getWeaponItem().getItem() instanceof GunItem) {
+        if (getMainHandItem().getItem() instanceof GunItem) {
             return IllagerArmPose.NEUTRAL;
         }
         if (isAggressive() && !getMainHandItem().isEmpty()) {
@@ -85,14 +87,15 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
     }
 
     @Override
-    public void applyRaidBuffs(ServerLevel level, int wave, boolean isCaptain) {
+    public void applyRaidBuffs(int wave, boolean isCaptain) {
     }
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
-                                                  MobSpawnType spawnReason, @Nullable SpawnGroupData spawnGroupData) {
+                                                  MobSpawnType spawnReason, @Nullable SpawnGroupData spawnGroupData,
+                                                  @Nullable CompoundTag spawnTag) {
         this.populateDefaultEquipmentSlots(level.getRandom(), difficulty);
-        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnReason, spawnGroupData, spawnTag);
     }
 
     @Override
@@ -142,7 +145,7 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
     }
 
     public static List<ItemStack> rollLoadout(ServerLevel level) {
-        LootTable table = level.getServer().reloadableRegistries().getLootTable(LoadoutLootProvider.ILLIFICER_LOADOUT);
+        LootTable table = level.getServer().getLootData().getLootTable(LoadoutLootProvider.ILLIFICER_LOADOUT);
         LootParams params = new LootParams.Builder(level).create(LootContextParamSets.EMPTY);
         return table.getRandomItems(params);
     }
@@ -160,13 +163,13 @@ public class Illificer extends AbstractIllager implements IGunslingerMob {
         if (gunContainer.isEmpty()) {
             return;
         }
-        ItemStack drop = gunContainer.getItems().get(illificer.getRandom().nextInt(gunContainer.getItems().size())).copyWithCount(1);
+        ItemStack drop = gunContainer.getItem(illificer.getRandom().nextInt(gunContainer.getContainerSize())).copyWithCount(1);
         event.getDrops().add(new ItemEntity(illificer.level(), illificer.getX(), illificer.getY(), illificer.getZ(), drop));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
-                .add(Attributes.STEP_HEIGHT, 1)
+                .add(ForgeMod.STEP_HEIGHT_ADDITION.get(), 0.4)
                 .add(Attributes.MOVEMENT_SPEED, 0.35)
                 .add(Attributes.FOLLOW_RANGE, 48.0)
                 .add(Attributes.MAX_HEALTH, 36.0)

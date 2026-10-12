@@ -14,7 +14,6 @@ import io.redspace.irons_artifice.registry.SoundRegistry;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -27,15 +26,14 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID)
 public class SoulfireCoin extends Entity {
     public static final int ARMING_TICKS = 5;
     public static final int LIFETIME_TICKS = 10 * 20;
@@ -46,6 +44,7 @@ public class SoulfireCoin extends Entity {
     public static final double REDIRECT_MAX_SPEED = 5;
     public static final double DAMAGE_BONUS = 0.5;
     public static final int SOUL_FIRE_TICKS = 5 * 20;
+    private static final double GRAVITY = 0.01;
 
     private @Nullable LivingEntity target;
 
@@ -76,7 +75,7 @@ public class SoulfireCoin extends Entity {
     }
 
     @SubscribeEvent
-    public static void onDamage(LivingIncomingDamageEvent event) {
+    public static void onDamage(LivingAttackEvent event) {
         if (event.getEntity().level() instanceof ServerLevel serverLevel && event.getSource().getDirectEntity() instanceof Bullet bullet && !event.getSource().is(DamageSources.SOUL_DAMAGE_TYPE)) {
             double soulDamage = bullet.getProfile().components().getOrDefault(ShotComponents.SOUL_DAMAGE).compute();
             if (soulDamage > 0) {
@@ -104,17 +103,17 @@ public class SoulfireCoin extends Entity {
             event.setHitState(Bullet.HitState.CONTINUE);
         } else {
             Vec3 aim = target.getBoundingBox().getCenter().subtract(hit.getLocation());
-            Vec3 direction = Utils.directionWithinCone(aim, REDIRECT_SPREAD_DEGREES, bullet.getRandom());
+            Vec3 direction = Utils.directionWithinCone(aim, REDIRECT_SPREAD_DEGREES, bullet.level().getRandom());
             bullet.setDeltaMovement(direction.scale(Math.min(bullet.getDeltaMovement().length(), REDIRECT_MAX_SPEED)));
             bullet.hasImpulse = true;
             bullet.clearPierced();
             event.setHitState(Bullet.HitState.STOP);
         }
         empower(bullet);
-        RandomSource random = bullet.getRandom();
+        RandomSource random = bullet.level().getRandom();
         Vec3 location = event.getRayTraceResult().getLocation();
-        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.BULLET_IMPACT_RICOCHET, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
-        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.SOULFIRE_COIN_HIT, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
+        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.BULLET_IMPACT_RICOCHET.get(), SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
+        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.SOULFIRE_COIN_HIT.get(), SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
     }
 
     private static void empower(Bullet bullet) {
@@ -135,7 +134,7 @@ public class SoulfireCoin extends Entity {
     public void tick() {
         super.tick();
         setInvulnerable(tickCount < ARMING_TICKS);
-        applyGravity();
+        setDeltaMovement(getDeltaMovement().add(0, -GRAVITY, 0));
         move(MoverType.SELF, getDeltaMovement());
         setDeltaMovement(getDeltaMovement().scale(0.9));
         if (level() instanceof ServerLevel serverLevel) {
@@ -176,7 +175,7 @@ public class SoulfireCoin extends Entity {
     private void die(ServerLevel level) {
         level.sendParticles(ParticleTypes.SOUL, getX(), getY() + getBbHeight() * 0.5, getZ(), 8, 0.15, 0.15, 0.15, 0.06);
         level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY() + getBbHeight() * 0.5, getZ(), 8, 0.15, 0.15, 0.15, 0.18);
-        playSound(SoundEvents.SOUL_ESCAPE.value(), 1f, 1f);
+        playSound(SoundEvents.SOUL_ESCAPE, 1f, 1f);
         discard();
     }
 
@@ -186,11 +185,6 @@ public class SoulfireCoin extends Entity {
             die(serverLevel);
         }
         return true;
-    }
-
-    @Override
-    protected double getDefaultGravity() {
-        return 0.01;
     }
 
     @Override
@@ -204,7 +198,7 @@ public class SoulfireCoin extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData() {
     }
 
     @Override

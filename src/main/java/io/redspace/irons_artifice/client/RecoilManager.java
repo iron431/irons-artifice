@@ -7,11 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.event.TickEvent;
 
 /**
  * Client-side <b>predicted</b> camera recoil.
@@ -21,7 +21,7 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
  * bullets along it, so the crosshair and the shots agree. Both sides use {@link RecoilHelper} for the
  * impulse and decay, keeping the independent simulations aligned.
  */
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class RecoilManager {
     private static final float EPSILON = 0.01F;
     // strength of 1 means cursor is just mirroring the real value perfectly.
@@ -54,7 +54,7 @@ public final class RecoilManager {
     }
 
     @SubscribeEvent
-    static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+    public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         float partialTick = (float) event.getPartialTick();
         float p = Mth.lerp(partialTick, pitchCursorO, pitchCursor);
         float y = Mth.lerp(partialTick, yawCursorO, yawCursor);
@@ -66,8 +66,8 @@ public final class RecoilManager {
     }
 
     @SubscribeEvent
-    static void onClientTick(ClientTickEvent.Post event) {
-        if (Minecraft.getInstance().isPaused()) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || Minecraft.getInstance().isPaused()) {
             return;
         }
         pitchCursorO = pitchCursor;

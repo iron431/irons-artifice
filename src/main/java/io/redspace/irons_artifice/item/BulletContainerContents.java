@@ -2,10 +2,10 @@ package io.redspace.irons_artifice.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class BulletContainerContents {
@@ -21,13 +22,11 @@ public final class BulletContainerContents {
     private static final int GRID_COLUMNS = 4;
     public static final Codec<BulletContainerContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(BulletContainerContents::capacity),
-            ItemStack.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletContainerContents::stacks)
+            ItemStack.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletContainerContents::stacks),
+            Codec.INT.optionalFieldOf("selected", NO_SELECTION).forGetter(BulletContainerContents::selectedIndex)
     ).apply(instance, BulletContainerContents::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, BulletContainerContents> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, BulletContainerContents::capacity,
-            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), BulletContainerContents::stacks,
-            BulletContainerContents::new
-    );
+
+    public static final String TAG_KEY = IronsArtifice.id("bullet_pouch").toString();
 
     private final int capacity;
     private final List<ItemStack> stacks;
@@ -45,6 +44,19 @@ public final class BulletContainerContents {
 
     public static BulletContainerContents empty(int capacity) {
         return new BulletContainerContents(capacity, List.of());
+    }
+
+    public static @Nullable BulletContainerContents get(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains(TAG_KEY)) {
+            return null;
+        }
+        return CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_KEY)).resultOrPartial(IronsArtifice.LOGGER::error).orElse(null);
+    }
+
+    public static void set(ItemStack stack, BulletContainerContents contents) {
+        CODEC.encodeStart(NbtOps.INSTANCE, contents).resultOrPartial(IronsArtifice.LOGGER::error)
+                .ifPresent(encoded -> stack.getOrCreateTag().put(TAG_KEY, encoded));
     }
 
     public static boolean accepts(ItemStack stack) {
@@ -96,12 +108,30 @@ public final class BulletContainerContents {
 
     @Override
     public boolean equals(Object other) {
-        return this == other || other instanceof BulletContainerContents contents && capacity == contents.capacity && ItemStack.listMatches(stacks, contents.stacks);
+        return this == other || other instanceof BulletContainerContents contents && capacity == contents.capacity && stacksMatch(stacks, contents.stacks);
     }
 
     @Override
     public int hashCode() {
-        return 31 * capacity + ItemStack.hashStackList(stacks);
+        int hash = capacity;
+        for (ItemStack stack : stacks) {
+            hash = 31 * hash + stack.getItem().hashCode();
+            hash = 31 * hash + stack.getCount();
+            hash = 31 * hash + Objects.hashCode(stack.getTag());
+        }
+        return hash;
+    }
+
+    private static boolean stacksMatch(List<ItemStack> left, List<ItemStack> right) {
+        if (left.size() != right.size()) {
+            return false;
+        }
+        for (int i = 0; i < left.size(); i++) {
+            if (!ItemStack.matches(left.get(i), right.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -150,7 +180,7 @@ public final class BulletContainerContents {
             while (iterator.hasNext() && remaining > 0) {
                 ItemStack stored = iterator.next();
                 int space = stored.getMaxStackSize() - stored.getCount();
-                if (space <= 0 || !ItemStack.isSameItemSameComponents(stored, source)) {
+                if (space <= 0 || !ItemStack.isSameItemSameTags(stored, source)) {
                     continue;
                 }
                 int added = Math.min(space, remaining);
@@ -182,19 +212,19 @@ public final class BulletContainerContents {
 
         public void putBack(ItemStack stack) {
             if (!stack.isEmpty()) {
-                stacks.addFirst(stack);
+                stacks.add(0, stack);
             }
         }
 
         public int drain(int amount) {
             int removed = 0;
             while (removed < amount && !stacks.isEmpty()) {
-                ItemStack first = stacks.getFirst();
+                ItemStack first = stacks.get(0);
                 int take = Math.min(amount - removed, first.getCount());
                 first.shrink(take);
                 removed += take;
                 if (first.isEmpty()) {
-                    stacks.removeFirst();
+                    stacks.remove(0);
                 }
             }
             if (removed > 0) {

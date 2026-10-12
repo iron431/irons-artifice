@@ -1,12 +1,12 @@
 package io.redspace.irons_artifice.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class ServerConfig {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
-    public static final ModConfigSpec SPEC;
-    public static final ModConfigSpec.DoubleValue ILLIFICER_REPLACE_PATROL_LEADER_CHANCE;
-    public static final ModConfigSpec.DoubleValue DROWNED_PIRATE_CURSE_CHANCE;
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ForgeConfigSpec SPEC;
+    public static final ForgeConfigSpec.DoubleValue ILLIFICER_REPLACE_PATROL_LEADER_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue DROWNED_PIRATE_CURSE_CHANCE;
 
     static {
         ILLIFICER_REPLACE_PATROL_LEADER_CHANCE = BUILDER

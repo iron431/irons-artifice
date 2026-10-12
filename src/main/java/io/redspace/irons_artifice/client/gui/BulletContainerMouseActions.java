@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.client.gui;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.BulletContainerItem;
+import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ServerboundSelectBulletContainerItemPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -12,16 +13,15 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.ScreenEvent;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class BulletContainerMouseActions {
     private static double accumulatedScrollX;
     private static double accumulatedScrollY;
@@ -29,18 +29,18 @@ public final class BulletContainerMouseActions {
     private static Slot hoveredSlot;
 
     @SubscribeEvent
-    static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
+    public static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)) {
             return;
         }
         Slot slot = screen.getSlotUnderMouse();
-        if (matches(slot) && onMouseScrolled(event.getScrollDeltaX(), event.getScrollDeltaY(), slot.index, slot.getItem())) {
+        if (matches(slot) && onMouseScrolled(0, event.getScrollDelta(), slot.index, slot.getItem())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    static void onScreenRendered(ScreenEvent.Render.Post event) {
+    public static void onScreenRendered(ScreenEvent.Render.Post event) {
         Slot previous = hoveredSlot;
         hoveredSlot = event.getScreen() instanceof AbstractContainerScreen<?> screen ? screen.getSlotUnderMouse() : null;
         if (previous != null && previous != hoveredSlot) {
@@ -49,7 +49,7 @@ public final class BulletContainerMouseActions {
     }
 
     @SubscribeEvent
-    static void onScreenClosing(ScreenEvent.Closing event) {
+    public static void onScreenClosing(ScreenEvent.Closing event) {
         if (hoveredSlot != null) {
             onStopHovering(hoveredSlot);
             hoveredSlot = null;
@@ -57,7 +57,7 @@ public final class BulletContainerMouseActions {
     }
 
     @SubscribeEvent
-    static void onMouseButtonPressed(ScreenEvent.MouseButtonPressed.Pre event) {
+    public static void onMouseButtonPressed(ScreenEvent.MouseButtonPressed.Pre event) {
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)) {
             return;
         }
@@ -76,7 +76,7 @@ public final class BulletContainerMouseActions {
     }
 
     @SubscribeEvent
-    static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
+    public static void onKeyPressed(ScreenEvent.KeyPressed.Pre event) {
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> screen)) {
             return;
         }
@@ -158,6 +158,6 @@ public final class BulletContainerMouseActions {
             return;
         }
         BulletContainerItem.toggleSelected(pouch, index);
-        PacketDistributor.sendToServer(new ServerboundSelectBulletContainerItemPacket(slotIndex, index));
+        PayloadRegistry.sendToServer(new ServerboundSelectBulletContainerItemPacket(slotIndex, index));
     }
 }

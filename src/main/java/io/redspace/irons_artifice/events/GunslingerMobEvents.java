@@ -2,10 +2,10 @@ package io.redspace.irons_artifice.events;
 
 import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.entity.IGunslingerMob;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class GunslingerMobEvents {
 
     @SubscribeEvent

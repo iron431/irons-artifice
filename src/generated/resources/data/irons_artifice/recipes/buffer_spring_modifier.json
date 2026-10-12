@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:simple_mechanical_components"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "I I",
+    "IBI",
+    "I I"
+  ],
+  "result": {
+    "item": "irons_artifice:buffer_spring_modifier"
+  },
+  "show_notification": true
+}

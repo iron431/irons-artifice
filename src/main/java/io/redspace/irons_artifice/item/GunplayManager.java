@@ -21,6 +21,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.modifier.OnShotEffect;
+import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
@@ -41,8 +42,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -72,14 +72,16 @@ public final class GunplayManager {
         GunProfile gunProfile = gunItem.getGun();
         ShotProfile profile = compose(shooter, gunProfile, stack);
 
-        int ammoToConsume = NeoForge.EVENT_BUS.post(new AmmoEvent.Amount(shooter, profile, 1)).getAmmoToConsume();
+        AmmoEvent.Amount ammoEvent = new AmmoEvent.Amount(shooter, profile, 1);
+        MinecraftForge.EVENT_BUS.post(ammoEvent);
+        int ammoToConsume = ammoEvent.getAmmoToConsume();
         if (magazine.count() < ammoToConsume) {
             if (shooter instanceof Player player && player.level().isClientSide()) {
                 ClientHelper.handleLocalDryFire(player, profile.peek(ShotComponents.GUNSHOT_SOUND).getDryFireSound());
             }
             return FireOutcome.EMPTY_MAGAZINE;
         }
-        if (NeoForge.EVENT_BUS.post(new GunAboutToShootEvent(shooter, profile)).isCanceled()) {
+        if (MinecraftForge.EVENT_BUS.post(new GunAboutToShootEvent(shooter, profile))) {
             return FireOutcome.EVENT_CANCELLED;
         }
         beginFireDelay(shooter, stack, profile.fireDelayTicks(), pitchMultiplierForFire(profile));
@@ -144,7 +146,7 @@ public final class GunplayManager {
             return;
         }
         var event = new AmmoEvent.Consume(shooter, profile, ammoToConsume);
-        if (!NeoForge.EVENT_BUS.post(event).isCanceled()) {
+        if (!MinecraftForge.EVENT_BUS.post(event)) {
             GunItem.setMagazine(stack, magazine.deplete(event.getAmmoToConsume()));
         }
     }
@@ -191,7 +193,7 @@ public final class GunplayManager {
         double fireSpeedMultiplier = profile.peek(ShotComponents.FIRE_DELAY).base() / profile.fireDelayTicks();
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(living.getId(), GeoItem.getOrAssignId(stack, (ServerLevel) living.level()), stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 GunAnimations.FIRE, (fireSpeedMultiplier + 1) / 2, 0);
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
+        PayloadRegistry.sendToPlayersTrackingEntityAndSelf(living, packet);
     }
 
     public static void playReloadAnimation(LivingEntity living, ItemStack stack) {
@@ -201,7 +203,7 @@ public final class GunplayManager {
         }
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(living.getId(), GeoItem.getOrAssignId(stack, (ServerLevel) living.level()), stack == living.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 GunAnimations.RELOAD, state.speed(), state.progress(), state.skipAt(), state.skipTo());
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
+        PayloadRegistry.sendToPlayersTrackingEntityAndSelf(living, packet);
     }
 
     public static void cancelGunAnimation(LivingEntity living, ItemStack stack) {
@@ -214,11 +216,12 @@ public final class GunplayManager {
                 GeoItem.getOrAssignId(stack, serverLevel),
                 hand
         );
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(living, packet);
+        PayloadRegistry.sendToPlayersTrackingEntityAndSelf(living, packet);
     }
 
     private static void fireShot(ServerLevel level, LivingEntity shooter, Vec3 origin, Vec3 direction, ShotProfile profile) {
-        var event = NeoForge.EVENT_BUS.post(new GunShootEvent.Pre(shooter, profile, origin, direction));
+        var event = new GunShootEvent.Pre(shooter, profile, origin, direction);
+        MinecraftForge.EVENT_BUS.post(event);
         origin = event.getOrigin();
         direction = event.getDirection();
         UUID fireId = UUID.randomUUID();
@@ -239,7 +242,7 @@ public final class GunplayManager {
             level.addFreshEntity(bullet);
         }
         spawnMuzzleFlash(level, shooter, direction, profile);
-        NeoForge.EVENT_BUS.post(new GunShootEvent.Post(shooter, profile));
+        MinecraftForge.EVENT_BUS.post(new GunShootEvent.Post(shooter, profile));
     }
 
     private static void spawnMuzzleFlash(ServerLevel level, LivingEntity shooter, Vec3 direction, ShotProfile profile) {
@@ -257,7 +260,7 @@ public final class GunplayManager {
         Vec3 backupPos = shooter.getEyePosition()
                 .add(direction.normalize().scale(1.25 + muzzleOffset))
                 .add(shooter.getForward().cross(new Vec3(0, 1, 0)).scale(0.5 * offsetDirection));
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(shooter, new ClientboundMuzzleFlashPacket(
+        PayloadRegistry.sendToPlayersTrackingEntityAndSelf(shooter, new ClientboundMuzzleFlashPacket(
                 new MuzzleFlashVisuals(flash, List.copyOf(settings.airBursts()), List.copyOf(settings.underwaterBursts())),
                 shooter.getId(),
                 shooter.getDeltaMovement(),
@@ -305,13 +308,13 @@ public final class GunplayManager {
             if (living instanceof Player player && GunItem.isScoping(player)) {
                 profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
             }
-            NeoForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
+            MinecraftForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
         }
         return profile;
     }
 
     private static boolean requiresAmmo(LivingEntity living) {
-        return living instanceof Player player && !player.hasInfiniteMaterials();
+        return living instanceof Player player && !player.getAbilities().instabuild;
     }
 
     public static ReloadResult attemptFinishReload(LivingEntity living, ItemStack gun, int roundsToLoad) {

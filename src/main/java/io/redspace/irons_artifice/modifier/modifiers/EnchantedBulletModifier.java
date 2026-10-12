@@ -12,13 +12,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public final class EnchantedBulletModifier extends ValueStackModifier {
     public static final double INFINITY_CHANCE = 0.125;
 

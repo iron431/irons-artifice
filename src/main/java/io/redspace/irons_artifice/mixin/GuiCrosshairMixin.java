@@ -2,7 +2,6 @@ package io.redspace.irons_artifice.mixin;
 
 import io.redspace.irons_artifice.client.gui.CrosshairRenderer;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GuiCrosshairMixin {
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
-    private void irons_artifice$gunCrosshair(GuiGraphics graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        if (CrosshairRenderer.renderGunCrosshair(graphics, deltaTracker)) {
+    private void irons_artifice$gunCrosshair(GuiGraphics graphics, CallbackInfo ci) {
+        if (CrosshairRenderer.renderGunCrosshair(graphics)) {
             ci.cancel();
         }
     }

@@ -5,8 +5,8 @@ import io.redspace.irons_artifice.entity.Illificer;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 
 public final class CommonSetup {
     public static void entityAttributes(EntityAttributeCreationEvent event) {

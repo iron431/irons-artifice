@@ -1,0 +1,48 @@
+{
+  "parent": "irons_artifice:arms",
+  "criteria": {
+    "peer_review": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "irons_artifice:illificer"
+            }
+          }
+        ],
+        "killing_blow": {
+          "tags": [
+            {
+              "expected": true,
+              "id": "irons_artifice:bullet"
+            }
+          ]
+        }
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.peer_review.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "irons_artifice:illificer_spawn_egg"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.peer_review.title"
+    }
+  },
+  "requirements": [
+    [
+      "peer_review"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

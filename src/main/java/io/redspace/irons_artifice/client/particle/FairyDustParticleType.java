@@ -1,25 +1,18 @@
 package io.redspace.irons_artifice.client.particle;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 
 public class FairyDustParticleType extends ParticleType<FairyDustParticleOption> implements ITrailParticle {
     public FairyDustParticleType(boolean overrideLimiter) {
-        super(overrideLimiter);
+        super(overrideLimiter, FairyDustParticleOption.DESERIALIZER);
     }
 
     @Override
-    public MapCodec<FairyDustParticleOption> codec() {
+    public Codec<FairyDustParticleOption> codec() {
         return FairyDustParticleOption.codec(this);
-    }
-
-    @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, FairyDustParticleOption> streamCodec() {
-        return FairyDustParticleOption.streamCodec(this);
     }
 
     @Override

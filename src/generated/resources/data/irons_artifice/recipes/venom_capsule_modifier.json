@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:bullet"
+    },
+    "E": {
+      "item": "minecraft:spider_eye"
+    },
+    "G": {
+      "item": "minecraft:glass_bottle"
+    }
+  },
+  "pattern": [
+    " EE",
+    " GE",
+    "B  "
+  ],
+  "result": {
+    "item": "irons_artifice:venom_capsule_modifier"
+  },
+  "show_notification": true
+}

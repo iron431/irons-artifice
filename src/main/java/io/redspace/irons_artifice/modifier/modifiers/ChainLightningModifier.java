@@ -31,8 +31,8 @@ public final class ChainLightningModifier implements GunModifier {
     public void apply(ShotComponentMap components) {
         components.getOrCreate(ShotComponents.ON_HIT).add(new ChainLightningOnHit());
         components.getOrCreate(ShotComponents.PARTICLE_TRAIL).add(LIGHTNING_EMITTER.get());
-        components.getOrCreate(ShotComponents.IMPACT_SOUND).addGenericAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_IMPACT, 2f, .9f, 1.1f));
-        components.getOrCreate(ShotComponents.GUNSHOT_SOUND).addAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_SHOOT, 3f, 1.6f, 1.8f));
+        components.getOrCreate(ShotComponents.IMPACT_SOUND).addGenericAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_IMPACT.getHolder().orElseThrow(), 2f, .9f, 1.1f));
+        components.getOrCreate(ShotComponents.GUNSHOT_SOUND).addAccent(PlayableSound.of(SoundRegistry.LIGHTNING_ACCENT_SHOOT.getHolder().orElseThrow(), 3f, 1.6f, 1.8f));
         components.getOrCreate(ShotComponents.MUZZLE_FLASH).addTint(MUZZLE_FLASH_COLOR);
     }
 

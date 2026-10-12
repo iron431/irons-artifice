@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "P": {
+      "item": "minecraft:blaze_powder"
+    },
+    "R": {
+      "tag": "forge:storage_blocks/redstone"
+    }
+  },
+  "pattern": [
+    "BBB",
+    "PRP",
+    "BBB"
+  ],
+  "result": {
+    "item": "irons_artifice:overcharged_powder_modifier"
+  },
+  "show_notification": true
+}

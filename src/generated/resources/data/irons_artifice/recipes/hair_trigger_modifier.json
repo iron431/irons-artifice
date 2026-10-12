@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "irons_artifice:simple_mechanical_components"
+    },
+    "R": {
+      "tag": "forge:ingots/copper"
+    }
+  },
+  "pattern": [
+    "C",
+    "R",
+    "R"
+  ],
+  "result": {
+    "item": "irons_artifice:hair_trigger_modifier"
+  },
+  "show_notification": true
+}

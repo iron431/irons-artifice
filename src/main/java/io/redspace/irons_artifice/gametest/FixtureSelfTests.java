@@ -19,7 +19,7 @@ public final class FixtureSelfTests {
 
         ItemStack held = shooter.getMainHandItem();
         helper.assertTrue(held.getItem() instanceof GunItem, "shooter is holding a gun");
-        helper.assertValueEqual(GunItem.getMagazine(held).count(), 1, "magazine loaded by the fixture");
+        TestFixtures.assertValueEqual(GunItem.getMagazine(held).count(), 1, "magazine loaded by the fixture");
 
         ShotProfile withModifier = GunplayManager.compose(shooter, ((GunItem) held.getItem()).getGun(), held);
         ShotProfile without = GunplayManager.compose(shooter, ((GunItem) held.getItem()).getGun(),

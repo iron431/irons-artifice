@@ -1,9 +1,9 @@
 package io.redspace.irons_artifice.client.gun;
 
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.state.BoneSnapshot;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import io.redspace.irons_artifice.api.GunAnimations;
@@ -75,7 +75,7 @@ public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
 
     protected void silenceAnimations() {
         // silence it all (for gui, ground, and other perspectives where animations shouldn't be visible)
-        for (GeoBone bone : getAnimationProcessor().getRegisteredBones()) {
+        for (CoreGeoBone bone : getAnimationProcessor().getRegisteredBones()) {
             // allow hammers to still animate, so that we can see whether a gun is cocked or not on the ground
             if (!bone.getName().contains(GunBones.HAMMER)) {
                 silenceBone(bone);
@@ -83,7 +83,7 @@ public class GunGeoModel extends DefaultedItemGeoModel<GunItem> {
         }
     }
 
-    protected void silenceBone(GeoBone bone) {
+    protected void silenceBone(CoreGeoBone bone) {
         // A bone's rotation is its rest rotation plus the animation delta, so silencing it means restoring the
         // initial snapshot, not zeroing it.
         BoneSnapshot rest = bone.getInitialSnapshot();

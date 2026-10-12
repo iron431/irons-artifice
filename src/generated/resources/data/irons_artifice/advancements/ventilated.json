@@ -1,0 +1,35 @@
+{
+  "parent": "irons_artifice:fully_loaded",
+  "criteria": {
+    "ventilated": {
+      "conditions": {
+        "pellets_on_target": {
+          "min": 12
+        },
+        "source": "bullet"
+      },
+      "trigger": "irons_artifice:gun_combat"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.ventilated.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:scattershot_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.ventilated.title"
+    }
+  },
+  "requirements": [
+    [
+      "ventilated"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

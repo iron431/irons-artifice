@@ -36,8 +36,7 @@ import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.MinecraftInstanceHelper;
 import io.redspace.ironslib.kinetic_weapon.client.KineticAnimations;
 import net.minecraft.client.Minecraft;
-import software.bernie.geckolib.animatable.client.GeoRenderProvider;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import net.minecraft.client.gui.screens.MenuScreens;
 import com.google.common.base.Suppliers;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -46,59 +45,32 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
-@Mod(value = IronsArtifice.MODID, dist = Dist.CLIENT)
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class IronsArtificeClient {
-    public IronsArtificeClient(ModContainer container) {
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-    }
-
     @SubscribeEvent
-    public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR, IronsArtifice.id("ammo_hud"), AmmoCountHudOverlay::render);
-        event.registerAbove(VanillaGuiLayers.CAMERA_OVERLAYS, IronsArtifice.id("gun_scope"), GunScopeOverlay::render);
+    public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "ammo_hud", AmmoCountHudOverlay::render);
+        event.registerAbove(VanillaGuiOverlay.PORTAL.id(), "gun_scope", GunScopeOverlay::render);
     }
 
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        for (GunItem gun : guns()) {
-            ResourceLocation modelId = BuiltInRegistries.ITEM.getKey(gun);
-            gun.geoRenderProvider.setValue(new GeoRenderProvider() {
-                private final Supplier<GeoItemRenderer<GunItem>> renderer =
-                        Suppliers.memoize(() -> new GunInHandRenderer(new GunGeoModel(modelId)));
-
-                @Override
-                public @Nullable BlockEntityWithoutLevelRenderer getGeoItemRenderer() {
-                    return this.renderer.get();
-                }
-            });
-        }
         AttachmentRenderableRegistry.register(
                 IronsArtifice.id("spyglass_scope"),
                 new AttachmentGeoRenderer(new SimpleItemGeoModel<>(IronsArtifice.MODID,
@@ -123,18 +95,17 @@ public class IronsArtificeClient {
     }
 
     @SubscribeEvent
-    static void onClientSetup(FMLClientSetupEvent event) {
+    public static void onClientSetup(FMLClientSetupEvent event) {
         KineticAnimations.register(BayonetAttachmentModifier.BAYONET_ANIMATION, BayonetAnimations.INSTANCE);
         MinecraftInstanceHelper.instance = () -> Minecraft.getInstance().player;
+        event.enqueueWork(() -> {
+            GunArmPoses.register();
+            MenuScreens.register(MenuRegistry.GUN_MENU.get(), GunModifierScreen::new);
+        });
     }
 
     @SubscribeEvent
-    static void registerMenuScreens(RegisterMenuScreensEvent event) {
-        event.register(MenuRegistry.GUN_MENU.get(), GunModifierScreen::new);
-    }
-
-    @SubscribeEvent
-    static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.BULLET.get(), NoopRenderer::new);
         event.registerEntityRenderer(EntityRegistry.CHAIN.get(), ChainEntityRenderer::new);
         event.registerEntityRenderer(EntityRegistry.SOUL.get(), SoulfireCoinRenderer::new);
@@ -143,13 +114,13 @@ public class IronsArtificeClient {
     }
 
     @SubscribeEvent
-    static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(Keybinds.OPEN_MODIFIER_MENU);
         event.register(Keybinds.RELOAD);
     }
 
     @SubscribeEvent
-    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+    public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpecial(ParticleRegistry.BLOCK_IMPACT.get(), new ImpactBlockParticle.Provider());
         event.registerSpriteSet(ParticleRegistry.BLOCK_DUST.get(), BlockDustParticle.Provider::new);
         event.registerSpriteSet(ParticleRegistry.BULLET_TRAIL.get(), BulletTrailParticle.Provider::new);
@@ -169,42 +140,35 @@ public class IronsArtificeClient {
         event.register(BulletContainerTooltip.class, tooltip -> new ClientBulletContainerItemTooltip(tooltip.contents()));
     }
 
-    @SubscribeEvent
-    public static void onLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        ClientHelper.reset();
-    }
-
-    @SubscribeEvent
-    static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        for (GunItem gun : guns()) {
-            event.registerItem(gunExtension(gun), gun);
-        }
-    }
-
+    /**
+     * Called from the {@link GunItem} constructor, before its profile is assigned and before it has a registry key,
+     * so both are read on first use rather than here.
+     */
     public static IClientItemExtensions gunExtension(GunItem gun) {
-        HumanoidModel.ArmPose pose = gun.getGun().armPoseKind() == ArmPoseKind.PISTOL
-                ? GunArmPoses.PISTOL.getValue()
-                : GunArmPoses.RIFLE.getValue();
+        Supplier<GunInHandRenderer> renderer = Suppliers.memoize(() -> {
+            ResourceLocation modelId = BuiltInRegistries.ITEM.getKey(gun);
+            return new GunInHandRenderer(new GunGeoModel(modelId));
+        });
         return new IClientItemExtensions() {
             @Override
             public HumanoidModel.ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {
-                return pose;
+                return gun.getGun().armPoseKind() == ArmPoseKind.PISTOL
+                        ? GunArmPoses.PISTOL
+                        : GunArmPoses.RIFLE;
             }
 
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return GeoRenderProvider.of(gun).getGeoItemRenderer();
+                return renderer.get();
             }
         };
     }
 
-    private static List<GunItem> guns() {
-        List<GunItem> guns = new ArrayList<>();
-        for (Item item : BuiltInRegistries.ITEM) {
-            if (item instanceof GunItem gunItem) {
-                guns.add(gunItem);
-            }
+    @Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+    public static class ForgeEvents {
+        @SubscribeEvent
+        public static void onLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
+            ClientHelper.reset();
         }
-        return guns;
     }
 }

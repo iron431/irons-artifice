@@ -1,14 +1,15 @@
 package io.redspace.irons_artifice.item;
 
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationProcessor;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.constant.dataticket.DataTicket;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationProcessor;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.DataTicket;
+import software.bernie.geckolib.core.object.PlayState;
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.IronsArtificeClient;
 import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.data.ReloadResult;
@@ -18,11 +19,10 @@ import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.GunState;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import io.redspace.irons_artifice.utils.MinecraftInstanceHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
@@ -33,13 +33,11 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,22 +53,25 @@ public class GunItem extends BaseGeoItem {
     public static final String TRIGGERED_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_ACTIONS;
     public static final String IDLE_ANIMATION_CONTROLLER = GunAnimations.CONTROLLER_IDLE;
     public static final int AMMO_BAR_COLOR = 0xFFAA00;
+    public static final String GUN_SPYGLASS_TAG_KEY = IronsArtifice.id("gun_spyglass").toString();
 
     private final GunProfile gunProfile;
 
     public GunItem(Properties properties, GunProfile gunProfile) {
-        super(properties
-                .stacksTo(1)
-                .component(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
-                .component(DataComponentRegistry.MAGAZINE, new MagazineContents(gunProfile.magazineCapacity()))
-        );
+        super(properties.stacksTo(1));
         this.gunProfile = gunProfile;
     }
 
     public static final int SCOPE_USE_DURATION = 1200;
 
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(IronsArtificeClient.gunExtension(this));
+    }
+
     public static boolean hasGunSpyglass(ItemStack stack) {
-        return stack.has(DataComponentRegistry.GUN_SPYGLASS);
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.contains(GUN_SPYGLASS_TAG_KEY);
     }
 
     public static boolean isScoping(LivingEntity entity) {
@@ -104,7 +105,7 @@ public class GunItem extends BaseGeoItem {
             if (!level.isClientSide()) {
                 kineticWeapon.sound().ifPresent(sound -> level.playSound(
                         null, player.getX(), player.getY(), player.getZ(),
-                        sound, player.getSoundSource(), 1.0F, 1.0F));
+                        sound.value(), player.getSoundSource(), 1.0F, 1.0F));
             }
             return InteractionResultHolder.consume(stack);
         }
@@ -112,12 +113,12 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
+    public int getUseDuration(@NotNull ItemStack stack) {
         if (hasGunSpyglass(stack)) {
             return SCOPE_USE_DURATION;
         }
         // A kinetic stack's duration comes from Iron's Lib, which also ticks and ends the charge.
-        return super.getUseDuration(stack, user);
+        return super.getUseDuration(stack);
     }
 
     @Override
@@ -186,17 +187,17 @@ public class GunItem extends BaseGeoItem {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemStack, @NotNull Item.TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-        super.appendHoverText(itemStack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, level, tooltipComponents, tooltipFlag);
         Consumer<Component> builder = tooltipComponents::add;
         Consumer<Component> statBuilder = (component) -> builder.accept(Component.literal(" ").append(component).withStyle(ChatFormatting.DARK_GREEN));
         Function<String, Component> highlightText = s -> Component.literal(s).withStyle(ChatFormatting.GREEN);
         ShotProfile shotProfile = GunplayManager.compose(MinecraftInstanceHelper.getPlayer(), this.gunProfile, itemStack);
-        String damage = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
+        String damage = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(shotProfile.value(ShotComponents.DAMAGE));
         int bulletCount = (int) shotProfile.value(ShotComponents.PROJECTILE_COUNT);
         int bulletSpeedPercent = (int) (100 * shotProfile.value(ShotComponents.BULLET_SPEED) / Bullet.BASE_SPEED);
-        String fireRate = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(20.0 / shotProfile.fireDelayTicks());
-        String reloadTime = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(gunProfile.reloadTimeTicks() / 20f / shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER));
+        String fireRate = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(20.0 / shotProfile.fireDelayTicks());
+        String reloadTime = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(gunProfile.reloadTimeTicks() / 20f / shotProfile.value(ShotComponents.RELOAD_SPEED_MULTIPLIER));
         if (bulletCount > 1) {
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.damage_per_bullet", highlightText.apply(damage), Component.literal(String.valueOf(bulletCount)).withStyle(ChatFormatting.YELLOW)));
             statBuilder.accept(Component.translatable("irons_artifice.tooltip.bullet_count", bulletCount).withStyle(ChatFormatting.YELLOW));
@@ -220,7 +221,8 @@ public class GunItem extends BaseGeoItem {
                                         .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withItalic(false)))
                         .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW).withItalic(true))));
         GunContainer container = new GunContainer(itemStack);
-        for (var item : container.getItems()) {
+        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+            ItemStack item = container.getItem(slot);
             if (!item.isEmpty()) {
                 builder.accept(Component.literal(" * ").withStyle(ChatFormatting.DARK_GRAY).append(item.getHoverName().copy().withStyle(ChatFormatting.GRAY)));
             }
@@ -237,7 +239,7 @@ public class GunItem extends BaseGeoItem {
             case NO_AMMO -> level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.DISPENSER_FAIL, SoundSource.PLAYERS, 0.6F, 1.0F);
             case ALREADY_FULL -> level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.NOTE_BLOCK_DIDGERIDOO, SoundSource.PLAYERS, 0.6F, 1.0F);
+                    SoundEvents.NOTE_BLOCK_DIDGERIDOO.value(), SoundSource.PLAYERS, 0.6F, 1.0F);
         }
     }
 
@@ -326,7 +328,16 @@ public class GunItem extends BaseGeoItem {
         }
 
         public boolean cancelTriggeredAnimation() {
-            return stopTriggeredAnimation();
+            if (this.triggeredAnimation == null) {
+                return false;
+            }
+            if (this.currentRawAnimation == this.triggeredAnimation) {
+                this.currentAnimation = null;
+                this.currentRawAnimation = null;
+            }
+            this.triggeredAnimation = null;
+            this.needsAnimationReload = true;
+            return true;
         }
 
         /**

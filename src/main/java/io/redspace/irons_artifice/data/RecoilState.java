@@ -1,13 +1,13 @@
 package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
+import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
 import io.redspace.irons_artifice.utils.RecoilHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec2;
 
 /**
- * Server-side recoil accumulator stored as a data attachment on the shooter.
+ * Server-side recoil accumulator stored on the shooter.
  *
  * <p>Holds the current aim offsetSeconds plus the game-tick at which it was last updated, enabling lazy
  * decay: the offsetSeconds is decayed by elapsed ticks only when read at fire time, so no per-tick handler
@@ -21,7 +21,7 @@ public record RecoilState(float pitch, float yaw, long tick) {
     public static final RecoilState NONE = new RecoilState(0.0F, 0.0F, 0L);
 
     public static RecoilState current(LivingEntity living, long now) {
-        RecoilState state = living.getData(DataAttachmentRegistry.RECOIL);
+        RecoilState state = ((IExtendedLivingEntity) living).irons_artifice$getRecoil();
         int elapsed = (int) Math.max(0L, now - state.tick());
         if (elapsed == 0) {
             return state;
@@ -32,6 +32,10 @@ public record RecoilState(float pitch, float yaw, long tick) {
                 now);
     }
 
+    public static void set(LivingEntity living, RecoilState state) {
+        ((IExtendedLivingEntity) living).irons_artifice$setRecoil(state);
+    }
+
     public static void addImpulse(LivingEntity living, long now, ShotProfile shotProfile) {
         RecoilState decayed = current(living, now);
         Vec2 recoil = RecoilHelper.calculateCameraRecoil(shotProfile);
@@ -39,6 +43,6 @@ public record RecoilState(float pitch, float yaw, long tick) {
                 decayed.pitch() + recoil.x,
                 decayed.yaw() + recoil.y,
                 now);
-        living.setData(DataAttachmentRegistry.RECOIL, next);
+        set(living, next);
     }
 }

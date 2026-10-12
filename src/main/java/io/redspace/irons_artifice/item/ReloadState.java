@@ -2,10 +2,9 @@ package io.redspace.irons_artifice.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import io.redspace.irons_artifice.IronsArtifice;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +21,7 @@ public record ReloadState(double progress, double duration, double speed, int ro
                           double skipTo) {
     @Override
     public boolean equals(Object o) {
-        // hacky workaround for letting a live tick state component not spam the network -- omit ticking volatiles from hashing/equals
+        // progress ticks every tick, so two states of the same reload compare equal without it
         if (this == o) return true;
         if (!(o instanceof ReloadState that)) return false;
         return Double.compare(this.duration, that.duration) == 0
@@ -34,7 +33,6 @@ public record ReloadState(double progress, double duration, double speed, int ro
 
     @Override
     public int hashCode() {
-        // hacky workaround for letting a live tick state component not spam the network -- omit ticking volatiles from hashing/equals
         int result = Double.hashCode(duration);
         result = 31 * result + Double.hashCode(speed);
         result = 31 * result + roundsToLoad;
@@ -54,30 +52,28 @@ public record ReloadState(double progress, double duration, double speed, int ro
             Codec.DOUBLE.optionalFieldOf("skip_to", 0d).forGetter(ReloadState::skipTo)
     ).apply(builder, ReloadState::new));
 
-    public static final StreamCodec<ByteBuf, ReloadState> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.DOUBLE, ReloadState::progress,
-            ByteBufCodecs.DOUBLE, ReloadState::duration,
-            ByteBufCodecs.DOUBLE, ReloadState::speed,
-            ByteBufCodecs.VAR_INT, ReloadState::roundsToLoad,
-            ByteBufCodecs.DOUBLE, ReloadState::skipAt,
-            ByteBufCodecs.DOUBLE, ReloadState::skipTo,
-            ReloadState::new
-    );
+    public static final String TAG_KEY = IronsArtifice.id("reload_state").toString();
 
     public static @Nullable ReloadState get(ItemStack stack) {
-        return stack.get(DataComponentRegistry.RELOAD_STATE);
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains(TAG_KEY)) {
+            return null;
+        }
+        return CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_KEY)).resultOrPartial(IronsArtifice.LOGGER::error).orElse(null);
     }
 
     public static void set(ItemStack stack, ReloadState state) {
-        stack.set(DataComponentRegistry.RELOAD_STATE, state);
+        CODEC.encodeStart(NbtOps.INSTANCE, state).resultOrPartial(IronsArtifice.LOGGER::error)
+                .ifPresent(encoded -> stack.getOrCreateTag().put(TAG_KEY, encoded));
     }
 
     public static boolean has(ItemStack stack) {
-        return stack.has(DataComponentRegistry.RELOAD_STATE);
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.contains(TAG_KEY);
     }
 
     public static void remove(ItemStack stack) {
-        stack.remove(DataComponentRegistry.RELOAD_STATE);
+        stack.removeTagKey(TAG_KEY);
     }
 
     public static ReloadState start(ItemStack stack, int reloadTimeTicks, double speed, int roundsToLoad, @Nullable TopLoadConfig topLoad) {

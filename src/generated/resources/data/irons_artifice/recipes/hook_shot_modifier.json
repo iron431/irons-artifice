@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "*": {
+      "tag": "forge:ingots/iron"
+    },
+    "B": {
+      "item": "irons_artifice:bullet"
+    },
+    "C": {
+      "item": "minecraft:chain"
+    }
+  },
+  "pattern": [
+    "**B",
+    " C*",
+    "C *"
+  ],
+  "result": {
+    "item": "irons_artifice:hook_shot_modifier"
+  },
+  "show_notification": true
+}

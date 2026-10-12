@@ -1,35 +1,30 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.menu.GunModifierMenu;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ServerboundOpenModifierMenuPacket() implements CustomPacketPayload {
+import java.util.function.Supplier;
+
+public record ServerboundOpenModifierMenuPacket() {
     public static final ServerboundOpenModifierMenuPacket INSTANCE = new ServerboundOpenModifierMenuPacket();
 
-    public static final Type<ServerboundOpenModifierMenuPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "open_gun_menu"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundOpenModifierMenuPacket> STREAM_CODEC =
-            StreamCodec.unit(INSTANCE);
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public static void encode(ServerboundOpenModifierMenuPacket msg, FriendlyByteBuf buf) {
     }
 
-    public static void handle(ServerboundOpenModifierMenuPacket payload, IPayloadContext context) {
-        if (!(context.player() instanceof ServerPlayer serverPlayer)) {
+    public static ServerboundOpenModifierMenuPacket decode(FriendlyByteBuf buf) {
+        return INSTANCE;
+    }
+
+    public static void handle(ServerboundOpenModifierMenuPacket payload, Supplier<NetworkEvent.Context> context) {
+        ServerPlayer serverPlayer = context.get().getSender();
+        if (serverPlayer == null) {
             return;
         }
         ItemStack held = serverPlayer.getMainHandItem();

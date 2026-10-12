@@ -1,0 +1,32 @@
+{
+  "parent": "irons_artifice:artifice",
+  "criteria": {
+    "fully_loaded": {
+      "conditions": {
+        "slots_full": true
+      },
+      "trigger": "irons_artifice:gun_modified"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.fully_loaded.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:bullet"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.fully_loaded.title"
+    }
+  },
+  "requirements": [
+    [
+      "fully_loaded"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

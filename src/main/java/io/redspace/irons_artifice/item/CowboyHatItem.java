@@ -1,14 +1,13 @@
 package io.redspace.irons_artifice.item;
 
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.GunCriteria;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,49 +15,38 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.AddAttributeTooltipsEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class CowboyHatItem extends BaseGeoArmorItem {
     private static final int DURABILITY_MULTIPLIER = 37;
 
-    /**
-     * Held directly rather than registered: the armor layers are empty because GeckoLib draws the hat, and nothing
-     * reads the material back through {@code BuiltInRegistries.ARMOR_MATERIAL}.
-     */
-    public static final Holder<ArmorMaterial> COWBOY_HAT_MATERIAL = Holder.direct(new ArmorMaterial(
-            Map.of(ArmorItem.Type.HELMET, 3),
-            15,
-            SoundEvents.ARMOR_EQUIP_LEATHER,
-            () -> Ingredient.of(Items.LEATHER),
-            List.of(),
-            0,
-            0));
+    public static final ArmorMaterial COWBOY_HAT_MATERIAL = new HatArmorMaterial(IronsArtifice.MODID + ":cowboy_hat",
+            DURABILITY_MULTIPLIER, Map.of(ArmorItem.Type.HELMET, 3), 15);
 
     public CowboyHatItem(Properties properties) {
-        super(COWBOY_HAT_MATERIAL, ArmorItem.Type.HELMET,
-                properties.durability(ArmorItem.Type.HELMET.getDurability(DURABILITY_MULTIPLIER)));
+        super(COWBOY_HAT_MATERIAL, ArmorItem.Type.HELMET, properties);
     }
 
     public static final int COOLDOWN_TICKS = 100;
 
 
-    @SubscribeEvent
-    public static void attributeTooltip(AddAttributeTooltipsEvent event) {
-        if (event.getStack().is(ItemRegistry.COWBOY_HAT)) {
-            event.addTooltipLines(
-                    Component.literal(" ").append(Component.translatable("item.irons_artifice.cowboy_hat.ability", (int) (COOLDOWN_TICKS / 20)))
-                            .withStyle(ChatFormatting.GOLD));
-        }
+    @Override
+    public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, level, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(
+                Component.literal(" ").append(Component.translatable("item.irons_artifice.cowboy_hat.ability", (int) (COOLDOWN_TICKS / 20)))
+                        .withStyle(ChatFormatting.GOLD));
     }
 
 
@@ -69,7 +57,7 @@ public class CowboyHatItem extends BaseGeoArmorItem {
         }
         ItemStack hat = livingAttacker.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack gun = livingAttacker.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (!hat.is(ItemRegistry.COWBOY_HAT) ||
+        if (!hat.is(ItemRegistry.COWBOY_HAT.get()) ||
                 !(gun.getItem() instanceof GunItem gunItem) ||
                 !MagazineContents.has(gun) ||
                 (livingAttacker instanceof Player player && player.getCooldowns().isOnCooldown(hat.getItem()))) {

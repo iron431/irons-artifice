@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.item;
 
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
+import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,15 +18,15 @@ public record PendingShot(Vec3 direction, long queuedAtGameTime) {
     public static final long MAX_AGE_TICKS = 2;
 
     public static PendingShot get(LivingEntity living) {
-        return living.getData(DataAttachmentRegistry.PENDING_SHOT.get());
+        return ((IExtendedLivingEntity) living).irons_artifice$getPendingShot();
     }
 
     public static void set(LivingEntity living, PendingShot shot) {
-        living.setData(DataAttachmentRegistry.PENDING_SHOT.get(), shot);
+        ((IExtendedLivingEntity) living).irons_artifice$setPendingShot(shot);
     }
 
     public static void clear(LivingEntity living) {
-        living.setData(DataAttachmentRegistry.PENDING_SHOT.get(), NONE);
+        set(living, NONE);
     }
 
     public boolean isEmpty() {

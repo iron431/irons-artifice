@@ -20,7 +20,7 @@ public class ChainLightningOnHit implements OnHitEffect {
     public void onHit(ServerLevel level, Bullet bullet, HitResult hitResult, HitEntityAccumulator accumulator) {
         Vec3 center = hitResult.getLocation();
         AABB area = AABB.ofSize(center, RADIUS, RADIUS, RADIUS).inflate(1);
-        var random = bullet.getRandom();
+        var random = bullet.level().getRandom();
         Entity owner = bullet.getOwner();
         var targets = bullet.level().getEntities(bullet, area, entity ->
                 !accumulator.contains(entity)

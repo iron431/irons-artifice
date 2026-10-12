@@ -1,11 +1,9 @@
 package io.redspace.irons_artifice.item;
 
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -21,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +27,19 @@ import java.util.Optional;
 public class BulletContainerItem extends Item {
     private static final BulletContainerContents MISSING_CONTENTS = BulletContainerContents.empty(0);
 
+    private final int capacity;
+
     public BulletContainerItem(Properties properties, int capacity) {
-        super(properties
-                .stacksTo(1)
-                .component(DataComponentRegistry.BULLET_POUCH, BulletContainerContents.empty(capacity))
-        );
+        super(properties.stacksTo(1));
+        this.capacity = capacity;
     }
 
     public static BulletContainerContents contents(ItemStack pouch) {
-        return pouch.getOrDefault(DataComponentRegistry.BULLET_POUCH.get(), MISSING_CONTENTS);
+        BulletContainerContents contents = BulletContainerContents.get(pouch);
+        if (contents != null) {
+            return contents;
+        }
+        return pouch.getItem() instanceof BulletContainerItem item ? BulletContainerContents.empty(item.capacity) : MISSING_CONTENTS;
     }
 
     public static int count(ItemStack pouch) {
@@ -52,7 +55,7 @@ public class BulletContainerItem extends Item {
     }
 
     private static void write(ItemStack pouch, BulletContainerContents.Mutable mutable) {
-        pouch.set(DataComponentRegistry.BULLET_POUCH.get(), mutable.toImmutable());
+        BulletContainerContents.set(pouch, mutable.toImmutable());
     }
 
     public static int storeInPouches(Inventory inventory, ItemStack source) {
@@ -186,7 +189,7 @@ public class BulletContainerItem extends Item {
 
     @Override
     public int getBarColor(ItemStack pouch) {
-        return FastColor.ARGB32.colorFromFloat(1.0F, 0.44F, 0.53F, 1.0F);
+        return Mth.color(0.44F, 0.53F, 1.0F);
     }
 
     @Override
@@ -195,8 +198,8 @@ public class BulletContainerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack pouch, TooltipContext context, List<Component> tooltipComponents, TooltipFlag flag) {
-        super.appendHoverText(pouch, context, tooltipComponents, flag);
+    public void appendHoverText(ItemStack pouch, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag flag) {
+        super.appendHoverText(pouch, level, tooltipComponents, flag);
         BulletContainerContents contents = contents(pouch);
         tooltipComponents.add(Component.translatable("irons_artifice.tooltip.bullet_pouch", contents.count(), contents.capacity()).withStyle(ChatFormatting.GRAY));
     }
@@ -209,7 +212,7 @@ public class BulletContainerItem extends Item {
     @Override
     public void onDestroyed(ItemEntity entity) {
         BulletContainerContents contents = contents(entity.getItem());
-        entity.getItem().set(DataComponentRegistry.BULLET_POUCH.get(), BulletContainerContents.empty(contents.capacity()));
-        ItemUtils.onContainerDestroyed(entity, contents.copies().toList());
+        BulletContainerContents.set(entity.getItem(), BulletContainerContents.empty(contents.capacity()));
+        ItemUtils.onContainerDestroyed(entity, contents.copies());
     }
 }

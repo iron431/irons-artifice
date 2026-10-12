@@ -1,86 +1,96 @@
 package io.redspace.irons_artifice.utils;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
+/**
+ * A modifier patch is a {@link CompoundTag} of stack tag keys. Rebuilding copies its entries onto the gun's tag,
+ * drops the keys the previous patch set that the next one no longer does, and keeps the patch itself under
+ * {@link #TAG_KEY} so the next rebuild knows what it owns.
+ */
 public final class ModifierPatchHandler {
+    public static final String TAG_KEY = IronsArtifice.id("modifier_patch").toString();
+
+    private static final DynamicOps<Tag> NBT_OPS = RegistryOps.create(NbtOps.INSTANCE,
+            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
 
     public static void rebuild(ItemStack gun, Container modifiers) {
-        DataComponentPatch next = combine(modifiers);
-        DataComponentPatch previous = gun.getOrDefault(DataComponentRegistry.MODIFIER_PATCH, DataComponentPatch.EMPTY);
+        CompoundTag next = combine(modifiers);
+        CompoundTag previous = gun.getTagElement(TAG_KEY);
+        if (previous == null) {
+            previous = new CompoundTag();
+        }
         if (previous.equals(next)) {
             return;
         }
 
-        Set<DataComponentType<?>> nextTypes = new HashSet<>();
-        for (var entry : next.entrySet()) {
-            nextTypes.add(entry.getKey());
-        }
-        for (var entry : previous.entrySet()) {
-            DataComponentType<?> type = entry.getKey();
-            if (!nextTypes.contains(type)) {
-                gun.remove(type);
+        for (String key : previous.getAllKeys()) {
+            if (!next.contains(key)) {
+                gun.removeTagKey(key);
             }
         }
 
         if (next.isEmpty()) {
-            gun.remove(DataComponentRegistry.MODIFIER_PATCH);
+            gun.removeTagKey(TAG_KEY);
             return;
         }
-        gun.applyComponents(next);
-        gun.set(DataComponentRegistry.MODIFIER_PATCH, next);
+        CompoundTag tag = gun.getOrCreateTag();
+        for (String key : next.getAllKeys()) {
+            tag.put(key, next.get(key).copy());
+        }
+        tag.put(TAG_KEY, next);
     }
 
-    public static DataComponentPatch combine(Container modifiers) {
-        DataComponentPatch.Builder builder = DataComponentPatch.builder();
+    public static CompoundTag combine(Container modifiers) {
+        CompoundTag patch = new CompoundTag();
         Map<String, ResourceLocation> attachments = new LinkedHashMap<>();
-        boolean empty = true;
         for (int slot = 0; slot < modifiers.getContainerSize(); slot++) {
             ItemStack stack = modifiers.getItem(slot);
             if (stack.isEmpty() || !(stack.getItem() instanceof ModifierItem modifierItem)) {
                 continue;
             }
-            Optional<DataComponentPatch> patch = modifierItem.getModifier().getPatch();
-            if (patch.isEmpty() || patch.get().isEmpty()) {
+            Optional<CompoundTag> modifierPatch = modifierItem.getModifier().getPatch();
+            if (modifierPatch.isEmpty() || modifierPatch.get().isEmpty()) {
                 continue;
             }
-            empty = false;
-            applyPatchToBuilder(builder, patch.get(), attachments);
+            applyPatch(patch, modifierPatch.get(), attachments);
         }
         if (!attachments.isEmpty()) {
-            builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(attachments));
+            set(patch, AttachmentMap.TAG_KEY, AttachmentMap.CODEC, new AttachmentMap(attachments));
         }
-        return empty ? DataComponentPatch.EMPTY : builder.build();
+        return patch;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> void applyPatchToBuilder(
-            DataComponentPatch.Builder builder,
-            DataComponentPatch patch,
-            Map<String, ResourceLocation> attachments
-    ) {
-        Set<Map.Entry<DataComponentType<T>, Optional<T>>> entries = (Set) patch.entrySet();
-        entries.forEach(entry -> {
-            if (entry.getValue().isEmpty()) {
-                return;
+    public static <T> void set(CompoundTag patch, String key, Codec<T> codec, T value) {
+        codec.encodeStart(NBT_OPS, value).resultOrPartial(IronsArtifice.LOGGER::error)
+                .ifPresent(encoded -> patch.put(key, encoded));
+    }
+
+    private static void applyPatch(CompoundTag patch, CompoundTag modifierPatch, Map<String, ResourceLocation> attachments) {
+        for (String key : modifierPatch.getAllKeys()) {
+            Tag value = modifierPatch.get(key);
+            if (key.equals(AttachmentMap.TAG_KEY)) {
+                AttachmentMap.CODEC.parse(NbtOps.INSTANCE, value).resultOrPartial(IronsArtifice.LOGGER::error)
+                        .ifPresent(map -> attachments.putAll(map.attachments()));
+                continue;
             }
-            if (entry.getKey() == DataComponentRegistry.ATTACHMENT.get()) {
-                attachments.putAll(((AttachmentMap) entry.getValue().get()).attachments());
-                return;
-            }
-            builder.set(entry.getKey(), entry.getValue().get());
-        });
+            patch.put(key, value.copy());
+        }
     }
 }

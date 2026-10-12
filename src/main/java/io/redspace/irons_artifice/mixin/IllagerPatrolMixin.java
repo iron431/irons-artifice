@@ -33,7 +33,7 @@ public class IllagerPatrolMixin {
                 mob.findPatrolTarget();
 
                 mob.setPos(pos.getX(), pos.getY(), pos.getZ());
-                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.PATROL, null);
+                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.PATROL, null, null);
                 level.addFreshEntityWithPassengers(mob);
                 cir.setReturnValue(true);
             }

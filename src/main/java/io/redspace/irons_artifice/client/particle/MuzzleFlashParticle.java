@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jetbrains.annotations.NotNull;
@@ -109,22 +111,23 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
     }
 
     @Override
-    protected void renderRotatedQuad(
-            VertexConsumer buffer,
-            Quaternionf rotation,
-            float x,
-            float y,
-            float z,
-            float partialTickTime
-    ) {
+    public void render(VertexConsumer buffer, Camera camera, float partialTickTime) {
         // Tinted masked pass (uses particle tint color), or single untinted fire pass.
-        super.renderRotatedQuad(buffer, rotation, x, y, z, partialTickTime);
+        super.render(buffer, camera, partialTickTime);
 
         if (!tinted || whiteMaskSprite == null) {
             return;
         }
 
         // White-mask highlight pass: same transform, white color, white_mask UVs.
+        Vec3 cameraPos = camera.getPosition();
+        float x = (float) (Mth.lerp(partialTickTime, xo, this.x) - cameraPos.x());
+        float y = (float) (Mth.lerp(partialTickTime, yo, this.y) - cameraPos.y());
+        float z = (float) (Mth.lerp(partialTickTime, zo, this.z) - cameraPos.z());
+        Quaternionf rotation = new Quaternionf(camera.rotation());
+        if (roll != 0.0F) {
+            rotation.rotateZ(Mth.lerp(partialTickTime, oRoll, roll));
+        }
         float u0 = mirrorHorizontal ? whiteMaskSprite.getU1() : whiteMaskSprite.getU0();
         float u1 = mirrorHorizontal ? whiteMaskSprite.getU0() : whiteMaskSprite.getU1();
         float v0 = mirrorVertical ? whiteMaskSprite.getV1() : whiteMaskSprite.getV0();
@@ -142,7 +145,7 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
                                   float offsetX, float offsetY, float size,
                                   float u, float v, int light) {
         Vector3f corner = new Vector3f(offsetX, offsetY, 0.0F).rotate(rotation).mul(size).add(x, y, z);
-        buffer.addVertex(corner.x(), corner.y(), corner.z()).setUv(u, v).setColor(1.0F, 1.0F, 1.0F, alpha).setLight(light);
+        buffer.vertex(corner.x(), corner.y(), corner.z()).uv(u, v).color(1.0F, 1.0F, 1.0F, alpha).uv2(light).endVertex();
     }
 
     @Override

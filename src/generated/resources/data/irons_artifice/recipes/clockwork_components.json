@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/gold"
+    },
+    "M": {
+      "item": "irons_artifice:mechanical_components"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "MI ",
+    "IRI",
+    " IM"
+  ],
+  "result": {
+    "item": "irons_artifice:clockwork_components"
+  },
+  "show_notification": true
+}

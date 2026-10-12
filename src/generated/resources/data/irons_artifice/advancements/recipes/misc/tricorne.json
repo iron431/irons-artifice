@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "irons_artifice:tricorne"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "precursor": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "irons_artifice:blackpowder"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "precursor",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "irons_artifice:tricorne"
+    ]
+  },
+  "sends_telemetry_event": false
+}

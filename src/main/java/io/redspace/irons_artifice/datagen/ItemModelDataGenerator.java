@@ -5,14 +5,11 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-
-import java.util.List;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
+import net.minecraftforge.client.model.generators.ItemModelProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ItemModelDataGenerator extends ItemModelProvider {
     public static final ResourceLocation GECKOLIB_GUN_DISPLAY = IronsArtifice.id("item/gun_display");
@@ -28,7 +25,7 @@ public class ItemModelDataGenerator extends ItemModelProvider {
         for (var item : ItemRegistry.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
                 ResourceLocation displayParent = GECKOLIB_GUN_DISPLAY;
-                if (item == ItemRegistry.BLACKPOWDER_REVOLVER || item == ItemRegistry.SIX_SHOOTER) {
+                if (item.getId().equals(ItemRegistry.BLACKPOWDER_REVOLVER.getId()) || item.getId().equals(ItemRegistry.SIX_SHOOTER.getId())) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
                 gunModel(item.getId(), displayParent);
@@ -52,18 +49,11 @@ public class ItemModelDataGenerator extends ItemModelProvider {
         return withExistingParent(item.toString(), displayParent);
     }
 
-    private static ResourceLocation itemTexture(DeferredHolder<?, ?> item) {
+    private static ResourceLocation itemTexture(RegistryObject<?> item) {
         return itemTexture(item.getId());
     }
 
     private static ResourceLocation itemTexture(ResourceLocation identifier) {
         return identifier.withPrefix("item/");
-    }
-
-    private static List<DeferredItem<GunItem>> geckolibGuns() {
-        return ItemRegistry.ITEMS.getEntries().stream()
-                .filter(holder -> holder.get() instanceof GunItem)
-                .map(h -> (DeferredItem<GunItem>) h)
-                .toList();
     }
 }

@@ -3,7 +3,6 @@ package io.redspace.irons_artifice.client.gun;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.ReloadState;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -13,21 +12,28 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.common.asm.enumextension.EnumProxy;
-import net.neoforged.neoforge.client.IArmPoseTransformer;
+import net.minecraftforge.client.IArmPoseTransformer;
 
 public final class GunArmPoses {
     private static float QUARTER_PI = Mth.PI * 0.25f;
-    public static final EnumProxy<HumanoidModel.ArmPose> PISTOL = new EnumProxy<>(
-            HumanoidModel.ArmPose.class, false, (IArmPoseTransformer) GunArmPoses::applyPistolPose
+    public static final HumanoidModel.ArmPose PISTOL = HumanoidModel.ArmPose.create(
+            "IRONS_ARTIFICE_PISTOL", false, (IArmPoseTransformer) GunArmPoses::applyPistolPose
     );
 
-    public static final EnumProxy<HumanoidModel.ArmPose> RIFLE = new EnumProxy<>(
-            HumanoidModel.ArmPose.class, true, (IArmPoseTransformer) GunArmPoses::applyRiflePose
+    public static final HumanoidModel.ArmPose RIFLE = HumanoidModel.ArmPose.create(
+            "IRONS_ARTIFICE_RIFLE", true, (IArmPoseTransformer) GunArmPoses::applyRiflePose
     );
+
+    /**
+     * Forge extends the enum when this class initializes, which must happen before the first humanoid is posed: javac
+     * sizes the switch map for {@link HumanoidModel}'s arm pose switch from the enum's values at that moment, and a
+     * pose added later overflows it.
+     */
+    public static void register() {
+    }
 
     public static HumanoidModel.ArmPose poseFor(GunItem gun) {
-        return gun.getGun().armPoseKind() == ArmPoseKind.PISTOL ? PISTOL.getValue() : RIFLE.getValue();
+        return gun.getGun().armPoseKind() == ArmPoseKind.PISTOL ? PISTOL : RIFLE;
     }
 
     public static <T extends LivingEntity> void applyHeldGunPoses(HumanoidModel<T> model, T entity) {
@@ -62,7 +68,7 @@ public final class GunArmPoses {
             var stack = itemHeldByArm(entity, arm);
             if (KineticWeapon.has(stack)) {
                 handleBayonetPose(armModel, holdingInRightArm);
-            } else if (stack.has(DataComponentRegistry.GUN_SPYGLASS)) {
+            } else if (GunItem.hasGunSpyglass(stack)) {
                 handleScopingPose(armModel, holdingInRightArm);
             }
         }
@@ -130,7 +136,7 @@ public final class GunArmPoses {
     }
 
     private static float partialTick() {
-        return Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false);
+        return Minecraft.getInstance().getPartialTick();
     }
 
     public static void animateCrossbowCharge(ModelPart rightArm, ModelPart leftArm, float maxCrossbowChargeDuration, float ticksUsingItem, boolean holdingInRightArm) {

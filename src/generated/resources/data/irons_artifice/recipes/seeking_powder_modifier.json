@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "*": {
+      "item": "minecraft:amethyst_cluster"
+    },
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    }
+  },
+  "pattern": [
+    "B*B"
+  ],
+  "result": {
+    "item": "irons_artifice:seeking_powder_modifier"
+  },
+  "show_notification": true
+}

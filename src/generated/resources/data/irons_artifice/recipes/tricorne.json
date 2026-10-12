@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:leather_helmet"
+    },
+    "*": {
+      "tag": "forge:leather"
+    },
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "F": {
+      "item": "minecraft:feather"
+    }
+  },
+  "pattern": [
+    "***",
+    "B#F"
+  ],
+  "result": {
+    "item": "irons_artifice:tricorne"
+  },
+  "show_notification": true
+}

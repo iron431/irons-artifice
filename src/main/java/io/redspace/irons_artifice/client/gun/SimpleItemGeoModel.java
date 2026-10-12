@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.client.gun;
 
-import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -10,9 +10,9 @@ public class SimpleItemGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
     final ResourceLocation animationResource;
 
     public SimpleItemGeoModel(String modid, String modelResource, String textureResource, String animationResource) {
-        this.modelResource = ResourceLocation.fromNamespaceAndPath(modid, "geo/item/" + modelResource + ".geo.json");
-        this.animationResource = ResourceLocation.fromNamespaceAndPath(modid, "animations/item/" + animationResource + ".animation.json");
-        this.textureResource = ResourceLocation.fromNamespaceAndPath(modid, "textures/item/" + textureResource + ".png");
+        this.modelResource = new ResourceLocation(modid, "geo/item/" + modelResource + ".geo.json");
+        this.animationResource = new ResourceLocation(modid, "animations/item/" + animationResource + ".animation.json");
+        this.textureResource = new ResourceLocation(modid, "textures/item/" + textureResource + ".png");
     }
 
     @Override

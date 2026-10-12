@@ -9,7 +9,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,6 +22,5 @@ public class EntityTypeTagDataGenerator extends IntrinsicHolderTagsProvider<Enti
     protected void addTags(HolderLookup.Provider registries) {
         this.tag(EntityTypeTags.RAIDERS).add(EntityRegistry.ILLIFICER.get());
         this.tag(IronsArtificeTags.BULLET_TARGETS).add(EntityRegistry.SOUL.get());
-        this.tag(EntityTypeTags.ILLAGER).add(EntityRegistry.ILLIFICER.get());
     }
 }

@@ -16,7 +16,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,7 +80,7 @@ public class BlockDustParticle extends TextureSheetParticle {
                 int tintColor;
                 if (blockState.getBlock() instanceof FallingBlock fallingBlock) {
                     tintColor = fallingBlock.getDustColor(blockState, level, pos);
-                } else if (blockState.is(Tags.Blocks.GLASS_BLOCKS_COLORLESS) || blockState.is(Tags.Blocks.GLASS_PANES_COLORLESS)) {
+                } else if (blockState.is(Tags.Blocks.GLASS_COLORLESS) || blockState.is(Tags.Blocks.GLASS_PANES_COLORLESS)) {
                     // for some reason, undyed glass's color is black. hardcode to white-blue
                     tintColor = 0xd0eae9;
                 } else {

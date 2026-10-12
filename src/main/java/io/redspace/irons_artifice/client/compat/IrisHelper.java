@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.client.compat;
 
 import io.redspace.irons_artifice.IronsArtifice;
-import net.neoforged.fml.ModList;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;

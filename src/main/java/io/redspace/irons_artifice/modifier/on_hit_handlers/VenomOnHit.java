@@ -1,13 +1,12 @@
 package io.redspace.irons_artifice.modifier.on_hit_handlers;
 
+import io.redspace.irons_artifice.client.particle.ColorParticleOption;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.gun.HitEntityAccumulator;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.Utils;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -17,9 +16,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class VenomOnHit implements OnHitEffect {
+    private static final String VENOM_CLOUD_KEY = "irons_artifice:venom_cloud";
 
     private int durationTicks;
     private int amplifier;
@@ -45,19 +44,23 @@ public class VenomOnHit implements OnHitEffect {
         return amplifier;
     }
 
+    public static boolean cloudAffects(AreaEffectCloud cloud, LivingEntity entity) {
+        return !(cloud.getPersistentData().getBoolean(VENOM_CLOUD_KEY) && cloud.getOwner() == entity);
+    }
+
     @Override
     public void onHit(ServerLevel level, Bullet bullet, HitResult hitResult, HitEntityAccumulator accumulator) {
         Vec3 center = hitResult.getLocation();
-        Vec3 spawn = level.clip(new ClipContext(center, center.add(0, -5, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, CollisionContext.empty())).getLocation().add(0, 0.05, 0);
+        Vec3 spawn = level.clip(new ClipContext(center, center.add(0, -5, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, bullet)).getLocation().add(0, 0.05, 0);
         int duration = Math.max(1, durationTicks);
         int amp = Math.max(0, amplifier);
-        int poisonColor = MobEffects.POISON.value().getColor();
+        int poisonColor = MobEffects.POISON.getColor();
 
         AreaEffectCloud cloud = new AreaEffectCloud(level, spawn.x, spawn.y, spawn.z);
         if (bullet.getOwner() instanceof LivingEntity owner) {
             cloud.setOwner(owner);
         }
-        cloud.getPersistentData().putBoolean("irons_artifice:venom_cloud", true);
+        cloud.getPersistentData().putBoolean(VENOM_CLOUD_KEY, true);
         cloud.setRadius(3.5f);
         cloud.setRadiusOnUse(0);
         cloud.setWaitTime(10);
@@ -70,7 +73,7 @@ public class VenomOnHit implements OnHitEffect {
 
     private void splashEffects(ServerLevel level, Vec3 center, int color, Vec3 impactMotion) {
         RandomSource random = level.getRandom();
-        ColorParticleOption splash = ColorParticleOption.create(ParticleRegistry.SPLASH.get(), FastColor.ARGB32.opaque(color));
+        ColorParticleOption splash = ColorParticleOption.create(ParticleRegistry.SPLASH.get(), color | 0xFF000000);
         Vec3 bias = impactMotion.lengthSqr() > 1.0E-6 ? impactMotion.normalize().scale(0.15) : Vec3.ZERO;
 
         for (int i = 0; i < 7; i++) {

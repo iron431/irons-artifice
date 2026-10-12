@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:leather_helmet"
+    },
+    "*": {
+      "tag": "forge:leather"
+    },
+    "B": {
+      "item": "irons_artifice:bullet"
+    }
+  },
+  "pattern": [
+    "B#B",
+    "***"
+  ],
+  "result": {
+    "item": "irons_artifice:cowboy_hat"
+  },
+  "show_notification": true
+}

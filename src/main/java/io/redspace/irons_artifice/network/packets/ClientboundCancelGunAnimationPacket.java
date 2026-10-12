@@ -1,30 +1,21 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ClientboundCancelGunAnimationPacket(int entityId, long instanceId, InteractionHand interactionHand)
-        implements CustomPacketPayload {
+import java.util.function.Supplier;
 
-    public static final Type<ClientboundCancelGunAnimationPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "cancel_gun_animation"));
+public record ClientboundCancelGunAnimationPacket(int entityId, long instanceId, InteractionHand interactionHand) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundCancelGunAnimationPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundCancelGunAnimationPacket::encode, ClientboundCancelGunAnimationPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundCancelGunAnimationPacket msg) {
+    public static void encode(ClientboundCancelGunAnimationPacket msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.entityId);
         buf.writeLong(msg.instanceId);
         buf.writeBoolean(msg.interactionHand == InteractionHand.MAIN_HAND);
     }
 
-    private static ClientboundCancelGunAnimationPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundCancelGunAnimationPacket decode(FriendlyByteBuf buf) {
         return new ClientboundCancelGunAnimationPacket(
                 buf.readInt(),
                 buf.readLong(),
@@ -32,12 +23,7 @@ public record ClientboundCancelGunAnimationPacket(int entityId, long instanceId,
         );
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void handle(ClientboundCancelGunAnimationPacket payload, IPayloadContext context) {
+    public static void handle(ClientboundCancelGunAnimationPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleCancelGunAnimationPacket(payload);
     }
 }

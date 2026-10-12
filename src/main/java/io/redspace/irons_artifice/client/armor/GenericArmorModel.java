@@ -13,17 +13,17 @@ public class GenericArmorModel<T extends Item & GeoItem> extends DefaultedItemGe
 
     private final ResourceLocation texture;
 
-    private static final ResourceLocation ANIMATION = ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "animations/empty.animation.json");
+    private static final ResourceLocation ANIMATION = new ResourceLocation(IronsArtifice.MODID, "animations/empty.animation.json");
 
     public GenericArmorModel(String modid, String name) {
         this(
-                ResourceLocation.fromNamespaceAndPath(modid, String.format("geo/armor/%s.geo.json", name)),
-                ResourceLocation.fromNamespaceAndPath(modid, String.format("textures/models/armor/%s.png", name))
+                new ResourceLocation(modid, String.format("geo/armor/%s.geo.json", name)),
+                new ResourceLocation(modid, String.format("textures/models/armor/%s.png", name))
         );
     }
 
     public GenericArmorModel(ResourceLocation model, ResourceLocation texture) {
-        super(ResourceLocation.fromNamespaceAndPath(model.getNamespace(), ""));
+        super(new ResourceLocation(model.getNamespace(), ""));
         this.model = model;
         this.texture = texture;
     }

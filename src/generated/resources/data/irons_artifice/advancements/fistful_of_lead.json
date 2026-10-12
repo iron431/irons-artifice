@@ -1,0 +1,35 @@
+{
+  "parent": "irons_artifice:blackpowder_heart",
+  "criteria": {
+    "fistful_of_lead": {
+      "conditions": {
+        "insta_reloaded": true,
+        "killed": true,
+        "source": "bullet"
+      },
+      "trigger": "irons_artifice:gun_combat"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.fistful_of_lead.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "irons_artifice:cowboy_hat",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.fistful_of_lead.title"
+    }
+  },
+  "requirements": [
+    [
+      "fistful_of_lead"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

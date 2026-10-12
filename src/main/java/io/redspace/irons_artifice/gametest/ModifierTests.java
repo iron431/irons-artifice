@@ -21,8 +21,7 @@ import io.redspace.irons_artifice.modifier.modifiers.SoulfireCoinModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainShotOnHit;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulCoinSpawnOnHit;
 import io.redspace.irons_artifice.modifier.on_shot_handlers.RollSoulCoinChanceOnShot;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.ironslib.registry.IronsLibRegistries;
+import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
@@ -49,6 +48,7 @@ import static io.redspace.irons_artifice.gametest.TestCatalog.bespoke;
 import static io.redspace.irons_artifice.gametest.TestCatalog.compose;
 import static io.redspace.irons_artifice.gametest.TestCatalog.fireInPlace;
 import static io.redspace.irons_artifice.gametest.TestCatalog.lanes;
+import static io.redspace.irons_artifice.gametest.TestFixtures.assertValueEqual;
 import static io.redspace.irons_artifice.gametest.TestFixtures.toughTarget;
 import static io.redspace.irons_artifice.gametest.TestFixtures.watch;
 
@@ -113,9 +113,9 @@ public final class ModifierTests {
             lanes(ItemRegistry.BLOODLETTING_TIP_MODIFIER, "bloodletting_tip_trades_health_for_damage", (helper, lanes) -> {
                 LivingEntity control = lanes.control().shooter();
                 LivingEntity variant = lanes.variant().shooter();
-                helper.assertValueEqual(control.getHealth(), control.getMaxHealth(),
+                assertValueEqual(control.getHealth(), control.getMaxHealth(),
                         "the unmodified shot cost its shooter no health");
-                helper.assertValueEqual(variant.getHealth(), variant.getMaxHealth() - LeechModifier.HEALTH_COST,
+                assertValueEqual(variant.getHealth(), variant.getMaxHealth() - LeechModifier.HEALTH_COST,
                         "bloodletting tip charged its shooter LeechModifier.HEALTH_COST");
                 helper.assertTrue(lanes.variant().damageTaken() > lanes.control().damageTaken(),
                         "bloodletting tip dealt more damage than the unmodified shot");
@@ -230,20 +230,20 @@ public final class ModifierTests {
             // ---- compose ----
             compose(ItemRegistry.MECHANICAL_REPEATER, "mechanical_repeater_forces_auto", (helper, control, variant) -> {
                 helper.assertTrue(control.profile().fireMode() != FireMode.AUTO, "the unmodified musket is not automatic");
-                helper.assertValueEqual(variant.profile().fireMode(), FireMode.AUTO,
+                assertValueEqual(variant.profile().fireMode(), FireMode.AUTO,
                         "mechanical repeater composed the profile into auto fire");
             }),
             compose(ItemRegistry.SCOPE_ATTACHMENT_MODIFIER, "scope_attachment_applies_patch", (helper, control, variant) -> {
-                helper.assertFalse(control.stack().has(DataComponentRegistry.GUN_SPYGLASS.get()),
+                helper.assertFalse(GunItem.hasGunSpyglass(control.stack()),
                         "a plain gun carries no spyglass marker");
-                helper.assertTrue(variant.stack().has(DataComponentRegistry.GUN_SPYGLASS.get()),
+                helper.assertTrue(GunItem.hasGunSpyglass(variant.stack()),
                         "the scope's patch put the spyglass marker on the stack");
                 helper.assertTrue(variant.profile().value(ShotComponents.SPREAD) < control.profile().value(ShotComponents.SPREAD),
                         "the scope narrowed composed spread");
             }),
             compose(ItemRegistry.BAYONET_ATTACHMENT_MODIFIER, "bayonet_attachment_applies_patch", (helper, control, variant) -> {
-                helper.assertFalse(control.stack().has(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get()), "a plain gun has no kinetic-weapon component");
-                helper.assertTrue(variant.stack().has(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get()),
+                helper.assertFalse(KineticWeapon.has(control.stack()), "a plain gun has no kinetic-weapon component");
+                helper.assertTrue(KineticWeapon.has(variant.stack()),
                         "the bayonet's patch put the kinetic-weapon component on the stack");
             }),
             compose(ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER, "suppressor_quietens_and_attaches", (helper, control, variant) -> {
@@ -256,10 +256,10 @@ public final class ModifierTests {
             }),
             // ReloadState.start takes speed as an argument; only attemptStartReload composes the multiplier.
             compose(ItemRegistry.GUN_OIL, "gun_oil_speeds_reload", (helper, control, variant) -> {
-                helper.assertValueEqual(GunplayManager.attemptStartReload(control.shooter(), control.stack()),
-                        ReloadResult.STARTING_RELOAD, "the unmodified reload started");
-                helper.assertValueEqual(GunplayManager.attemptStartReload(variant.shooter(), variant.stack()),
-                        ReloadResult.STARTING_RELOAD, "the gun oil reload started");
+                assertValueEqual(GunplayManager.attemptStartReload(control.shooter(), control.stack()), ReloadResult.STARTING_RELOAD,
+                        "the unmodified reload started");
+                assertValueEqual(GunplayManager.attemptStartReload(variant.shooter(), variant.stack()), ReloadResult.STARTING_RELOAD,
+                        "the gun oil reload started");
                 ReloadState plain = ReloadState.get(control.stack());
                 ReloadState oiled = ReloadState.get(variant.stack());
                 helper.assertTrue(plain != null && oiled != null, "both reloads left state on their stacks");
@@ -268,10 +268,10 @@ public final class ModifierTests {
             }),
             // The coin spawn is a roll on SOUL_CHANCE, so the claim reads the composed chance and handlers, not a hit.
             compose(ItemRegistry.SOULFIRE_COIN, "soulfire_coin_installs_soul_handlers", (helper, control, variant) -> {
-                helper.assertValueEqual(control.profile().value(ShotComponents.SOUL_CHANCE), 0.0,
+                assertValueEqual(control.profile().value(ShotComponents.SOUL_CHANCE), 0.0,
                         "a plain gun composes no soul chance");
                 helper.assertFalse(installsSoulHandlers(control.profile()), "a plain gun installs no soul coin handlers");
-                helper.assertValueEqual(variant.profile().value(ShotComponents.SOUL_CHANCE), SoulfireCoinModifier.SOUL_CHANCE,
+                assertValueEqual(variant.profile().value(ShotComponents.SOUL_CHANCE), SoulfireCoinModifier.SOUL_CHANCE,
                         "soulfire coin composed SoulfireCoinModifier.SOUL_CHANCE");
                 helper.assertTrue(installsSoulHandlers(variant.profile()),
                         "soulfire coin installed RollSoulCoinChanceOnShot and SoulCoinSpawnOnHit");
@@ -351,8 +351,7 @@ public final class ModifierTests {
 
     /** Whether this stack's {@code ATTACHMENT} map names something in the muzzle slot. */
     private static boolean hasMuzzleAttachment(ItemStack stack) {
-        AttachmentMap attachments = stack.get(DataComponentRegistry.ATTACHMENT.get());
-        return attachments != null && attachments.attachments().containsKey("attachment_muzzle");
+        return AttachmentMap.of(stack).attachments().containsKey("attachment_muzzle");
     }
 
     /** Whether the profile carries both halves of the soul coin pipeline: the roll on shot and the spawn on hit. */
@@ -369,7 +368,7 @@ public final class ModifierTests {
         void sample(GameTestHelper helper) {
             double controlX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.CONTROL_LANE))).x;
             double variantX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.VARIANT_LANE))).x;
-            for (Bullet bullet : helper.getEntities(EntityRegistry.BULLET.get())) {
+            for (Bullet bullet : TestFixtures.getEntities(helper, EntityRegistry.BULLET.get())) {
                 double x = bullet.getX();
                 (Math.abs(x - controlX) <= Math.abs(x - variantX) ? control : variant).add(bullet.getUUID());
             }
@@ -549,23 +548,23 @@ public final class ModifierTests {
         LivingEntity first = toughTarget(helper, new BlockPos(1, 2, 2));
         LivingEntity second = toughTarget(helper, new BlockPos(1, 2, 2 + CHAIN_IN_RANGE_OFFSET));
         LivingEntity third = toughTarget(helper, new BlockPos(1, 2, 2 + CHAIN_IN_RANGE_OFFSET + CHAIN_OUT_OF_RANGE_OFFSET));
-        helper.assertValueEqual(countChainEntities(helper), 0, "no chain links exist before any hit");
+        assertValueEqual(countChainEntities(helper), 0, "no chain links exist before any hit");
 
         expectation.check(helper, () -> {
             helper.assertTrue(installed.isPresent(), "composing the gun installed a ChainShotOnHit");
             ChainShotOnHit handler = installed.get();
             handler.postHit(helper.getLevel(), bullet, new EntityHitResult(first), first);
-            helper.assertValueEqual(countChainEntities(helper), 0, "the first hit has nothing to chain to");
+            assertValueEqual(countChainEntities(helper), 0, "the first hit has nothing to chain to");
             handler.postHit(helper.getLevel(), bullet, new EntityHitResult(second), second);
-            helper.assertValueEqual(countChainEntities(helper), 1, "a hit within SPAWN_RANGE of the last spawned one link");
+            assertValueEqual(countChainEntities(helper), 1, "a hit within SPAWN_RANGE of the last spawned one link");
             handler.postHit(helper.getLevel(), bullet, new EntityHitResult(third), third);
-            helper.assertValueEqual(countChainEntities(helper), 1, "a hit outside SPAWN_RANGE spawned no link");
+            assertValueEqual(countChainEntities(helper), 1, "a hit outside SPAWN_RANGE spawned no link");
         });
         helper.succeed();
     }
 
     private static int countChainEntities(GameTestHelper helper) {
-        return helper.getEntities(EntityRegistry.CHAIN.get()).size();
+        return TestFixtures.getEntities(helper, EntityRegistry.CHAIN.get()).size();
     }
 
     // ---- mechanical accelerator ----
@@ -629,7 +628,7 @@ public final class ModifierTests {
         int controlConsumed = AMMO_SHOTS - GunItem.getMagazine(control.getMainHandItem()).count();
         int variantConsumed = AMMO_SHOTS - GunItem.getMagazine(variant.getMainHandItem()).count();
 
-        helper.assertValueEqual(controlConsumed, AMMO_SHOTS, "the unmodified gun consumed a round every shot");
+        assertValueEqual(controlConsumed, AMMO_SHOTS, "the unmodified gun consumed a round every shot");
         expectation.check(helper, () -> helper.assertTrue(variantConsumed < controlConsumed,
                 "enchanted bullet spared at least one round in " + AMMO_SHOTS + " shots (consumed " + variantConsumed + ")"));
         helper.succeed();

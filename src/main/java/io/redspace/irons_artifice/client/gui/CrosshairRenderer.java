@@ -15,20 +15,19 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent;
 import org.joml.Matrix4f;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class CrosshairRenderer {
     private static final int COLOR = 0xFFFFFFFF;
     private static final int THICKNESS = 1;
@@ -40,7 +39,7 @@ public final class CrosshairRenderer {
     private static int reloadAnimationDuration;
     private static int reloadAnimationTick;
 
-    public static boolean renderGunCrosshair(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static boolean renderGunCrosshair(GuiGraphics graphics) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.options.getCameraType().isFirstPerson()) {
             return false;
@@ -54,7 +53,7 @@ public final class CrosshairRenderer {
             return false;
         }
 
-        float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
+        float partialTick = minecraft.getFrameTime();
         float degreesSpread = localCrosshairGap(partialTick);
         float gap = Math.max(GAP_BASE + degreesToGuiPixels(degreesSpread, graphics.guiHeight(), currentFovDegrees(minecraft, player)), 0);
         PoseStack poseStack = graphics.pose();
@@ -164,8 +163,8 @@ public final class CrosshairRenderer {
     }
 
     @SubscribeEvent
-    static void onClientTick(ClientTickEvent.Post event) {
-        if (Minecraft.getInstance().isPaused()) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || Minecraft.getInstance().isPaused()) {
             return;
         }
         crosshairGapCursorO = crosshairGapCursor;
@@ -221,11 +220,12 @@ public final class CrosshairRenderer {
     private static void fillInverted(GuiGraphics graphics, int x0, int y0, int x1, int y1, int color) {
         Matrix4f matrix = graphics.pose().last().pose();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        builder.addVertex(matrix, x0, y0, 0.0F).setColor(color);
-        builder.addVertex(matrix, x0, y1, 0.0F).setColor(color);
-        builder.addVertex(matrix, x1, y1, 0.0F).setColor(color);
-        builder.addVertex(matrix, x1, y0, 0.0F).setColor(color);
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.vertex(matrix, x0, y0, 0.0F).color(color).endVertex();
+        builder.vertex(matrix, x0, y1, 0.0F).color(color).endVertex();
+        builder.vertex(matrix, x1, y1, 0.0F).color(color).endVertex();
+        builder.vertex(matrix, x1, y0, 0.0F).color(color).endVertex();
+        BufferUploader.drawWithShader(builder.end());
     }
 }

@@ -5,18 +5,15 @@ import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.GunModifier;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.utils.ModifierPatchHandler;
 import io.redspace.ironslib.kinetic_weapon.AttackRange;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import io.redspace.ironslib.kinetic_weapon.UseEffects;
-import io.redspace.ironslib.registry.IronsLibRegistries;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 
 import java.util.Map;
 import java.util.Optional;
@@ -37,21 +34,21 @@ public class BayonetAttachmentModifier implements GunModifier {
     }
 
     @Override
-    public Optional<DataComponentPatch> getPatch() {
-        DataComponentPatch.Builder builder = DataComponentPatch.builder();
+    public Optional<CompoundTag> getPatch() {
+        CompoundTag patch = new CompoundTag();
         AttackRange defaultSpearAttackRange = new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F);
-        builder.set(IronsLibRegistries.ComponentRegistry.ATTACK_RANGE.get(), defaultSpearAttackRange);
-        builder.set(IronsLibRegistries.ComponentRegistry.KINETIC_WEAPON.get(),
+        ModifierPatchHandler.set(patch, AttackRange.TAG_KEY, AttackRange.CODEC, defaultSpearAttackRange);
+        ModifierPatchHandler.set(patch, KineticWeapon.TAG_KEY, KineticWeapon.CODEC,
                 createVanillaSpear(
                         1f,
                         0.5f,
                         2.5F, 11.0F, 6.75F, 5.1F, 11.25F, 4.6F
                 ).withAnimation(BAYONET_ANIMATION));
-        builder.set(IronsLibRegistries.ComponentRegistry.USE_EFFECTS.get(), new UseEffects(true, 1));
-        builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
+        ModifierPatchHandler.set(patch, UseEffects.TAG_KEY, UseEffects.CODEC, new UseEffects(true, 1));
+        ModifierPatchHandler.set(patch, AttachmentMap.TAG_KEY, AttachmentMap.CODEC, new AttachmentMap(Map.of(
                 GunBones.SOCKET_BAYONET, IronsArtifice.id("iron_bayonet")
         )));
-        return Optional.of(builder.build());
+        return Optional.of(patch);
     }
 
     public KineticWeapon createVanillaSpear(
@@ -72,8 +69,8 @@ public class BayonetAttachmentModifier implements GunModifier {
                 KineticWeapon.Condition.ofRelativeSpeed((int) (damageTime * 20.0F), damageThreshold),
                 0.38F,
                 damageMultiplier,
-                Optional.<Holder<SoundEvent>>of(SoundRegistry.BAYONET_USE),
-                Optional.<Holder<SoundEvent>>of(SoundRegistry.BAYONET_HIT)
+                SoundRegistry.BAYONET_USE.getHolder(),
+                SoundRegistry.BAYONET_HIT.getHolder()
         );
     }
 }

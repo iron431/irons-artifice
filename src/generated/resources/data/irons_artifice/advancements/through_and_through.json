@@ -1,0 +1,36 @@
+{
+  "parent": "irons_artifice:fully_loaded",
+  "criteria": {
+    "through_and_through": {
+      "conditions": {
+        "killed": true,
+        "lineage_kills": {
+          "min": 5
+        },
+        "source": "bullet"
+      },
+      "trigger": "irons_artifice:gun_combat"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.through_and_through.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:steel_core_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.through_and_through.title"
+    }
+  },
+  "requirements": [
+    [
+      "through_and_through"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

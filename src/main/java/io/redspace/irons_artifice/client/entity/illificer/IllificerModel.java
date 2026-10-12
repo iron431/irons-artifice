@@ -82,7 +82,7 @@ public class IllificerModel extends IllagerModel<Illificer> {
         restoreArmOffsets();
         this.mainArm = entity.getMainArm();
         this.mobGunPose = MobGunPose.NONE;
-        ItemStack weapon = entity.getWeaponItem();
+        ItemStack weapon = entity.getMainHandItem();
         if (!(weapon.getItem() instanceof GunItem gun)) {
             return;
         }

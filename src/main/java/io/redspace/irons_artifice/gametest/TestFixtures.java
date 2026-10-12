@@ -18,21 +18,30 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestSequence;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -99,10 +108,20 @@ public final class TestFixtures {
      * test changes.
      */
     public static LivingEntity firingShooter(GameTestHelper helper, BlockPos relativePos, ItemStack gun) {
+        pinDifficulty(helper);
         LivingEntity shooter = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, relativePos);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, gun);
         resetShotState(shooter);
         return shooter;
+    }
+
+    /**
+     * A mob's shot cone widens by {@code IGunslingerMob.applyDefaultMobNerfs}' four minus the difficulty id, and
+     * every cone number in the tests assumes normal. Forge's game test server takes its difficulty from
+     * {@code server.properties}, whose default is easy.
+     */
+    static void pinDifficulty(GameTestHelper helper) {
+        helper.getLevel().getServer().setDifficulty(Difficulty.NORMAL, true);
     }
 
     public static void resetShotState(LivingEntity shooter) {
@@ -473,7 +492,70 @@ public final class TestFixtures {
     }
 
     private static int countBullets(GameTestHelper helper) {
-        return helper.getEntities(EntityRegistry.BULLET.get()).size();
+        return getEntities(helper, EntityRegistry.BULLET.get()).size();
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // GameTestHelper surfaces this version lacks. Each keeps its upstream name and message.
+    // ---------------------------------------------------------------------------------------
+
+    static <T> void assertValueEqual(T actual, T expected, String what) {
+        if (!Objects.equals(actual, expected)) {
+            throw new GameTestAssertException("Expected " + what + " to be " + expected + ", but was " + actual);
+        }
+    }
+
+    /**
+     * The test structure's bounds as 1.21's {@code StructureUtils.getStructureBounds} reports them: from the
+     * structure's origin, one block above the structure block, to one past its far corner. This version's
+     * {@code getStructureBounds} runs from the structure block to the far corner itself, a block low and a block
+     * short on every axis.
+     */
+    static AABB arenaBounds(GameTestHelper helper) {
+        if (!(helper.getBlockEntity(BlockPos.ZERO) instanceof StructureBlockEntity structureBlock)) {
+            throw new GameTestAssertException("no structure block at the test origin");
+        }
+        BlockPos origin = structureBlock.getBlockPos().offset(structureBlock.getStructurePos());
+        BlockPos farCorner = StructureTemplate.transform(
+                origin.offset(structureBlock.getStructureSize()).offset(-1, -1, -1),
+                Mirror.NONE, structureBlock.getRotation(), origin);
+        return AABB.of(BoundingBox.fromCorners(origin, farCorner));
+    }
+
+    /**
+     * Empties the arena before a test builds it. 1.21's {@code GameTestInfo.succeed} discards every non-player
+     * entity in the structure bounds when a test passes; this version leaves them, the game test server keeps its
+     * world between runs, and entities saved in it load asynchronously after the framework's
+     * {@code clearSpaceForStructure} has looked, so an earlier run's mobs would still stand in the lanes.
+     */
+    static void discardArenaEntities(GameTestHelper helper) {
+        helper.getLevel()
+                .getEntitiesOfClass(Entity.class, arenaBounds(helper).inflate(1.0), entity -> !(entity instanceof Player))
+                .forEach(Entity::discard);
+    }
+
+    static <T extends Entity> List<T> getEntities(GameTestHelper helper, EntityType<T> type) {
+        return helper.getLevel().getEntities(type, arenaBounds(helper), Entity::isAlive);
+    }
+
+    static <T extends Entity> T findOneEntity(GameTestHelper helper, EntityType<T> type) {
+        List<T> found = getEntities(helper, type);
+        if (found.isEmpty()) {
+            throw new GameTestAssertException("Expected " + type.toShortString() + " to exist");
+        }
+        if (found.size() > 1) {
+            throw new GameTestAssertException(
+                    "Expected only one " + type.toShortString() + " to exist, but found " + found.size());
+        }
+        return found.get(0);
+    }
+
+    static void assertEntitiesPresent(GameTestHelper helper, EntityType<?> type, int count) {
+        int found = getEntities(helper, type).size();
+        if (found != count) {
+            throw new GameTestAssertException(
+                    "Expected " + count + " of type " + type.toShortString() + " to exist, found " + found);
+        }
     }
 
     /** A shooter and the direction it fires, for a test that measures the bullet rather than a target. */
@@ -493,7 +575,7 @@ public final class TestFixtures {
                     fireAimed(helper, "variant", variant, designConeDegrees);
                     Bullet controlBullet = null;
                     Bullet variantBullet = null;
-                    for (Bullet bullet : helper.getEntities(EntityRegistry.BULLET.get())) {
+                    for (Bullet bullet : getEntities(helper, EntityRegistry.BULLET.get())) {
                         if (bullet.getOwner() == control.shooter()) {
                             controlBullet = bullet;
                         } else if (bullet.getOwner() == variant.shooter()) {

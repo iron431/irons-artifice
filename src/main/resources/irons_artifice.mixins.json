@@ -2,20 +2,26 @@
   "required": true,
   "minVersion": "0.8.5",
   "package": "io.redspace.irons_artifice.mixin",
+  "refmap": "irons_artifice.refmap.json",
   "client": [
     "AbstractClientPlayerMixin",
     "DrownedModelMixin",
     "GuiCrosshairMixin",
     "ItemInHandRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "MouseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
     "AbstractSkeletonMixin",
+    "AreaEffectCloudMixin",
     "DrownedMixin",
     "IllagerPatrolMixin",
-    "MobAccessor"
+    "ItemEntityAccessor",
+    "LivingEntityMixin",
+    "MobAccessor",
+    "RandomizableContainerBlockEntityAccessor"
   ]
 }

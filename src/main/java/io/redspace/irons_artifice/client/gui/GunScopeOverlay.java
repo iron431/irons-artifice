@@ -1,28 +1,22 @@
 package io.redspace.irons_artifice.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class GunScopeOverlay {
-    private static final ResourceLocation SCOPE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/spyglass_scope.png");
+    private static final ResourceLocation SCOPE_TEXTURE = new ResourceLocation("textures/misc/spyglass_scope.png");
     public static final float FOV_MODIFIER = 0.125F;
 
     private static float scopeScale = 0.5F;
 
-    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || !minecraft.options.getCameraType().isFirstPerson()) {
@@ -33,23 +27,25 @@ public final class GunScopeOverlay {
             scopeScale = 0.5F;
             return;
         }
-        scopeScale = Mth.lerp(0.5F * deltaTracker.getGameTimeDeltaTicks(), scopeScale, 1.125F);
+        scopeScale = Mth.lerp(0.5F * minecraft.getDeltaFrameTime(), scopeScale, 1.125F);
         blitScope(graphics, scopeScale);
     }
 
-    @SubscribeEvent
-    public static void onMouseInput(CalculatePlayerTurnEvent event){
+    /**
+     * The mouse sensitivity {@link net.minecraft.client.MouseHandler#turnPlayer()} reads in place of the video setting.
+     */
+    public static double scopedSensitivity(double sensitivity) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.options.getCameraType().isFirstPerson()) {
-            return;
+            return sensitivity;
         }
         var player = minecraft.player;
         if (player == null || !GunItem.isScoping(player)) {
-            return;
+            return sensitivity;
         }
-        double ss = event.getMouseSensitivity() * 0.6F + 0.2F;
+        double ss = sensitivity * 0.6F + 0.2F;
         double sensitivityMod = ss * ss * ss;
-        event.setMouseSensitivity(sensitivityMod / 8);
+        return sensitivityMod / 8;
     }
 
     private static void blitScope(GuiGraphics graphics, float scale) {

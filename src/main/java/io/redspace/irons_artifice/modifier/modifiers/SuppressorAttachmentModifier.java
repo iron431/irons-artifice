@@ -10,9 +10,9 @@ import io.redspace.irons_artifice.data.ShotComponentMap;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.modifier.GunModifier;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.irons_artifice.utils.ModifierPatchHandler;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 
 import java.util.Map;
@@ -48,11 +48,11 @@ public class SuppressorAttachmentModifier implements GunModifier {
     }
 
     @Override
-    public Optional<DataComponentPatch> getPatch() {
-        DataComponentPatch.Builder builder = DataComponentPatch.builder();
-        builder.set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
+    public Optional<CompoundTag> getPatch() {
+        CompoundTag patch = new CompoundTag();
+        ModifierPatchHandler.set(patch, AttachmentMap.TAG_KEY, AttachmentMap.CODEC, new AttachmentMap(Map.of(
                 GunBones.SOCKET_MUZZLE, IronsArtifice.id("suppressor")
         )));
-        return Optional.of(builder.build());
+        return Optional.of(patch);
     }
 }

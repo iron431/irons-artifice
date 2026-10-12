@@ -1,0 +1,34 @@
+{
+  "parent": "irons_artifice:mag_fed",
+  "criteria": {
+    "fan_the_hammer": {
+      "conditions": {
+        "shots_in_last_second": {
+          "min": 15
+        }
+      },
+      "trigger": "irons_artifice:shot_gun"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.fan_the_hammer.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:hair_trigger_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.fan_the_hammer.title"
+    }
+  },
+  "requirements": [
+    [
+      "fan_the_hammer"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,34 @@
+{
+  "parent": "irons_artifice:blackpowder_heart",
+  "criteria": {
+    "artifice": {
+      "conditions": {
+        "slots_occupied": {
+          "min": 1
+        }
+      },
+      "trigger": "irons_artifice:gun_modified"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.artifice.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:incendiary_tip_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.artifice.title"
+    }
+  },
+  "requirements": [
+    [
+      "artifice"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

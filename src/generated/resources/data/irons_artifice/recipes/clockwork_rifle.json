@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "I": {
+      "tag": "forge:ingots/netherite"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:clockwork_components"
+    },
+    "R": {
+      "item": "minecraft:repeater"
+    }
+  },
+  "pattern": [
+    "I  ",
+    " HR",
+    " LM"
+  ],
+  "result": {
+    "item": "irons_artifice:clockwork_rifle"
+  },
+  "show_notification": true
+}

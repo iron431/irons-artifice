@@ -1,0 +1,33 @@
+{
+  "parent": "irons_artifice:fully_loaded",
+  "criteria": {
+    "dont_bring_a_gun_to_a_knife_fight": {
+      "conditions": {
+        "killed": true,
+        "source": "bayonet"
+      },
+      "trigger": "irons_artifice:gun_combat"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.dont_bring_a_gun_to_a_knife_fight.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:bayonet_attachment_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.dont_bring_a_gun_to_a_knife_fight.title"
+    }
+  },
+  "requirements": [
+    [
+      "dont_bring_a_gun_to_a_knife_fight"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

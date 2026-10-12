@@ -1,25 +1,48 @@
 package io.redspace.irons_artifice.advancement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.redspace.irons_artifice.registry.CriterionRegistry;
-import net.minecraft.advancements.Criterion;
+import com.google.gson.JsonObject;
+import io.redspace.irons_artifice.IronsArtifice;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.advancements.critereon.SerializationContext;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class GunCombatTrigger extends SimpleCriterionTrigger<GunCombatTrigger.TriggerInstance> {
+    static final ResourceLocation ID = IronsArtifice.id("gun_combat");
+
     @Override
-    public Codec<TriggerInstance> codec() {
-        return TriggerInstance.CODEC;
+    public ResourceLocation getId() {
+        return ID;
+    }
+
+    @Override
+    protected TriggerInstance createInstance(JsonObject json, ContextAwarePredicate player, DeserializationContext context) {
+        return new TriggerInstance(
+                player,
+                readBoolean(json, "killed"),
+                MinMaxBounds.Doubles.fromJson(json.get("damage")),
+                MinMaxBounds.Doubles.fromJson(json.get("distance")),
+                MinMaxBounds.Ints.fromJson(json.get("pellets_on_target")),
+                MinMaxBounds.Ints.fromJson(json.get("lineage_kills")),
+                readBoolean(json, "ricocheted"),
+                readBoolean(json, "full_magazine"),
+                readBoolean(json, "insta_reloaded"),
+                readBoolean(json, "submerged"),
+                json.has("source") ? GunCombatSource.CODEC.byName(GsonHelper.getAsString(json, "source")) : null,
+                ItemPredicate.fromJson(json.get("gun")),
+                EntityPredicate.fromJson(json, "entity", context));
     }
 
     public void trigger(ServerPlayer player, CombatSnapshot snapshot) {
@@ -27,6 +50,17 @@ public class GunCombatTrigger extends SimpleCriterionTrigger<GunCombatTrigger.Tr
                 ? null
                 : EntityPredicate.createContext(player, snapshot.victim());
         this.trigger(player, instance -> instance.matches(snapshot, victimContext));
+    }
+
+    @Nullable
+    private static Boolean readBoolean(JsonObject json, String key) {
+        return json.has(key) ? GsonHelper.getAsBoolean(json, key) : null;
+    }
+
+    private static void writeBoolean(JsonObject json, String key, @Nullable Boolean value) {
+        if (value != null) {
+            json.addProperty(key, value);
+        }
     }
 
     public record CombatSnapshot(
@@ -45,132 +79,167 @@ public class GunCombatTrigger extends SimpleCriterionTrigger<GunCombatTrigger.Tr
     ) {
     }
 
-    public record TriggerInstance(
-            Optional<ContextAwarePredicate> player,
-            Optional<Boolean> killed,
-            Optional<MinMaxBounds.Doubles> damage,
-            Optional<MinMaxBounds.Doubles> distance,
-            Optional<MinMaxBounds.Ints> pelletsOnTarget,
-            Optional<MinMaxBounds.Ints> lineageKills,
-            Optional<Boolean> ricocheted,
-            Optional<Boolean> fullMagazine,
-            Optional<Boolean> instaReloaded,
-            Optional<Boolean> submerged,
-            Optional<GunCombatSource> source,
-            Optional<ItemPredicate> gun,
-            Optional<ContextAwarePredicate> entity
-    ) implements SimpleCriterionTrigger.SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
-                Codec.BOOL.optionalFieldOf("killed").forGetter(TriggerInstance::killed),
-                MinMaxBounds.Doubles.CODEC.optionalFieldOf("damage").forGetter(TriggerInstance::damage),
-                MinMaxBounds.Doubles.CODEC.optionalFieldOf("distance").forGetter(TriggerInstance::distance),
-                MinMaxBounds.Ints.CODEC.optionalFieldOf("pellets_on_target").forGetter(TriggerInstance::pelletsOnTarget),
-                MinMaxBounds.Ints.CODEC.optionalFieldOf("lineage_kills").forGetter(TriggerInstance::lineageKills),
-                Codec.BOOL.optionalFieldOf("ricocheted").forGetter(TriggerInstance::ricocheted),
-                Codec.BOOL.optionalFieldOf("full_magazine").forGetter(TriggerInstance::fullMagazine),
-                Codec.BOOL.optionalFieldOf("insta_reloaded").forGetter(TriggerInstance::instaReloaded),
-                Codec.BOOL.optionalFieldOf("submerged").forGetter(TriggerInstance::submerged),
-                GunCombatSource.CODEC.optionalFieldOf("source").forGetter(TriggerInstance::source),
-                ItemPredicate.CODEC.optionalFieldOf("gun").forGetter(TriggerInstance::gun),
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity").forGetter(TriggerInstance::entity)
-        ).apply(instance, TriggerInstance::new));
+    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
+        @Nullable
+        private final Boolean killed;
+        private final MinMaxBounds.Doubles damage;
+        private final MinMaxBounds.Doubles distance;
+        private final MinMaxBounds.Ints pelletsOnTarget;
+        private final MinMaxBounds.Ints lineageKills;
+        @Nullable
+        private final Boolean ricocheted;
+        @Nullable
+        private final Boolean fullMagazine;
+        @Nullable
+        private final Boolean instaReloaded;
+        @Nullable
+        private final Boolean submerged;
+        @Nullable
+        private final GunCombatSource source;
+        private final ItemPredicate gun;
+        private final ContextAwarePredicate entity;
 
-        public static Criterion<TriggerInstance> of(TriggerInstance instance) {
-            return CriterionRegistry.GUN_COMBAT.get().createCriterion(instance);
+        public TriggerInstance(
+                ContextAwarePredicate player,
+                @Nullable Boolean killed,
+                MinMaxBounds.Doubles damage,
+                MinMaxBounds.Doubles distance,
+                MinMaxBounds.Ints pelletsOnTarget,
+                MinMaxBounds.Ints lineageKills,
+                @Nullable Boolean ricocheted,
+                @Nullable Boolean fullMagazine,
+                @Nullable Boolean instaReloaded,
+                @Nullable Boolean submerged,
+                @Nullable GunCombatSource source,
+                ItemPredicate gun,
+                ContextAwarePredicate entity
+        ) {
+            super(ID, player);
+            this.killed = killed;
+            this.damage = damage;
+            this.distance = distance;
+            this.pelletsOnTarget = pelletsOnTarget;
+            this.lineageKills = lineageKills;
+            this.ricocheted = ricocheted;
+            this.fullMagazine = fullMagazine;
+            this.instaReloaded = instaReloaded;
+            this.submerged = submerged;
+            this.source = source;
+            this.gun = gun;
+            this.entity = entity;
         }
 
-        public static Criterion<TriggerInstance> impact(MinMaxBounds.Doubles damage, MinMaxBounds.Doubles distance) {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.empty(), Optional.of(damage), Optional.of(distance),
-                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance impact(MinMaxBounds.Doubles damage, MinMaxBounds.Doubles distance) {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, null, damage, distance,
+                    MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, null, null, null,
+                    null, GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> pelletsOnTarget(int min) {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.of(MinMaxBounds.Ints.atLeast(min)), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance pelletsOnTarget(int min) {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, null, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY,
+                    MinMaxBounds.Ints.atLeast(min), MinMaxBounds.Ints.ANY, null, null,
+                    null, null, GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> ricochetKill() {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance ricochetKill() {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.ANY, true, null, null, null,
+                    GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> lineageKills(int min) {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.of(MinMaxBounds.Ints.atLeast(min)), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance lineageKills(int min) {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.atLeast(min), null, null, null,
+                    null, GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> bayonetKill() {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.of(GunCombatSource.BAYONET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance bayonetKill() {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.ANY, null, null, null, null,
+                    GunCombatSource.BAYONET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> submergedKill() {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(true),
-                    Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance submergedKill() {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.ANY, null, null, null, true,
+                    GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> fullMagazineKill(ContextAwarePredicate player) {
-            return of(new TriggerInstance(
-                    Optional.of(player), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(),
-                    Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance fullMagazineKill(ContextAwarePredicate player) {
+            return new TriggerInstance(
+                    player, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.ANY, null, true, null, null,
+                    GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public static Criterion<TriggerInstance> instaReloadKill() {
-            return of(new TriggerInstance(
-                    Optional.empty(), Optional.of(true), Optional.empty(), Optional.empty(), Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(true), Optional.empty(),
-                    Optional.of(GunCombatSource.BULLET), Optional.empty(), Optional.empty()));
+        public static TriggerInstance instaReloadKill() {
+            return new TriggerInstance(
+                    ContextAwarePredicate.ANY, true, MinMaxBounds.Doubles.ANY, MinMaxBounds.Doubles.ANY, MinMaxBounds.Ints.ANY,
+                    MinMaxBounds.Ints.ANY, null, null, true, null,
+                    GunCombatSource.BULLET, ItemPredicate.ANY, ContextAwarePredicate.ANY);
         }
 
-        public boolean matches(CombatSnapshot snapshot, LootContext victimContext) {
-            if (killed.isPresent() && killed.get() != snapshot.killed()) {
+        public boolean matches(CombatSnapshot snapshot, @Nullable LootContext victimContext) {
+            if (killed != null && killed != snapshot.killed()) {
                 return false;
             }
-            if (damage.isPresent() && !damage.get().matches(snapshot.damage())) {
+            if (!damage.matches(snapshot.damage())) {
                 return false;
             }
-            if (distance.isPresent() && !distance.get().matches(snapshot.distance())) {
+            if (!distance.matches(snapshot.distance())) {
                 return false;
             }
-            if (pelletsOnTarget.isPresent() && !pelletsOnTarget.get().matches(snapshot.pelletsOnTarget())) {
+            if (!pelletsOnTarget.matches(snapshot.pelletsOnTarget())) {
                 return false;
             }
-            if (lineageKills.isPresent() && !lineageKills.get().matches(snapshot.lineageKills())) {
+            if (!lineageKills.matches(snapshot.lineageKills())) {
                 return false;
             }
-            if (ricocheted.isPresent() && ricocheted.get() != snapshot.ricocheted()) {
+            if (ricocheted != null && ricocheted != snapshot.ricocheted()) {
                 return false;
             }
-            if (fullMagazine.isPresent() && fullMagazine.get() != snapshot.fullMagazine()) {
+            if (fullMagazine != null && fullMagazine != snapshot.fullMagazine()) {
                 return false;
             }
-            if (instaReloaded.isPresent() && instaReloaded.get() != snapshot.instaReloaded()) {
+            if (instaReloaded != null && instaReloaded != snapshot.instaReloaded()) {
                 return false;
             }
-            if (submerged.isPresent() && submerged.get() != snapshot.submerged()) {
+            if (submerged != null && submerged != snapshot.submerged()) {
                 return false;
             }
-            if (source.isPresent() && source.get() != snapshot.source()) {
+            if (source != null && source != snapshot.source()) {
                 return false;
             }
-            if (gun.isPresent() && !gun.get().test(snapshot.gun())) {
+            if (!gun.matches(snapshot.gun())) {
                 return false;
             }
-            return entity.isEmpty() || (victimContext != null && entity.get().matches(victimContext));
+            return victimContext != null ? entity.matches(victimContext) : entity == ContextAwarePredicate.ANY;
+        }
+
+        @Override
+        public JsonObject serializeToJson(SerializationContext context) {
+            JsonObject json = super.serializeToJson(context);
+            writeBoolean(json, "killed", killed);
+            json.add("damage", damage.serializeToJson());
+            json.add("distance", distance.serializeToJson());
+            json.add("pellets_on_target", pelletsOnTarget.serializeToJson());
+            json.add("lineage_kills", lineageKills.serializeToJson());
+            writeBoolean(json, "ricocheted", ricocheted);
+            writeBoolean(json, "full_magazine", fullMagazine);
+            writeBoolean(json, "insta_reloaded", instaReloaded);
+            writeBoolean(json, "submerged", submerged);
+            if (source != null) {
+                json.addProperty("source", source.getSerializedName());
+            }
+            json.add("gun", gun.serializeToJson());
+            json.add("entity", entity.toJson(context));
+            return json;
         }
     }
 }

@@ -1,44 +1,29 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ClientboundEquipSoundPacket(SoundSource source, Item item)
-        implements CustomPacketPayload {
+import java.util.function.Supplier;
 
-    public static final Type<ClientboundEquipSoundPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "equip_sound"));
+public record ClientboundEquipSoundPacket(SoundSource source, Item item) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundEquipSoundPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundEquipSoundPacket::encode, ClientboundEquipSoundPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundEquipSoundPacket msg) {
+    public static void encode(ClientboundEquipSoundPacket msg, FriendlyByteBuf buf) {
         buf.writeEnum(msg.source);
-        ByteBufCodecs.registry(Registries.ITEM).encode(buf, msg.item);
+        buf.writeId(BuiltInRegistries.ITEM, msg.item);
     }
 
-    private static ClientboundEquipSoundPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundEquipSoundPacket decode(FriendlyByteBuf buf) {
         return new ClientboundEquipSoundPacket(
                 buf.readEnum(SoundSource.class),
-                ByteBufCodecs.registry(Registries.ITEM).decode(buf)
+                buf.readById(BuiltInRegistries.ITEM)
         );
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void handle(ClientboundEquipSoundPacket payload, IPayloadContext context) {
+    public static void handle(ClientboundEquipSoundPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleEquipSound(payload);
     }
 }

@@ -1,42 +1,48 @@
 package io.redspace.irons_artifice.client.particle;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
-public class FairyDustParticleOption implements ParticleOptions {
-    private static final StreamCodec<ByteBuf, Vec3> VEC3_STREAM_CODEC = StreamCodec.of(
-            (buf, value) -> {
-                buf.writeDouble(value.x);
-                buf.writeDouble(value.y);
-                buf.writeDouble(value.z);
-            },
-            buf -> new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble())
-    );
+import java.util.Locale;
 
-    public static MapCodec<FairyDustParticleOption> codec(ParticleType<FairyDustParticleOption> type) {
-        return RecordCodecBuilder.mapCodec(builder -> builder.group(
+public class FairyDustParticleOption implements ParticleOptions {
+    public static Codec<FairyDustParticleOption> codec(ParticleType<FairyDustParticleOption> type) {
+        return RecordCodecBuilder.create(builder -> builder.group(
                 Codec.FLOAT.fieldOf("phase").forGetter(o -> o.phase),
                 Codec.FLOAT.fieldOf("radius").forGetter(o -> o.radius),
                 Vec3.CODEC.fieldOf("axis").forGetter(o -> o.axis)
         ).apply(builder, (phase, radius, axis) -> new FairyDustParticleOption(type, phase, radius, axis)));
     }
 
-    public static StreamCodec<? super RegistryFriendlyByteBuf, FairyDustParticleOption> streamCodec(ParticleType<FairyDustParticleOption> type) {
-        return StreamCodec.composite(
-                ByteBufCodecs.FLOAT, o -> o.phase,
-                ByteBufCodecs.FLOAT, o -> o.radius,
-                VEC3_STREAM_CODEC, o -> o.axis,
-                (phase, radius, axis) -> new FairyDustParticleOption(type, phase, radius, axis)
-        );
-    }
+    public static final ParticleOptions.Deserializer<FairyDustParticleOption> DESERIALIZER = new ParticleOptions.Deserializer<>() {
+        @Override
+        public FairyDustParticleOption fromCommand(ParticleType<FairyDustParticleOption> type, StringReader reader) throws CommandSyntaxException {
+            reader.expect(' ');
+            float phase = reader.readFloat();
+            reader.expect(' ');
+            float radius = reader.readFloat();
+            reader.expect(' ');
+            double x = reader.readDouble();
+            reader.expect(' ');
+            double y = reader.readDouble();
+            reader.expect(' ');
+            double z = reader.readDouble();
+            return new FairyDustParticleOption(type, phase, radius, new Vec3(x, y, z));
+        }
+
+        @Override
+        public FairyDustParticleOption fromNetwork(ParticleType<FairyDustParticleOption> type, FriendlyByteBuf buf) {
+            return new FairyDustParticleOption(type, buf.readFloat(), buf.readFloat(),
+                    new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
+        }
+    };
 
     private final ParticleType<FairyDustParticleOption> type;
     private final float phase;
@@ -48,6 +54,22 @@ public class FairyDustParticleOption implements ParticleOptions {
         this.phase = phase;
         this.radius = radius;
         this.axis = axis;
+    }
+
+    @Override
+    public void writeToNetwork(FriendlyByteBuf buf) {
+        buf.writeFloat(this.phase);
+        buf.writeFloat(this.radius);
+        buf.writeDouble(this.axis.x);
+        buf.writeDouble(this.axis.y);
+        buf.writeDouble(this.axis.z);
+    }
+
+    @Override
+    public String writeToString() {
+        return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %.2f",
+                BuiltInRegistries.PARTICLE_TYPE.getKey(this.type),
+                this.phase, this.radius, this.axis.x, this.axis.y, this.axis.z);
     }
 
     public float getPhase() {

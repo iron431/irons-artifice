@@ -93,7 +93,7 @@ public class BlackpowderChargeOnHit implements OnHitEffect {
             });
         }
 
-        level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL, 2.5f, 1.4f);
+        level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE, SoundSource.NEUTRAL, 2.5f, 1.4f);
         Utils.spawnParticles(level, new MuzzleFlashParticleOption(ParticleRegistry.EXPLOSION_96.get(), -1, -1, -1, radius / BASE_RADIUS), center.x, center.y + 0.25, center.z, 1, 0, 0, 0, 0, true);
         Utils.spawnParticles(level, ParticleTypes.SMOKE, center.x, center.y, center.z, 8, 0.4, 0.4, 0.4, 0.02, false);
         Utils.spawnParticles(level, ParticleTypes.LAVA, center.x, center.y, center.z, 6, 0.35, 0.35, 0.35, 0.01, false);

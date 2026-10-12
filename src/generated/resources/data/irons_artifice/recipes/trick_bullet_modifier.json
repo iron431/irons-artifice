@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "forge:ingots/gold"
+    },
+    "S": {
+      "tag": "forge:storage_blocks/gold"
+    }
+  },
+  "pattern": [
+    " I ",
+    " S ",
+    "IBI"
+  ],
+  "result": {
+    "item": "irons_artifice:trick_bullet_modifier"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "S": {
+      "item": "minecraft:deepslate_bricks"
+    }
+  },
+  "pattern": [
+    " I ",
+    " S ",
+    "IBI"
+  ],
+  "result": {
+    "item": "irons_artifice:lead_core_modifier"
+  },
+  "show_notification": true
+}

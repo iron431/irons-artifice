@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:mechanical_components"
+    }
+  },
+  "pattern": [
+    "I  ",
+    " HM",
+    " LB"
+  ],
+  "result": {
+    "item": "irons_artifice:blackpowder_revolver"
+  },
+  "show_notification": true
+}

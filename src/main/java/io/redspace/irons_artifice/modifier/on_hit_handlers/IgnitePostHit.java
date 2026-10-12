@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.modifier.PostHitEffect;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 
@@ -27,6 +28,6 @@ public class IgnitePostHit implements PostHitEffect {
         if (!Utils.canHarm(bullet.getOwner(), entity)) {
             return;
         }
-        entity.igniteForTicks(durationTicks);
+        entity.setSecondsOnFire(Mth.positiveCeilDiv(durationTicks, 20));
     }
 }

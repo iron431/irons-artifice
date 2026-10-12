@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "F": {
+      "item": "minecraft:flint_and_steel"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:simple_mechanical_components"
+    }
+  },
+  "pattern": [
+    "I  ",
+    " MF",
+    " LB"
+  ],
+  "result": {
+    "item": "irons_artifice:musket"
+  },
+  "show_notification": true
+}

@@ -4,10 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -16,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public record PlayableSound(Holder<SoundEvent> soundEventHolder, float volume, float minPitch, float maxPitch) {
 
@@ -26,12 +24,20 @@ public record PlayableSound(Holder<SoundEvent> soundEventHolder, float volume, f
             Codec.FLOAT.fieldOf("max_pitch").forGetter(PlayableSound::maxPitch)
     ).apply(builder, PlayableSound::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, PlayableSound> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.holderRegistry(Registries.SOUND_EVENT), PlayableSound::soundEventHolder,
-            ByteBufCodecs.FLOAT, PlayableSound::volume,
-            ByteBufCodecs.FLOAT, PlayableSound::minPitch,
-            ByteBufCodecs.FLOAT, PlayableSound::maxPitch,
-            PlayableSound::new);
+    public static void write(FriendlyByteBuf buf, PlayableSound sound) {
+        buf.writeId(BuiltInRegistries.SOUND_EVENT.asHolderIdMap(), sound.soundEventHolder, (b, event) -> event.writeToNetwork(b));
+        buf.writeFloat(sound.volume);
+        buf.writeFloat(sound.minPitch);
+        buf.writeFloat(sound.maxPitch);
+    }
+
+    public static PlayableSound read(FriendlyByteBuf buf) {
+        return new PlayableSound(
+                buf.readById(BuiltInRegistries.SOUND_EVENT.asHolderIdMap(), SoundEvent::readFromNetwork),
+                buf.readFloat(),
+                buf.readFloat(),
+                buf.readFloat());
+    }
 
     public float samplePitch(RandomSource randomSource) {
         if (maxPitch <= minPitch) {
@@ -78,8 +84,32 @@ public record PlayableSound(Holder<SoundEvent> soundEventHolder, float volume, f
         return new PlayableSound(soundEvent, volume, minPitch, maxPitch);
     }
 
+    public static PlayableSound standard(Supplier<SoundEvent> soundEvent) {
+        return standard(holder(soundEvent));
+    }
+
+    public static PlayableSound of(Supplier<SoundEvent> soundEvent, float volume) {
+        return of(holder(soundEvent), volume);
+    }
+
+    public static PlayableSound of(Supplier<SoundEvent> soundEvent, float volume, float pitch) {
+        return of(holder(soundEvent), volume, pitch);
+    }
+
+    public static PlayableSound of(Supplier<SoundEvent> soundEvent, float volume, float minPitch, float maxPitch) {
+        return of(holder(soundEvent), volume, minPitch, maxPitch);
+    }
+
     public static Holder<SoundEvent> holder(SoundEvent soundEvent) {
         return BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent);
+    }
+
+    /**
+     * Resolves a registered sound (e.g. a {@code RegistryObject}) to its registry holder. Only valid once the sound
+     * event registry has fired, which holds for the gun profiles because items register after sound events.
+     */
+    public static Holder<SoundEvent> holder(Supplier<SoundEvent> soundEvent) {
+        return holder(soundEvent.get());
     }
 }
 

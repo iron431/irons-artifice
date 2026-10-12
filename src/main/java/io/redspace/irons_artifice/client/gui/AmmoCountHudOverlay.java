@@ -7,7 +7,6 @@ import io.redspace.irons_artifice.config.ClientConfig;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.MagazineContents;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,12 +16,13 @@ import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent;
 
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
 public final class AmmoCountHudOverlay {
     private static final ResourceLocation BULLET_ICON = IronsArtifice.id("textures/gui/bullet_icon.png");
 
@@ -30,7 +30,7 @@ public final class AmmoCountHudOverlay {
     private static int flashTicksRemaining;
     private static int flashDuration;
 
-    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         if (!ClientConfig.ENABLED.get()) {
             return;
         }
@@ -122,7 +122,6 @@ public final class AmmoCountHudOverlay {
             float flashOriginX = left + totalWidth / 2;
             float flashOriginY = magazineBaselineY;
             float flashBaseScale = loadedScale;
-            float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
             float endScale = ClientConfig.FLASH_END_SCALE.get().floatValue();
             float travel = ClientConfig.FLASH_TRAVEL.get().floatValue();
             String text = "0";
@@ -143,7 +142,7 @@ public final class AmmoCountHudOverlay {
             return;
         }
 
-        int color = FastColor.ARGB32.color(FastColor.as8BitChannel(alpha), ClientConfig.colorFlash());
+        int color = Mth.floor(alpha * 255.0F) << 24 | ClientConfig.colorFlash() & 0xFFFFFF;
 
         // interpolate towards the center of the screen
         float textWidth = font.width(flashText) * scale;
@@ -165,7 +164,7 @@ public final class AmmoCountHudOverlay {
             case TOP_RIGHT -> new Vec2(guiWidth - ox - width, oy);
             case TOP_LEFT -> new Vec2(ox, oy);
             case HOTBAR -> new Vec2(ox + (guiWidth) / 2 - width,
-                    guiHeight - oy - height - Math.max(Minecraft.getInstance().gui.leftHeight, Minecraft.getInstance().gui.rightHeight));
+                    guiHeight - oy - height - Math.max(((ForgeGui) Minecraft.getInstance().gui).leftHeight, ((ForgeGui) Minecraft.getInstance().gui).rightHeight));
         };
     }
 
@@ -203,7 +202,10 @@ public final class AmmoCountHudOverlay {
     }
 
     @SubscribeEvent
-    static void onClientTick(ClientTickEvent.Post event) {
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null) {

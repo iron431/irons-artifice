@@ -1,13 +1,13 @@
 package io.redspace.irons_artifice.client.gun;
 
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoObjectRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,11 +26,11 @@ public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable> {
     public void renderAttachment(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, float partialTick) {
         // Ensure buffer is unique to avoid shader rendering issues
         RenderType renderType = getRenderType(this.attachment, getTextureLocation(this.attachment), bufferSource, partialTick);
-        render(poseStack, this.attachment, bufferSource, renderType, bufferSource.getBuffer(renderType), packedLight, partialTick);
+        render(poseStack, this.attachment, bufferSource, renderType, bufferSource.getBuffer(renderType), packedLight);
     }
 
     @Override
-    public void preRender(@NotNull PoseStack poseStack, @NotNull GeoAnimatable animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+    public void preRender(@NotNull PoseStack poseStack, @NotNull GeoAnimatable animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         this.objectRenderTranslations = new Matrix4f(poseStack.last().pose());
     }
 
@@ -53,7 +53,7 @@ public class AttachmentGeoRenderer extends GeoObjectRenderer<GeoAnimatable> {
 
         @Override
         public double getTick(Object object) {
-            return RenderUtil.getCurrentTick();
+            return RenderUtils.getCurrentTick();
         }
     }
 }

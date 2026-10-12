@@ -2,35 +2,26 @@ package io.redspace.irons_artifice.datagen;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.registry.ItemRegistry;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
+import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.function.BiConsumer;
 
 public class LoadoutLootProvider implements LootTableSubProvider {
-    public static final ResourceKey<LootTable> ILLIFICER_LOADOUT = key("loadouts/illificer/loadout");
-    public static final ResourceKey<LootTable> ILLIFICER_MAIN_MODIFIER = key("loadouts/illificer/main_modifier");
-    public static final ResourceKey<LootTable> ILLIFICER_AUX_MODIFIER = key("loadouts/illificer/aux_modifier");
-    public static final ResourceKey<LootTable> DROWNED_PIRATE_GUN = key("loadouts/drowned_pirate/gun");
-    public static final ResourceKey<LootTable> DROWNED_PIRATE_LOADOUT = key("loadouts/drowned_pirate/loadout");
-
-    private static ResourceKey<LootTable> key(String path) {
-        return ResourceKey.create(Registries.LOOT_TABLE, IronsArtifice.id(path));
-    }
-
-    public LoadoutLootProvider(HolderLookup.Provider registries) {
-    }
+    public static final ResourceLocation ILLIFICER_LOADOUT = IronsArtifice.id("loadouts/illificer/loadout");
+    public static final ResourceLocation ILLIFICER_MAIN_MODIFIER = IronsArtifice.id("loadouts/illificer/main_modifier");
+    public static final ResourceLocation ILLIFICER_AUX_MODIFIER = IronsArtifice.id("loadouts/illificer/aux_modifier");
+    public static final ResourceLocation DROWNED_PIRATE_GUN = IronsArtifice.id("loadouts/drowned_pirate/gun");
+    public static final ResourceLocation DROWNED_PIRATE_LOADOUT = IronsArtifice.id("loadouts/drowned_pirate/loadout");
 
     @Override
-    public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
+    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> output) {
         output.accept(ILLIFICER_MAIN_MODIFIER, LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1))
@@ -54,11 +45,11 @@ public class LoadoutLootProvider implements LootTableSubProvider {
         output.accept(ILLIFICER_LOADOUT, LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1))
-                        .add(NestedLootTable.lootTableReference(ILLIFICER_MAIN_MODIFIER))
+                        .add(LootTableReference.lootTableReference(ILLIFICER_MAIN_MODIFIER))
                 )
                 .withPool(LootPool.lootPool()
                         .setRolls(UniformGenerator.between(1.0F, 3.0F))
-                        .add(NestedLootTable.lootTableReference(ILLIFICER_AUX_MODIFIER))
+                        .add(LootTableReference.lootTableReference(ILLIFICER_AUX_MODIFIER))
                 ));
 
         output.accept(DROWNED_PIRATE_LOADOUT, LootTable.lootTable()

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:string"
+    },
+    "B": {
+      "item": "irons_artifice:bullet"
+    },
+    "P": {
+      "item": "irons_artifice:blackpowder"
+    }
+  },
+  "pattern": [
+    " BB",
+    "#PB",
+    " # "
+  ],
+  "result": {
+    "item": "irons_artifice:scattershot_modifier"
+  },
+  "show_notification": true
+}

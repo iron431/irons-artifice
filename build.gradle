@@ -1,7 +1,9 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'idea'
     id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
 }
@@ -21,23 +23,15 @@ sourceSets.main.resources {
 }
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'GeckoLib'
-                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-            }
-        }
-        filter { includeGroupAndSubgroups('software.bernie.geckolib') }
+    maven {
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content { includeGroupAndSubgroups('software.bernie.geckolib') }
     }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'Sable'
-                url = 'https://maven.ryanhcode.dev/releases'
-            }
-        }
-        filter { includeGroup('dev.ryanhcode.sable-companion') }
+    maven {
+        name = 'Sable'
+        url = 'https://maven.ryanhcode.dev/releases'
+        content { includeGroup('dev.ryanhcode.sable-companion') }
     }
     maven {
         url "https://cursemaven.com"
@@ -54,97 +48,136 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 java {
     withSourcesJar()
 }
 
-neoForge {
-    version = project.neo_version
+jarJar.enable()
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+
     runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
         client {
-            client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            property 'forge.enabledGameTestNamespaces', project.mod_id
         }
         clientDev2 {
-            client()
+            parent runs.client
 
-            gameDirectory = file("runDev2")
-            programArgument '--username'
-            programArgument 'Dev2'
+            workingDirectory project.file('runDev2')
+            args '--username', 'Dev2'
         }
 
         server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            args '--nogui'
+            property 'forge.enabledGameTestNamespaces', project.mod_id
         }
 
         gameTestServer {
-            type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            systemProperty 'irons_artifice.gameTestReport', file('build/gametest-report.xml').getAbsolutePath()
+            property 'forge.enabledGameTestNamespaces', project.mod_id
+            property 'irons_artifice.gameTestReport', file('build/gametest-report.xml').getAbsolutePath()
         }
 
         data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-
-        configureEach {
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-            logLevel = org.slf4j.event.Level.DEBUG
+            args '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
     }
-
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
-    }
-}
-
-configurations {
-    runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
-    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-    implementation "io.redspace:irons_lib:${irons_lib_version}"
-    jarJar(implementation("dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:[${sable_companion_version},)")) {
-        version {
-            prefer(sable_companion_version)
-        }
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
+
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}")) {
+        jarJar.ranged(it, "[${mixinextras_version},)")
     }
 
-//    implementation "curse.maven:create-aeronautics-676721:8763471"
-//    implementation "curse.maven:create-328085:7963363"
-//    implementation "curse.maven:sable-1312371:8673825"
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")
+    implementation fg.deobf("io.redspace:irons_lib:${irons_lib_version}")
+    // PORT-PLACEHOLDER: sable-companion has no 1.20.1 artifact; restore as jarJar + fg.deobf once one exists
+//    implementation fg.deobf("dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}")
+
+//    implementation fg.deobf("curse.maven:create-aeronautics-676721:8763471")
+//    implementation fg.deobf("curse.maven:create-328085:7963363")
+//    implementation fg.deobf("curse.maven:sable-1312371:8673825")
 }
 
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-    var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_logo_file          : mod_logo_file,
-            geckolib_version       : geckolib_version,
-            irons_lib_version      : irons_lib_version,
-    ]
+var replaceProperties = [
+        minecraft_version      : minecraft_version,
+        minecraft_version_range: minecraft_version_range,
+        forge_version          : forge_version,
+        forge_version_range    : forge_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id,
+        mod_name               : mod_name,
+        mod_license            : mod_license,
+        mod_version            : mod_version,
+        mod_logo_file          : mod_logo_file,
+        geckolib_version       : geckolib_version,
+        irons_lib_version      : irons_lib_version,
+]
+
+processResources {
     inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
 }
-sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
+
+jar {
+    manifest {
+        attributes([
+                "MixinConfigs": "${mod_id}.mixins.json"
+        ])
+    }
+}
+jar.finalizedBy('reobfJar')
+
+// The jarJar output (with MixinExtras nested) is the released jar; the plain jar is kept as -slim.
+tasks.named('jar') { archiveClassifier = 'slim' }
+tasks.named('jarJar') {
+    archiveClassifier = ''
+    manifest.from(tasks.jar.manifest)
+}
+
+reobf {
+    jarJar {}
+}
+
+tasks.jarJar.finalizedBy('reobfJarJar')
+
+afterEvaluate {
+    tasks.named('reobfJar').configure {
+        dependsOn tasks.jar
+        input.set(tasks.jar.archiveFile)
+    }
+    publishing.publications.mavenJava.artifact(tasks.jarJar.archiveFile.get().asFile) {
+        builtBy tasks.reobfJarJar
+    }
+}
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
 
 publishing {
     tasks.publish.dependsOn 'build'
@@ -177,7 +210,7 @@ publishing {
 }
 
 publishMods {
-    def loader = "neoforge"
+    def loader = "forge"
     def projectCurseforge = "1650193"
     def projectModrinth = "yOy4oSzi"
     def slug = "irons-artifice"
@@ -190,7 +223,7 @@ ${latestChangesContent}
     // STABLE | BETA | ALPHA
     type = STABLE
     modLoaders.add(loader)
-    file = tasks.jar.archiveFile
+    file = tasks.jarJar.archiveFile
 
     curseforge {
         accessToken = System.getenv("CURSEFORGE_PUBLISH")

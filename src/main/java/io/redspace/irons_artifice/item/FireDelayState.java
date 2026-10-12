@@ -1,8 +1,10 @@
 package io.redspace.irons_artifice.item;
 
-import software.bernie.geckolib.GeckoLibConstants;
+import software.bernie.geckolib.animatable.GeoItem;
 import io.redspace.irons_artifice.data.FireCycleCueStack;
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
+import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +24,7 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
     public static final long UNKEYED = Long.MIN_VALUE;
 
     public static FireDelayState get(LivingEntity living) {
-        return living.getData(DataAttachmentRegistry.FIRE_DELAY.get());
+        return ((IExtendedLivingEntity) living).irons_artifice$getFireDelay();
     }
 
     /**
@@ -52,12 +54,15 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
         if (durationTicks <= 0) {
             return;
         }
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(),
-                new FireDelayState(gunIdOf(heldGun), 0, durationTicks, 0, pitchMultiplier));
+        set(living, new FireDelayState(gunIdOf(heldGun), 0, durationTicks, 0, pitchMultiplier));
+    }
+
+    private static void set(LivingEntity living, FireDelayState state) {
+        ((IExtendedLivingEntity) living).irons_artifice$setFireDelay(state);
     }
 
     public static void clear(LivingEntity living) {
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(), NONE);
+        set(living, NONE);
     }
 
     /**
@@ -81,8 +86,7 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
             clear(living);
             return true;
         }
-        living.setData(DataAttachmentRegistry.FIRE_DELAY.get(),
-                new FireDelayState(state.gunId, progress, state.duration, nextCue, state.pitchMultiplier));
+        set(living, new FireDelayState(state.gunId, progress, state.duration, nextCue, state.pitchMultiplier));
         return false;
     }
 
@@ -90,7 +94,7 @@ public record FireDelayState(long gunId, int progress, int duration, int cueInde
      * reuse geckolib id'ing
      */
     private static long gunIdOf(ItemStack stack) {
-        Long id = stack.get(GeckoLibConstants.STACK_ANIMATABLE_ID_COMPONENT.get());
-        return id == null ? UNKEYED : id;
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.contains(GeoItem.ID_NBT_KEY, Tag.TAG_ANY_NUMERIC) ? tag.getLong(GeoItem.ID_NBT_KEY) : UNKEYED;
     }
 }

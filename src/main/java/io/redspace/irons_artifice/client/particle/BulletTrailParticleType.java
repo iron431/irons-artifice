@@ -1,24 +1,17 @@
 package io.redspace.irons_artifice.client.particle;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 
 public class BulletTrailParticleType extends ParticleType<ColorTransitionParticleOption>implements ITrailParticle {
     public BulletTrailParticleType(boolean overrideLimiter) {
-        super(overrideLimiter);
+        super(overrideLimiter, ColorTransitionParticleOption.DESERIALIZER);
     }
 
     @Override
-    public MapCodec<ColorTransitionParticleOption> codec() {
+    public Codec<ColorTransitionParticleOption> codec() {
         return ColorTransitionParticleOption.codec(this);
-    }
-
-    @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, ColorTransitionParticleOption> streamCodec() {
-        return ColorTransitionParticleOption.streamCodec(this);
     }
 
 

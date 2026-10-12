@@ -1,9 +1,10 @@
 package io.redspace.irons_artifice.data;
 
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 
 public record ParticleBurst(
         ParticleOptions particle,
@@ -16,22 +17,30 @@ public record ParticleBurst(
     public static final ParticleBurst BUBBLES =
             new ParticleBurst(ParticleTypes.BUBBLE, 40, 1.75f, false);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleBurst> STREAM_CODEC =
-            StreamCodec.of(ParticleBurst::encode, ParticleBurst::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ParticleBurst burst) {
-        ParticleTypes.STREAM_CODEC.encode(buf, burst.particle);
+    public static void write(FriendlyByteBuf buf, ParticleBurst burst) {
+        writeParticle(buf, burst.particle);
         buf.writeVarInt(burst.count);
         buf.writeFloat(burst.velocityScale);
         buf.writeBoolean(burst.force);
     }
 
-    private static ParticleBurst decode(RegistryFriendlyByteBuf buf) {
+    public static ParticleBurst read(FriendlyByteBuf buf) {
         return new ParticleBurst(
-                ParticleTypes.STREAM_CODEC.decode(buf),
+                readParticle(buf),
                 buf.readVarInt(),
                 buf.readFloat(),
                 buf.readBoolean()
         );
+    }
+
+    public static void writeParticle(FriendlyByteBuf buf, ParticleOptions particle) {
+        buf.writeId(BuiltInRegistries.PARTICLE_TYPE, particle.getType());
+        particle.writeToNetwork(buf);
+    }
+
+    public static <T extends ParticleOptions> T readParticle(FriendlyByteBuf buf) {
+        @SuppressWarnings("unchecked")
+        ParticleType<T> type = (ParticleType<T>) buf.readById(BuiltInRegistries.PARTICLE_TYPE);
+        return type.getDeserializer().fromNetwork(type, buf);
     }
 }

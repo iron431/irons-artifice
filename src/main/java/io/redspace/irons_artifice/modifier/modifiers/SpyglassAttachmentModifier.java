@@ -5,12 +5,12 @@ import io.redspace.irons_artifice.api.GunBones;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.item.AttachmentMap;
+import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.modifier.ValueStackModifier;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
+import io.redspace.irons_artifice.utils.ModifierPatchHandler;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Unit;
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,12 +30,12 @@ public class SpyglassAttachmentModifier extends ValueStackModifier {
     }
 
     @Override
-    public Optional<DataComponentPatch> getPatch() {
-        return Optional.of(DataComponentPatch.builder()
-                .set(DataComponentRegistry.GUN_SPYGLASS.get(), Unit.INSTANCE)
-                .set(DataComponentRegistry.ATTACHMENT.get(), new AttachmentMap(Map.of(
-                        GunBones.SOCKET_OPTIC, IronsArtifice.id("spyglass_scope")
-                )))
-                .build());
+    public Optional<CompoundTag> getPatch() {
+        CompoundTag patch = new CompoundTag();
+        patch.putBoolean(GunItem.GUN_SPYGLASS_TAG_KEY, true);
+        ModifierPatchHandler.set(patch, AttachmentMap.TAG_KEY, AttachmentMap.CODEC, new AttachmentMap(Map.of(
+                GunBones.SOCKET_OPTIC, IronsArtifice.id("spyglass_scope")
+        )));
+        return Optional.of(patch);
     }
 }

@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.api;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 
 /**
  * Server-only event firing right before, and right after, a gunshot takes place. Offers a degree of mutability to the gunshot's parameters.

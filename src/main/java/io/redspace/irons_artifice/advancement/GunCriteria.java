@@ -4,37 +4,35 @@ import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.damage.DamageSources;
 import io.redspace.irons_artifice.data.RecentShots;
 import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public final class GunCriteria {
     private GunCriteria() {
     }
 
     public static ShotCombatTracker tracker(ServerPlayer player) {
-        return player.getData(DataAttachmentRegistry.SHOT_COMBAT);
+        return ((IExtendedLivingEntity) player).irons_artifice$getShotCombat();
     }
 
     public static void markInstaReload(ServerPlayer player) {
-        ShotCombatTracker state = tracker(player);
-        state.markInstaReload(player.level().getGameTime());
-        player.setData(DataAttachmentRegistry.SHOT_COMBAT, state);
+        tracker(player).markInstaReload(player.level().getGameTime());
     }
 
     public static void triggerModified(ServerPlayer player, ItemStack gun, int occupied, int capacity) {
-        CriterionRegistry.GUN_MODIFIED.get().trigger(player, gun, occupied, capacity);
+        CriterionRegistry.GUN_MODIFIED.trigger(player, gun, occupied, capacity);
     }
 
     @SubscribeEvent
@@ -42,12 +40,12 @@ public final class GunCriteria {
         LivingEntity shooter = event.getEntity();
         RecentShots.trackShot(shooter);
         if (shooter instanceof ServerPlayer player) {
-            CriterionRegistry.SHOT_GUN.get().trigger(player, event.getShotProfile().itemStack(), RecentShots.count(player));
+            CriterionRegistry.SHOT_GUN.trigger(player, event.getShotProfile().itemStack(), RecentShots.count(player));
         }
     }
 
     @SubscribeEvent
-    public static void onDamage(LivingDamageEvent.Post event) {
+    public static void onDamage(LivingDamageEvent event) {
         DamageSource damageSource = event.getSource();
         LivingEntity victim = event.getEntity();
         if (!(damageSource.getEntity() instanceof ServerPlayer player)) {
@@ -66,17 +64,16 @@ public final class GunCriteria {
             int pellets = state.recordPelletHit(record.fireId(), victim.getId());
             boolean killed = false;
             int totalKills = 0;
-            // event fires after damage is applied, so this comparison is accurate
-            if (victim.getHealth() <= 0) {
+            // the event fires just before the damage lands, so the kill is projected from the pending amount
+            if (victim.getHealth() - event.getAmount() <= 0) {
                 killed = true;
                 totalKills = state.recordKill(record.fireId(), victim.getUUID());
             }
-            float damage = state.recordDamage(record.fireId(), event.getNewDamage());
-            player.setData(DataAttachmentRegistry.SHOT_COMBAT, state);
+            float damage = state.recordDamage(record.fireId(), event.getAmount());
             triggerCombat(player, killed, damage, player.distanceTo(victim), pellets, totalKills, record, bullet.getProfile().itemStack(), victim, GunCombatSource.BULLET);
-        } else if (player.getWeaponItem().getItem() instanceof GunItem && KineticWeapon.has(player.getWeaponItem())) {
-            boolean killed = victim.getHealth() <= 0;
-            triggerCombat(player, killed, event.getNewDamage(), player.distanceTo(victim), 0, killed ? 1 : 0, null, player.getWeaponItem(), victim, GunCombatSource.BAYONET);
+        } else if (player.getMainHandItem().getItem() instanceof GunItem && KineticWeapon.has(player.getMainHandItem())) {
+            boolean killed = victim.getHealth() - event.getAmount() <= 0;
+            triggerCombat(player, killed, event.getAmount(), player.distanceTo(victim), 0, killed ? 1 : 0, null, player.getMainHandItem(), victim, GunCombatSource.BAYONET);
         }
 
     }
@@ -94,7 +91,7 @@ public final class GunCriteria {
             GunCombatSource source
     ) {
         ShotCombatTracker state = tracker(player);
-        CriterionRegistry.GUN_COMBAT.get().trigger(player, new GunCombatTrigger.CombatSnapshot(
+        CriterionRegistry.GUN_COMBAT.trigger(player, new GunCombatTrigger.CombatSnapshot(
                 killed,
                 damage,
                 distance,

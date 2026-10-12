@@ -1,14 +1,13 @@
 package io.redspace.irons_artifice.item;
 
 import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.animatable.client.GeoRenderProvider;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import com.llamalad7.mixinextras.lib.apache.commons.mutable.MutableObject;
-import net.minecraft.core.Holder;
+import io.redspace.irons_artifice.client.armor.ArmorRenderProviders;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -18,18 +17,16 @@ import java.util.function.Consumer;
  * two hats cannot share a superclass with the guns.
  */
 public class BaseGeoArmorItem extends ArmorItem implements GeoItem {
-    /** Set client-side by {@code ArmorRenderProviders}, which explains why the constructor cannot. */
-    public final MutableObject<GeoRenderProvider> geoRenderProvider = new MutableObject<>();
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    public BaseGeoArmorItem(Holder<ArmorMaterial> material, ArmorItem.Type type, Properties properties) {
+    public BaseGeoArmorItem(ArmorMaterial material, ArmorItem.Type type, Properties properties) {
         super(material, type, properties);
         GeoItem.registerSyncedAnimatable(this);
     }
 
     @Override
-    public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
-        consumer.accept(this.geoRenderProvider.getValue());
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(ArmorRenderProviders.extension(this));
     }
 
     @Override

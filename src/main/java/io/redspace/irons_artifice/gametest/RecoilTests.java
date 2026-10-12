@@ -5,7 +5,6 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.item.FireOutcome;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
@@ -26,9 +25,9 @@ public final class RecoilTests {
         LivingEntity shooter = armedShooter(helper, 1);
         long now = helper.getLevel().getGameTime();
 
-        helper.assertValueEqual(RecoilState.current(shooter, now).pitch(), 0.0F, "no recoil before firing");
+        TestFixtures.assertValueEqual(RecoilState.current(shooter, now).pitch(), 0.0F, "no recoil before firing");
 
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "the shot fired");
 
         RecoilState after = RecoilState.current(shooter, helper.getLevel().getGameTime());
@@ -91,17 +90,17 @@ public final class RecoilTests {
         Vec2 base = TestFixtures.rotationOf(TestFixtures.FORWARD);
         Vec3 expectedDirection = Vec3.directionFromRotation(base.x - pitchOffset, base.y + yawOffset);
 
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, expectedDirection),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, expectedDirection),
                 FireOutcome.FIRED, "control shot fired");
-        Bullet controlBullet = helper.findOneEntity(EntityRegistry.BULLET.get());
+        Bullet controlBullet = TestFixtures.findOneEntity(helper, EntityRegistry.BULLET.get());
         Vec3 controlVelocity = controlBullet.getDeltaMovement().normalize();
         controlBullet.discard();
         TestFixtures.resetShotState(shooter);
 
-        shooter.setData(DataAttachmentRegistry.RECOIL, new RecoilState(pitchOffset, yawOffset, now));
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        RecoilState.set(shooter, new RecoilState(pitchOffset, yawOffset, now));
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "offset shot fired");
-        Vec3 offsetVelocity = helper.findOneEntity(EntityRegistry.BULLET.get()).getDeltaMovement().normalize();
+        Vec3 offsetVelocity = TestFixtures.findOneEntity(helper, EntityRegistry.BULLET.get()).getDeltaMovement().normalize();
 
         helper.assertTrue(controlVelocity.subtract(TestFixtures.FORWARD).length() > 0.3,
                 "the rotated control aim differs from straight ahead");

@@ -9,7 +9,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +43,11 @@ public final class ArtificeGameTests {
 
     private static TestFunction testFunction(String name, ResourceLocation arena, int maxTicks, boolean required,
                                              Consumer<GameTestHelper> body) {
-        return new TestFunction(BATCH, name, arena.toString(), maxTicks, 0L, required, body);
+        return new TestFunction(BATCH, name, arena.toString(), maxTicks, 0L, required, helper -> {
+            TestFixtures.discardArenaEntities(helper);
+            ArenaEncasement.encase(helper);
+            body.accept(helper);
+        });
     }
 
     private ArtificeGameTests() {

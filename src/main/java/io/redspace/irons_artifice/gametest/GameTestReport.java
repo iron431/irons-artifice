@@ -2,8 +2,8 @@ package io.redspace.irons_artifice.gametest;
 
 import net.minecraft.gametest.framework.GlobalTestReporter;
 import net.minecraft.gametest.framework.JUnitLikeTestReporter;
-import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.gametest.GameTestHooks;
+import net.minecraftforge.event.RegisterGameTestsEvent;
+import net.minecraftforge.gametest.ForgeGameTestHooks;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -18,7 +18,7 @@ public final class GameTestReport {
     private static final String DEFAULT_DESTINATION = "build/gametest-report.xml";
 
     public static void onRegisterGameTests(RegisterGameTestsEvent event) {
-        if (!GameTestHooks.isGametestServer()) {
+        if (!ForgeGameTestHooks.isGametestServer()) {
             return;
         }
         File destination = new File(System.getProperty(DESTINATION_PROPERTY, DEFAULT_DESTINATION));

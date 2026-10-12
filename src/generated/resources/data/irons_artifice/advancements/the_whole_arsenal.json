@@ -1,0 +1,68 @@
+{
+  "parent": "irons_artifice:seven_sockets",
+  "criteria": {
+    "guns": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "irons_artifice:flintlock"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:musket"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:blunderbuss"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:blackpowder_revolver"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:six_shooter"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:arquebus"
+            ]
+          },
+          {
+            "items": [
+              "irons_artifice:clockwork_rifle"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.the_whole_arsenal.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "irons_artifice:clockwork_rifle"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.the_whole_arsenal.title"
+    }
+  },
+  "requirements": [
+    [
+      "guns"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

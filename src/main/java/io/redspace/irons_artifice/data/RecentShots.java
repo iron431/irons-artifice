@@ -1,6 +1,6 @@
 package io.redspace.irons_artifice.data;
 
-import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
+import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
@@ -37,25 +37,20 @@ public record RecentShots(List<Long> ticks) {
     }
 
     public static int count(LivingEntity entity) {
-        if (!entity.hasData(DataAttachmentRegistry.RECENT_SHOTS)) {
+        IExtendedLivingEntity extended = (IExtendedLivingEntity) entity;
+        RecentShots current = extended.irons_artifice$getRecentShots();
+        if (current.isEmpty()) {
             return 0;
         }
-        RecentShots current = entity.getData(DataAttachmentRegistry.RECENT_SHOTS);
         RecentShots pruned = current.pruned(entity.level().getGameTime());
-        if (pruned.isEmpty()) {
-            entity.removeData(DataAttachmentRegistry.RECENT_SHOTS);
-            return 0;
-        }
         if (pruned != current) {
-            entity.setData(DataAttachmentRegistry.RECENT_SHOTS, pruned);
+            extended.irons_artifice$setRecentShots(pruned);
         }
         return pruned.size();
     }
 
     public static void trackShot(LivingEntity entity) {
-        RecentShots current = entity.hasData(DataAttachmentRegistry.RECENT_SHOTS)
-                ? entity.getData(DataAttachmentRegistry.RECENT_SHOTS)
-                : NONE;
-        entity.setData(DataAttachmentRegistry.RECENT_SHOTS, current.withShot(entity.level().getGameTime()));
+        IExtendedLivingEntity extended = (IExtendedLivingEntity) entity;
+        extended.irons_artifice$setRecentShots(extended.irons_artifice$getRecentShots().withShot(entity.level().getGameTime()));
     }
 }

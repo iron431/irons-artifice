@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class ClientBulletContainerItemTooltip implements ClientTooltipComponent {
-    private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/bundle/slot");
+    private static final ResourceLocation BUNDLE_TEXTURE = new ResourceLocation("textures/gui/container/bundle.png");
+    private static final int BUNDLE_TEXTURE_SIZE = 128;
     private static final int SLOT_WIDTH = 18;
     private static final int SLOT_HEIGHT = 20;
     private static final int ITEM_INSET = 1;
@@ -65,7 +65,7 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
                 int drawX = left + (column - 1) * SLOT_WIDTH;
                 int drawY = top + (rows - row) * SLOT_HEIGHT;
                 if (overflowing && column == 1 && row == 1) {
-                    graphics.blitSprite(SLOT_SPRITE, drawX, drawY, SLOT_WIDTH, SLOT_HEIGHT);
+                    blitSlot(graphics, drawX, drawY);
                     graphics.drawCenteredString(font, "+" + hiddenCount(shown), drawX + SLOT_WIDTH / 2, drawY + 6, TEXT_COLOR);
                 } else if (slotNumber <= shown.size()) {
                     int index = shown.size() - slotNumber;
@@ -77,12 +77,16 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     }
 
     private void renderSlot(Font font, GuiGraphics graphics, ItemStack stack, int index, int drawX, int drawY) {
-        graphics.blitSprite(SLOT_SPRITE, drawX, drawY, SLOT_WIDTH, SLOT_HEIGHT);
+        blitSlot(graphics, drawX, drawY);
         graphics.renderItem(stack, drawX + ITEM_INSET, drawY + ITEM_INSET, index);
         graphics.renderItemDecorations(font, stack, drawX + ITEM_INSET, drawY + ITEM_INSET);
         if (index == contents.selectedIndex()) {
             AbstractContainerScreen.renderSlotHighlight(graphics, drawX + ITEM_INSET, drawY + ITEM_INSET, 0);
         }
+    }
+
+    private static void blitSlot(GuiGraphics graphics, int x, int y) {
+        graphics.blit(BUNDLE_TEXTURE, x, y, 0, 0.0F, 0.0F, SLOT_WIDTH, SLOT_HEIGHT, BUNDLE_TEXTURE_SIZE, BUNDLE_TEXTURE_SIZE);
     }
 
     private void renderSelectedName(Font font, GuiGraphics graphics, int x, int y, int w) {
@@ -103,8 +107,8 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     }
 
     private static Component styledHoverName(ItemStack stack) {
-        MutableComponent name = Component.empty().append(stack.getHoverName()).withStyle(stack.getRarity().color());
-        if (stack.has(DataComponents.CUSTOM_NAME)) {
+        MutableComponent name = Component.empty().append(stack.getHoverName()).withStyle(stack.getRarity().color);
+        if (stack.hasCustomHoverName()) {
             name.withStyle(ChatFormatting.ITALIC);
         }
         return name;

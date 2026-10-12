@@ -13,9 +13,11 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.PendingShot;
 import io.redspace.irons_artifice.item.ReloadState;
+import io.redspace.irons_artifice.mixin.ItemEntityAccessor;
+import io.redspace.irons_artifice.mixin.RandomizableContainerBlockEntityAccessor;
+import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ClientboundEquipSoundPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,34 +25,29 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class ServerEvents {
 
 
     @SubscribeEvent
-    public static void onDamage(LivingDamageEvent.Post event) {
+    public static void onDamage(LivingDamageEvent event) {
         //    @SubscribeEvent
 //    public static void onDamage(LivingIncomingDamageEvent event) {
 //        // fixme: https://github.com/neoforged/NeoForge/issues/3348
@@ -64,10 +61,8 @@ public class ServerEvents {
     }
 
     @SubscribeEvent
-    public static void onEntityTick(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof LivingEntity living)) {
-            return;
-        }
+    public static void onEntityTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity living = event.getEntity();
         // fixme: mainhand only
         ItemStack itemStack = living.getMainHandItem();
         if (!(itemStack.getItem() instanceof GunItem gunItem)) {
@@ -93,23 +88,11 @@ public class ServerEvents {
     }
 
     @SubscribeEvent
-    public static void onMobEffectApplication(MobEffectEvent.Applicable event) {
-        if (event.getEffectSource() instanceof AreaEffectCloud areaEffectCloud &&
-                areaEffectCloud.getOwner() == event.getEntity() &&
-                areaEffectCloud.getPersistentData().getBoolean("irons_artifice:venom_cloud")) {
-            event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onBulletPickup(ItemEntityPickupEvent.Pre event) {
-        if (event.canPickup().isFalse()) {
-            return;
-        }
-        ItemEntity itemEntity = event.getItemEntity();
+    public static void onBulletPickup(EntityItemPickupEvent event) {
+        ItemEntity itemEntity = event.getItem();
         ItemStack bullets = itemEntity.getItem();
-        Player player = event.getPlayer();
-        UUID target = itemEntity.getTarget();
+        Player player = event.getEntity();
+        UUID target = ((ItemEntityAccessor) itemEntity).getTarget();
         boolean claimable = target == null || target.equals(player.getUUID());
         if (itemEntity.hasPickUpDelay() || !claimable || !BulletContainerContents.accepts(bullets)) {
             return;
@@ -121,8 +104,8 @@ public class ServerEvents {
         }
         player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), moved);
         if (bullets.isEmpty()) {
-            event.setCanPickup(TriState.FALSE);
-            EventHooks.fireItemPickupPost(itemEntity, player, original);
+            event.setCanceled(true);
+            ForgeEventFactory.firePlayerItemPickupEvent(player, itemEntity, original);
             player.take(itemEntity, moved);
             itemEntity.discard();
             player.onItemPickup(itemEntity);
@@ -164,9 +147,9 @@ public class ServerEvents {
         ClientboundGunAnimationPacket packet = new ClientboundGunAnimationPacket(entity.getId(), GeoItem.getOrAssignId(equippedStack, serverLevel),
                 equippedStack == entity.getMainHandItem() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
                 GunAnimations.EQUIP, 1.0, 0);
-        PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
+        PayloadRegistry.sendToPlayersTrackingEntityAndSelf(entity, packet);
         if (gunItem.getGun().equipSound() != null && entity instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, new ClientboundEquipSoundPacket(SoundSource.PLAYERS, gunItem));
+            PayloadRegistry.sendToPlayer(serverPlayer, new ClientboundEquipSoundPacket(SoundSource.PLAYERS, gunItem));
         }
     }
 
@@ -178,15 +161,18 @@ public class ServerEvents {
         if (event.getEntity().isCreative() || event.getEntity().isSpectator()) {
             return;
         }
-        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity) || randomizableContainerBlockEntity.getLootTable() == null) {
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity)) {
             return;
         }
-        ResourceKey<LootTable> lootTableKey = randomizableContainerBlockEntity.getLootTable();
+        ResourceLocation lootTable = ((RandomizableContainerBlockEntityAccessor) randomizableContainerBlockEntity).getLootTable();
+        if (lootTable == null) {
+            return;
+        }
 //        boolean isCursed = level.getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).get(lootTableKey).map(table -> table.is(IronsArtificeTags.CURSED_BY_PIRATES)).orElse(false);
         // fixme: appears loot table dont have tagging
-        boolean isCursed = lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/buried_treasure")) ||
-                lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/shipwreck_treasure")) ||
-                lootTableKey.location().equals(ResourceLocation.withDefaultNamespace("chests/underwater_ruin_big"));
+        boolean isCursed = lootTable.equals(new ResourceLocation("chests/buried_treasure")) ||
+                lootTable.equals(new ResourceLocation("chests/shipwreck_treasure")) ||
+                lootTable.equals(new ResourceLocation("chests/underwater_ruin_big"));
         if (!isCursed) {
             return;
         }

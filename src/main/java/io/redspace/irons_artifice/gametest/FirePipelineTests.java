@@ -20,27 +20,27 @@ public final class FirePipelineTests {
     static void refusals(GameTestHelper helper) {
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
 
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.NO_GUN, "empty hand is refused as NO_GUN");
 
         ItemStack empty = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, empty);
         TestFixtures.resetShotState(shooter);
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.EMPTY_MAGAZINE, "empty magazine is refused as EMPTY_MAGAZINE");
-        helper.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), 0,
+        TestFixtures.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), 0,
                 "refused shot left the magazine untouched");
 
         ItemStack loaded = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, loaded);
         TestFixtures.resetShotState(shooter);
         FireDelayState.start(shooter, shooter.getMainHandItem(), 10, 1.0F);
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRE_DELAY_ACTIVE, "running fire delay is refused as FIRE_DELAY_ACTIVE");
 
         TestFixtures.resetShotState(shooter);
         ReloadState.set(shooter.getMainHandItem(), new ReloadState(0.0, 20.0, 1.0, 1, 0.0, 0.0));
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.RELOADING, "mid reload is refused as RELOADING");
 
         helper.succeed();
@@ -57,12 +57,12 @@ public final class FirePipelineTests {
         int before = GunItem.getMagazine(held).count();
         FireOutcome outcome = GunplayManager.tryFire(shooter, TestFixtures.FORWARD);
 
-        helper.assertValueEqual(outcome, FireOutcome.FIRED, "loaded gun fires");
-        helper.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), before - 1,
+        TestFixtures.assertValueEqual(outcome, FireOutcome.FIRED, "loaded gun fires");
+        TestFixtures.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), before - 1,
                 "one round consumed");
-        helper.assertValueEqual(FireDelayState.get(shooter).duration(), expectedDelayTicks,
+        TestFixtures.assertValueEqual(FireDelayState.get(shooter).duration(), expectedDelayTicks,
                 "the started fire delay's duration matches profile.fireDelayTicks()");
-        helper.assertEntitiesPresent(EntityRegistry.BULLET.get(), 1);
+        TestFixtures.assertEntitiesPresent(helper, EntityRegistry.BULLET.get(), 1);
 
         helper.succeed();
     }
@@ -80,7 +80,7 @@ public final class FirePipelineTests {
         long pistolId = GeoItem.getOrAssignId(pistol, level);
         helper.assertTrue(musketId != pistolId, "the musket and pistol stacks have distinct GeckoLib ids");
 
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "musket fires");
         helper.assertTrue(FireDelayState.isActive(shooter, shooter.getMainHandItem()),
                 "delay blocks the musket that fired");
@@ -90,9 +90,9 @@ public final class FirePipelineTests {
         TestFixtures.resetShotState(shooter);
         ItemStack neverRendered = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, neverRendered);
-        helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
+        TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "a never-rendered gun fires");
-        helper.assertValueEqual(FireDelayState.get(shooter).gunId(), FireDelayState.UNKEYED,
+        TestFixtures.assertValueEqual(FireDelayState.get(shooter).gunId(), FireDelayState.UNKEYED,
                 "a never-rendered stack's cycle is keyed UNKEYED");
         ItemStack otherGun = TestFixtures.gunWith(ItemRegistry.FLINTLOCK_PISTOL.get(), 1);
         helper.assertTrue(FireDelayState.isActive(shooter, otherGun),

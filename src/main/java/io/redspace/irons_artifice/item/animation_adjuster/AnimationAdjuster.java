@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.item.animation_adjuster;
 
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.state.BoneSnapshot;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.state.BoneSnapshot;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import io.redspace.irons_artifice.item.GunItem;

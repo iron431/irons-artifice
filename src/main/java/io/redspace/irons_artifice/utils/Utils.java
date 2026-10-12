@@ -12,19 +12,18 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 
 public class Utils {
-    public static final DecimalFormat DECIMAL_FORMAT = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT;
+    public static final DecimalFormat DECIMAL_FORMAT = ItemStack.ATTRIBUTE_MODIFIER_FORMAT;
 
     /** The inverse of {@link Vec3#directionFromRotation(float, float)}. */
     public static Vec2 rotationFromDirection(Vec3 direction) {
@@ -62,7 +61,7 @@ public class Utils {
             color = valueModifier.type() == ValueModifier.Type.BENEFICIAL ^ valueModifier.amount() < 0 ?
                     ChatFormatting.GREEN.getColor() : ChatFormatting.RED.getColor();
         }
-        return Component.translatable(String.format("irons_artifice.value_modifier.%s", identifier), ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value), valueName).withColor(color);
+        return Component.translatable(String.format("irons_artifice.value_modifier.%s", identifier), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value), valueName).withStyle(style -> style.withColor(color));
     }
 
     /**
@@ -149,7 +148,7 @@ public class Utils {
     }
 
     public static boolean hasLineOfSight(Entity a, Entity b) {
-        return a.level().clip(new ClipContext(a.getBoundingBox().getCenter(), b.getBoundingBox().getCenter(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty())).getType() == HitResult.Type.MISS;
+        return a.level().clip(new ClipContext(a.getBoundingBox().getCenter(), b.getBoundingBox().getCenter(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, a)).getType() == HitResult.Type.MISS;
     }
 
     /**

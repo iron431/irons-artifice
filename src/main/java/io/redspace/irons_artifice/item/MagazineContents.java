@@ -1,36 +1,30 @@
 package io.redspace.irons_artifice.item;
 
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import com.mojang.serialization.Codec;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import io.redspace.irons_artifice.IronsArtifice;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public record MagazineContents(int count) {
     public static final MagazineContents EMPTY = new MagazineContents(0);
 
-    public static final Codec<MagazineContents> CODEC =
-            Codec.INT.xmap(MagazineContents::new, MagazineContents::count);
+    public static final String TAG_KEY = IronsArtifice.id("magazine").toString();
 
-    public static final StreamCodec<ByteBuf, MagazineContents> STREAM_CODEC =
-            ByteBufCodecs.VAR_INT.map(MagazineContents::new, MagazineContents::count);
-
+    /** A gun with no magazine tag is full, so a fresh stack needs no tag written to it. */
     public static @Nullable MagazineContents get(ItemStack stack) {
-        return stack.get(DataComponentRegistry.MAGAZINE);
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains(TAG_KEY)) {
+            return new MagazineContents(tag.getInt(TAG_KEY));
+        }
+        return stack.getItem() instanceof GunItem gun ? new MagazineContents(gun.magazineCapacity()) : null;
     }
 
     public static void set(ItemStack stack, MagazineContents magazine) {
-        stack.set(DataComponentRegistry.MAGAZINE, magazine);
+        stack.getOrCreateTag().putInt(TAG_KEY, magazine.count);
     }
 
     public static boolean has(ItemStack stack) {
-        return stack.has(DataComponentRegistry.MAGAZINE);
-    }
-
-    public static void remove(ItemStack stack) {
-        stack.remove(DataComponentRegistry.MAGAZINE);
+        return get(stack) != null;
     }
 
     public boolean isEmpty() {

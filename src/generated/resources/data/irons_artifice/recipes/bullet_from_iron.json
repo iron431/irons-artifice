@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "tag": "forge:ingots/iron"
+    },
+    "^": {
+      "item": "irons_artifice:blackpowder"
+    }
+  },
+  "pattern": [
+    "#",
+    "^"
+  ],
+  "result": {
+    "count": 16,
+    "item": "irons_artifice:bullet"
+  },
+  "show_notification": true
+}

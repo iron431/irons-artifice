@@ -5,25 +5,22 @@ import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SplashParticle extends NoRenderParticle {
-    private final int color;
+    private final float red;
+    private final float green;
+    private final float blue;
 
     public SplashParticle(ClientLevel level, double x, double y, double z,
                           double xa, double ya, double za, ColorParticleOption options) {
         super(level, x, y, z);
         this.setParticleSpeed(xa, ya, za);
-        this.color = FastColor.ARGB32.opaque(FastColor.ARGB32.colorFromFloat(
-                Math.max(options.getAlpha(), 1f),
-                options.getRed(),
-                options.getGreen(),
-                options.getBlue()
-        ));
+        this.red = options.getRed();
+        this.green = options.getGreen();
+        this.blue = options.getBlue();
         this.gravity = 1.5f;
         this.friction = 0.96f;
         this.hasPhysics = true;
@@ -36,13 +33,12 @@ public class SplashParticle extends NoRenderParticle {
         if (this.removed) {
             return;
         }
+        // the entity effect particle reads its color from the velocity arguments
         this.level.addAlwaysVisibleParticle(
-                ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, this.color),
+                ParticleTypes.ENTITY_EFFECT,
                 true,
                 this.x, this.y, this.z,
-                (this.random.nextDouble() - 0.5) * 0.04,
-                this.random.nextDouble() * 0.04,
-                (this.random.nextDouble() - 0.5) * 0.04
+                this.red, this.green, this.blue
         );
     }
 

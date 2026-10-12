@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "C": {
+      "tag": "forge:ingots/copper"
+    },
+    "P": {
+      "item": "minecraft:phantom_membrane"
+    }
+  },
+  "pattern": [
+    "  P",
+    "CB ",
+    " C "
+  ],
+  "result": {
+    "item": "irons_artifice:wind_chamber_modifier"
+  },
+  "show_notification": true
+}

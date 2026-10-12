@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:honey_bottle"
+    },
+    "M": {
+      "item": "irons_artifice:simple_mechanical_components"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "LMR"
+  ],
+  "result": {
+    "item": "irons_artifice:gun_oil_modifier"
+  },
+  "show_notification": true
+}

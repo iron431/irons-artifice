@@ -37,9 +37,9 @@ public final class ShotQueueTests {
         GunplayManager.flushPendingShot(shooter);
 
         helper.assertTrue(PendingShot.get(shooter).isEmpty(), "flushing cleared the pending shot");
-        helper.assertEntitiesPresent(EntityRegistry.BULLET.get(), 1);
+        TestFixtures.assertEntitiesPresent(helper, EntityRegistry.BULLET.get(), 1);
 
-        Bullet bullet = helper.findOneEntity(EntityRegistry.BULLET.get());
+        Bullet bullet = TestFixtures.findOneEntity(helper, EntityRegistry.BULLET.get());
         Vec3 velocity = bullet.getDeltaMovement();
         helper.assertTrue(velocity.z > 0 && velocity.z > Math.abs(velocity.x),
                 "bullet velocity is dominated by the queued +Z direction, not the shooter's -X facing");

@@ -7,15 +7,17 @@ import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -23,24 +25,36 @@ import java.util.function.Supplier;
  * naming one where the item class can reach it makes a dedicated server load a client class while registering
  * items, and the dist cleaner kills mod loading.
  */
-@EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = IronsArtifice.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ArmorRenderProviders {
+    private static final Map<Item, Supplier<GeoArmorRenderer<BaseGeoArmorItem>>> RENDERERS = new HashMap<>();
 
     @SubscribeEvent
-    static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        install((BaseGeoArmorItem) ItemRegistry.COWBOY_HAT.get(), "cowboy_hat");
-        install((BaseGeoArmorItem) ItemRegistry.TRICORNE_HAT.get(), "tricorne");
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        install(ItemRegistry.COWBOY_HAT.get(), "cowboy_hat");
+        install(ItemRegistry.TRICORNE_HAT.get(), "tricorne");
     }
 
-    private static void install(BaseGeoArmorItem item, String name) {
-        item.geoRenderProvider.setValue(new GeoRenderProvider() {
-            private final Supplier<GeoArmorRenderer<BaseGeoArmorItem>> renderer =
-                    Suppliers.memoize(() -> new GeoArmorRenderer<>(new GenericArmorModel<BaseGeoArmorItem>(name)));
+    private static void install(Item item, String name) {
+        RENDERERS.put(item, Suppliers.memoize(() -> new GeoArmorRenderer<>(new GenericArmorModel<BaseGeoArmorItem>(name))));
+    }
 
+    /**
+     * Built from the item constructor, before the item is registered or its renderer installed, so the renderer is
+     * looked up on each render rather than captured here.
+     */
+    public static IClientItemExtensions extension(BaseGeoArmorItem item) {
+        return new IClientItemExtensions() {
             @Override
-            public <T extends LivingEntity> @Nullable HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
-                return this.renderer.get();
+            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                Supplier<GeoArmorRenderer<BaseGeoArmorItem>> renderer = RENDERERS.get(item);
+                if (renderer == null) {
+                    return original;
+                }
+                GeoArmorRenderer<BaseGeoArmorItem> armorRenderer = renderer.get();
+                armorRenderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+                return armorRenderer;
             }
-        });
+        };
     }
 }

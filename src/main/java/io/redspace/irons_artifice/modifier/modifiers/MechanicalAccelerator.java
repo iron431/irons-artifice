@@ -10,12 +10,12 @@ import io.redspace.irons_artifice.modifier.GunModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.function.Consumer;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public final class MechanicalAccelerator implements GunModifier {
     public static final double DAMAGE_PER_SHOT = 0.05;
 

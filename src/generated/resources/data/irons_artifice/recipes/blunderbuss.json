@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:simple_mechanical_components"
+    }
+  },
+  "pattern": [
+    "MI ",
+    "IMI",
+    " IL"
+  ],
+  "result": {
+    "item": "irons_artifice:blunderbuss"
+  },
+  "show_notification": true
+}

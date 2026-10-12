@@ -1,42 +1,28 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.data.PlayableSound;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
-public record ClientboundLocalSoundPacket(SoundSource source, PlayableSound sound)
-        implements CustomPacketPayload {
+import java.util.function.Supplier;
 
-    public static final Type<ClientboundLocalSoundPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "playable_sound"));
+public record ClientboundLocalSoundPacket(SoundSource source, PlayableSound sound) {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundLocalSoundPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundLocalSoundPacket::encode, ClientboundLocalSoundPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundLocalSoundPacket msg) {
+    public static void encode(ClientboundLocalSoundPacket msg, FriendlyByteBuf buf) {
         buf.writeEnum(msg.source);
-        PlayableSound.STREAM_CODEC.encode(buf, msg.sound);
+        PlayableSound.write(buf, msg.sound);
     }
 
-    private static ClientboundLocalSoundPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundLocalSoundPacket decode(FriendlyByteBuf buf) {
         return new ClientboundLocalSoundPacket(
                 buf.readEnum(SoundSource.class),
-                PlayableSound.STREAM_CODEC.decode(buf)
+                PlayableSound.read(buf)
         );
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void handle(ClientboundLocalSoundPacket payload, IPayloadContext context) {
+    public static void handle(ClientboundLocalSoundPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleLocalSound(payload);
     }
 }

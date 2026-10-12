@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:mechanical_components"
+    }
+  },
+  "pattern": [
+    "I  ",
+    " HM",
+    " IL"
+  ],
+  "result": {
+    "item": "irons_artifice:six_shooter"
+  },
+  "show_notification": true
+}

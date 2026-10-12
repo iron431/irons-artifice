@@ -1,6 +1,5 @@
 package io.redspace.irons_artifice.entity;
 
-import dev.ryanhcode.sable.companion.SableCompanion;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.ShotRecord;
 import io.redspace.irons_artifice.api.BulletImpactEvent;
@@ -15,6 +14,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.modifier.OnHitEffect;
 import io.redspace.irons_artifice.modifier.PostHitEffect;
+import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletImpactPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundBulletTrailPacket;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
@@ -47,9 +47,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -124,11 +122,11 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_GRAVITY, 0.05f);
-        builder.define(DATA_RICOCHET, 0);
-        builder.define(DATA_DRAG, (float) ShotComponents.BULLET_DRAG.provideDefaultValue().base());
-        builder.define(DATA_UNDERWATER_DRAG, (float) ShotComponents.UNDERWATER_DRAG.provideDefaultValue().base());
+    protected void defineSynchedData() {
+        this.entityData.define(DATA_GRAVITY, 0.05f);
+        this.entityData.define(DATA_RICOCHET, 0);
+        this.entityData.define(DATA_DRAG, (float) ShotComponents.BULLET_DRAG.provideDefaultValue().base());
+        this.entityData.define(DATA_UNDERWATER_DRAG, (float) ShotComponents.UNDERWATER_DRAG.provideDefaultValue().base());
     }
 
     @Override
@@ -140,7 +138,7 @@ public class Bullet extends Projectile {
     }
 
     public float resolveDamage() {
-        double velocityFactor = Math.clamp(getDeltaMovement().length(), 0, 2) / 2.0;
+        double velocityFactor = Mth.clamp(getDeltaMovement().length(), 0, 2) / 2.0;
         return (float) (velocityFactor * profile.value(ShotComponents.DAMAGE) / Math.max(1, profile.value(ShotComponents.PROJECTILE_COUNT)));
     }
 
@@ -180,13 +178,13 @@ public class Bullet extends Projectile {
         double range = 7 * (1 + strength);
         Vec3 start = position();
         Vec3 direction = motion.scale(1.0 / speed);
-        Vec3 end = worldHitLocation(level().clip(new ClipContext(
+        Vec3 end = level().clip(new ClipContext(
                 start,
                 start.add(direction.scale(SEEK_LOOK_AHEAD)),
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
-                CollisionContext.empty()
-        )));
+                this
+        )).getLocation();
         AABB targetSearchArea = new AABB(start, end).inflate(range);
 
         Entity closest = null;
@@ -216,14 +214,6 @@ public class Bullet extends Projectile {
             return;
         }
         setDeltaMovement(homeTowards(closest.getBoundingBox().getCenter(), strength));
-    }
-
-    /**
-     * Sable resolves hits on physics sub-levels in the sub-level's plot space, which can be millions of blocks from the
-     * shooter. Anything that moves the bullet or draws its trail needs the world-space location instead.
-     */
-    private Vec3 worldHitLocation(HitResult hitResult) {
-        return SableCompanion.INSTANCE.projectOutOfSubLevel(level(), hitResult.getLocation());
     }
 
     private static double distanceToSegmentSqr(Vec3 point, Vec3 from, Vec3 to) {
@@ -283,8 +273,8 @@ public class Bullet extends Projectile {
         this.hitState = HitState.CONTINUE;
         while (hitState == HitState.CONTINUE && --i > 0) {
             HitResult blockHit = level().clip(new ClipContext(
-                    position, destination, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty()));
-            Vec3 blockClip = worldHitLocation(blockHit);
+                    position, destination, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            Vec3 blockClip = blockHit.getLocation();
             EntityHitResult entityHit = getEntityHitResult(level(), this, position, blockClip, getBoundingBox().expandTowards(delta).inflate(1),
                     this::canHitEntity, 0.25f, 3f);
             if (entityHit != null) {
@@ -338,8 +328,13 @@ public class Bullet extends Projectile {
     }
 
     @Override
-    public @NotNull Vec3 getMovementToShoot(double xd, double yd, double zd, float pow, float uncertainty) {
-        return Utils.directionWithinCone(new Vec3(xd, yd, zd), uncertainty, this.random).scale(pow);
+    public void shoot(double xd, double yd, double zd, float pow, float uncertainty) {
+        Vec3 motion = Utils.directionWithinCone(new Vec3(xd, yd, zd), uncertainty, this.random).scale(pow);
+        this.setDeltaMovement(motion);
+        this.setYRot((float) (Mth.atan2(motion.x, motion.z) * Mth.RAD_TO_DEG));
+        this.setXRot((float) (Mth.atan2(motion.y, motion.horizontalDistance()) * Mth.RAD_TO_DEG));
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
     }
 
     protected boolean brokeBlocksThisTick;
@@ -353,7 +348,8 @@ public class Bullet extends Projectile {
         // setup default hit state
         hitState = HitState.DISCARD;
         brokeBlocksThisTick = false;
-        BulletImpactEvent impact = NeoForge.EVENT_BUS.post(new BulletImpactEvent(this, hitResult, hitState));
+        BulletImpactEvent impact = new BulletImpactEvent(this, hitResult, hitState);
+        MinecraftForge.EVENT_BUS.post(impact);
         hitState = impact.getHitState();
         if (impact.isCanceled()) {
             return;
@@ -400,7 +396,7 @@ public class Bullet extends Projectile {
         Vec3 movement = entity.getDeltaMovement();
         Vec3 pos = position();
         Vec3 lastPos = pos.subtract(movement);
-        Vec3 waterImpactPos = level().clip(new ClipContext(lastPos, pos, ClipContext.Block.COLLIDER, ClipContext.Fluid.WATER, CollisionContext.empty())).getLocation();
+        Vec3 waterImpactPos = level().clip(new ClipContext(lastPos, pos, ClipContext.Block.COLLIDER, ClipContext.Fluid.WATER, this)).getLocation();
 
         for (int i = 0; i < 25; i++) {
             Vec3 random = new Vec3(this.random.nextDouble(), this.random.nextDouble(), this.random.nextDouble()).subtract(0.5, 0.5, 0.5);
@@ -457,7 +453,7 @@ public class Bullet extends Projectile {
         BlockPos pos = hitResult.getBlockPos();
         level().playSound(null, pos, level().getBlockState(pos).getSoundType(level(), pos, null).getBreakSound(), SoundSource.BLOCKS, .75f, 1f);
         if (level() instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), Vec3.atLowerCornerOf(hitResult.getDirection().getNormal()), this.resolveDamage()));
+            PayloadRegistry.sendToPlayersTrackingChunk(serverLevel, this.chunkPosition(), new ClientboundBulletImpactPacket(hitResult.getLocation(), this.getDeltaMovement(), Vec3.atLowerCornerOf(hitResult.getDirection().getNormal()), this.resolveDamage()));
         }
     }
 
@@ -505,8 +501,13 @@ public class Bullet extends Projectile {
         }
     }
 
-    @Override
-    protected double getDefaultGravity() {
+    private void applyGravity() {
+        if (!isNoGravity()) {
+            setDeltaMovement(getDeltaMovement().add(0, -getGravity(), 0));
+        }
+    }
+
+    public float getGravity() {
         return this.entityData.get(DATA_GRAVITY);
     }
 
@@ -534,9 +535,9 @@ public class Bullet extends Projectile {
         }
         ClientboundBulletTrailPacket payload = new ClientboundBulletTrailPacket(from, to, palette, accents);
         if (this.isRemoved()) {
-            PacketDistributor.sendToPlayersTrackingChunk(level, this.chunkPosition(), payload);
+            PayloadRegistry.sendToPlayersTrackingChunk(level, this.chunkPosition(), payload);
         } else {
-            PacketDistributor.sendToPlayersTrackingEntity(this, payload);
+            PayloadRegistry.sendToPlayersTrackingEntity(this, payload);
         }
     }
 

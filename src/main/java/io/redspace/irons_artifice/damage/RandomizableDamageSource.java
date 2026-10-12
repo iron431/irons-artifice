@@ -1,7 +1,6 @@
 package io.redspace.irons_artifice.damage;
 
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -62,7 +61,7 @@ public class RandomizableDamageSource extends DamageSource {
                 ? this.getDirectEntity().getDisplayName()
                 : this.getEntity().getDisplayName();
         ItemStack held = this.getEntity() instanceof LivingEntity living ? living.getMainHandItem() : ItemStack.EMPTY;
-        return !held.isEmpty() && held.has(DataComponents.CUSTOM_NAME)
+        return !held.isEmpty() && held.hasCustomHoverName()
                 ? Component.translatable(messageId + ".item", victim.getDisplayName(), attackerName, held.getDisplayName())
                 : Component.translatable(messageId, victim.getDisplayName(), attackerName);
     }

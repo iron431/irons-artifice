@@ -1,92 +1,92 @@
 package io.redspace.irons_artifice.config;
 
 import net.minecraft.util.FastColor;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class ClientConfig {
-    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    public static final ModConfigSpec.BooleanValue ENABLED = BUILDER.push("Ammo-Counter")
+    public static final ForgeConfigSpec.BooleanValue ENABLED = BUILDER.push("Ammo-Counter")
             .comment("Whether the ammo indicator HUD is shown when holding a gun")
             .define("enabled", true);
 
-    public static final ModConfigSpec.ConfigValue<Anchor> ANCHOR = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<Anchor> ANCHOR = BUILDER
             .comment("Ammo Counter Screen Anchor")
             .defineEnum("anchor", Anchor.BOTTOM_RIGHT);
 
-    public static final ModConfigSpec.IntValue OFFSET_X = BUILDER
+    public static final ForgeConfigSpec.IntValue OFFSET_X = BUILDER
             .comment("Horizontal offset from the anchor edge (pixels)")
             .defineInRange("offsetX", 24, 0, 512);
 
-    public static final ModConfigSpec.IntValue OFFSET_Y = BUILDER
+    public static final ForgeConfigSpec.IntValue OFFSET_Y = BUILDER
             .comment("Vertical offset from the anchor edge (pixels)")
             .defineInRange("offsetY", 24, 0, 512);
 
-    public static final ModConfigSpec.BooleanValue SHOW_ICON = BUILDER
+    public static final ForgeConfigSpec.BooleanValue SHOW_ICON = BUILDER
             .comment("Show the bullet icon beside the ammo text")
             .define("showIcon", true);
 
-    public static final ModConfigSpec.BooleanValue SHOW_MAGAZINE = BUILDER
+    public static final ForgeConfigSpec.BooleanValue SHOW_MAGAZINE = BUILDER
             .comment("Show magazine capacity beside ammo count")
             .define("showMagazine", true);
 
-    public static final ModConfigSpec.BooleanValue SHOW_RESERVE = BUILDER
+    public static final ForgeConfigSpec.BooleanValue SHOW_RESERVE = BUILDER
             .comment("Show reserve ammo count from inventory")
             .define("showReserve", true);
 
-    public static final ModConfigSpec.DoubleValue LOADED_SCALE = BUILDER
+    public static final ForgeConfigSpec.DoubleValue LOADED_SCALE = BUILDER
             .comment("Scale of the loaded ammo digits")
             .defineInRange("loadedScale", 2.0, 0.25, 8.0);
 
-    public static final ModConfigSpec.IntValue ICON_SIZE = BUILDER
+    public static final ForgeConfigSpec.IntValue ICON_SIZE = BUILDER
             .comment("Bullet icon size in pixels")
             .defineInRange("iconSize", 16, 4, 64);
 
-    public static final ModConfigSpec.BooleanValue TEXT_SHADOW = BUILDER
+    public static final ForgeConfigSpec.BooleanValue TEXT_SHADOW = BUILDER
             .comment("Whether to draw drop shadow on ammo text")
             .define("textShadow", true);
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_FULL = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_FULL = BUILDER
             .comment("Text color at full magazine")
             .define("colorFull", "#FFFFFF");
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_LOW = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_LOW = BUILDER
             .comment("Text color at low ammo")
             .define("colorLow", "#FFAA00");
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_EMPTY = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_EMPTY = BUILDER
             .comment("Text color when magazine is empty")
             .define("colorEmpty", "#FF5555");
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_RESERVE = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_RESERVE = BUILDER
             .comment("Reserve ammo text color")
             .define("colorReserve", "#CCCCCC");
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_ICON = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_ICON = BUILDER
             .comment("Bullet icon tint")
             .define("colorIcon", "#FFFFFF");
 
-    public static final ModConfigSpec.BooleanValue FLASH_ENABLED = BUILDER
+    public static final ForgeConfigSpec.BooleanValue FLASH_ENABLED = BUILDER
             .comment("Play a ghostly zero flash when the magazine empties")
             .define("flashEnabled", true);
 
-    public static final ModConfigSpec.IntValue FLASH_DURATION_TICKS = BUILDER
+    public static final ForgeConfigSpec.IntValue FLASH_DURATION_TICKS = BUILDER
             .comment("Empty-magazine flash duration in ticks")
             .defineInRange("flashDurationTicks", 30, 1, 100);
 
-    public static final ModConfigSpec.DoubleValue FLASH_END_SCALE = BUILDER
+    public static final ForgeConfigSpec.DoubleValue FLASH_END_SCALE = BUILDER
             .comment("Flash scale multiplier")
             .defineInRange("flashScale", 6, 1.0, 16.0);
 
-    public static final ModConfigSpec.DoubleValue FLASH_TRAVEL = BUILDER
+    public static final ForgeConfigSpec.DoubleValue FLASH_TRAVEL = BUILDER
             .comment("Percent of how far the flash drifts toward screen center (1.0 = reach center)")
             .defineInRange("flashTravel", 0.4, 0.0, 1.0);
 
-    public static final ModConfigSpec.ConfigValue<String> COLOR_FLASH = BUILDER
+    public static final ForgeConfigSpec.ConfigValue<String> COLOR_FLASH = BUILDER
             .comment("Empty-magazine flash color (hex, e.g. #FF5555)")
             .define("colorFlash", "#FF5555");
 
-    public static final ModConfigSpec SPEC = BUILDER.pop().build();
+    public static final ForgeConfigSpec SPEC = BUILDER.pop().build();
 
     public enum Anchor {
         BOTTOM_RIGHT,

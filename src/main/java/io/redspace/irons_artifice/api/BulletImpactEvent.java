@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.api;
 
 import io.redspace.irons_artifice.entity.Bullet;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class BulletImpactEvent extends ProjectileImpactEvent {

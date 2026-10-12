@@ -10,18 +10,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-@EventBusSubscriber
+@Mod.EventBusSubscriber
 public class BlockDamageManager {
 
 
@@ -44,7 +44,10 @@ public class BlockDamageManager {
 //    public static void onBlockBreak(LivingDestroyBlockEvent event){}
 
     @SubscribeEvent
-    public static void blockDamageManagerTick(ServerTickEvent.Post event) {
+    public static void blockDamageManagerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         for (Level level : event.getServer().getAllLevels()) {
             long gameTime = level.getGameTime();
             var manager = INSTANCE.resolveManager(level);
@@ -87,7 +90,7 @@ public class BlockDamageManager {
             // normally, id is tied to entity id so an entity can only affect one block at once
             // with explosive bullets, we want an entity to affect multiple, so use no-op id
             // id is saved and reused, so we good
-            id = bullet.getRandom().nextInt(Integer.MAX_VALUE);
+            id = bullet.level().getRandom().nextInt(Integer.MAX_VALUE);
         }
         float lastProgress = 1 - blockCurrentHealth / blockMaxHealth;
         blockCurrentHealth -= damage;
@@ -96,7 +99,7 @@ public class BlockDamageManager {
         if (destroyProgress >= 1) {
             level.destroyBlockProgress(id, pos, -1);
             manager.remove(pos);
-            if (!(bullet.getOwner() instanceof Player player) || !NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player)).isCanceled()) {
+            if (!(bullet.getOwner() instanceof Player player) || !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, player))) {
                 level.destroyBlock(pos, false);
                 level.levelEvent(null, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
                 return true;

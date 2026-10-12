@@ -1,31 +1,22 @@
 package io.redspace.irons_artifice.network.packets;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.data.ParticleStack;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public record ClientboundBulletTrailPacket(Vec3 from, Vec3 to, List<ParticleOptions> particles,
-                                           List<ParticleStack.ParticleAccent> accents)
-        implements CustomPacketPayload {
+                                           List<ParticleStack.ParticleAccent> accents) {
 
-    public static final Type<ClientboundBulletTrailPacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(IronsArtifice.MODID, "bullet_trail"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundBulletTrailPacket> STREAM_CODEC =
-            StreamCodec.of(ClientboundBulletTrailPacket::encode, ClientboundBulletTrailPacket::decode);
-
-    private static void encode(RegistryFriendlyByteBuf buf, ClientboundBulletTrailPacket msg) {
+    public static void encode(ClientboundBulletTrailPacket msg, FriendlyByteBuf buf) {
         buf.writeDouble(msg.from.x);
         buf.writeDouble(msg.from.y);
         buf.writeDouble(msg.from.z);
@@ -34,40 +25,46 @@ public record ClientboundBulletTrailPacket(Vec3 from, Vec3 to, List<ParticleOpti
         buf.writeDouble(msg.to.z);
         buf.writeVarInt(msg.particles.size());
         for (ParticleOptions particle : msg.particles) {
-            ParticleTypes.STREAM_CODEC.encode(buf, particle);
+            writeParticle(buf, particle);
         }
         buf.writeVarInt(msg.accents.size());
         for (ParticleStack.ParticleAccent accent : msg.accents) {
-            ParticleTypes.STREAM_CODEC.encode(buf, accent.options());
+            writeParticle(buf, accent.options());
             buf.writeDouble(accent.chance());
         }
     }
 
-    private static ClientboundBulletTrailPacket decode(RegistryFriendlyByteBuf buf) {
+    public static ClientboundBulletTrailPacket decode(FriendlyByteBuf buf) {
         Vec3 from = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         Vec3 to = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
         int size = buf.readVarInt();
         List<ParticleOptions> particles = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            particles.add(ParticleTypes.STREAM_CODEC.decode(buf));
+            particles.add(readParticle(buf));
         }
         size = buf.readVarInt();
         List<ParticleStack.ParticleAccent> accents = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             accents.add(new ParticleStack.ParticleAccent(
-                    ParticleTypes.STREAM_CODEC.decode(buf),
+                    readParticle(buf),
                     buf.readDouble()
             ));
         }
         return new ClientboundBulletTrailPacket(from, to, particles, accents);
     }
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    private static void writeParticle(FriendlyByteBuf buf, ParticleOptions particle) {
+        buf.writeId(BuiltInRegistries.PARTICLE_TYPE, particle.getType());
+        particle.writeToNetwork(buf);
     }
 
-    public static void handle(ClientboundBulletTrailPacket payload, IPayloadContext context) {
+    private static <T extends ParticleOptions> T readParticle(FriendlyByteBuf buf) {
+        @SuppressWarnings("unchecked")
+        ParticleType<T> type = (ParticleType<T>) buf.readById(BuiltInRegistries.PARTICLE_TYPE);
+        return type.getDeserializer().fromNetwork(type, buf);
+    }
+
+    public static void handle(ClientboundBulletTrailPacket payload, Supplier<NetworkEvent.Context> context) {
         ClientHelper.handleBulletTrail(payload);
     }
 }

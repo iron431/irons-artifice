@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "minecraft:logs"
+    },
+    "M": {
+      "item": "irons_artifice:clockwork_components"
+    }
+  },
+  "pattern": [
+    "I  ",
+    " IM",
+    " LB"
+  ],
+  "result": {
+    "item": "irons_artifice:arquebus"
+  },
+  "show_notification": true
+}

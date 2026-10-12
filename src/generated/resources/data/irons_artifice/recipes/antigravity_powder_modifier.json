@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "irons_artifice:blackpowder"
+    },
+    "P": {
+      "item": "minecraft:ender_pearl"
+    }
+  },
+  "pattern": [
+    "BPB"
+  ],
+  "result": {
+    "item": "irons_artifice:antigravity_powder_modifier"
+  },
+  "show_notification": true
+}

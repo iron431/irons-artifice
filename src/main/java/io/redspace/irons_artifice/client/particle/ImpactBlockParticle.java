@@ -42,7 +42,7 @@ public class ImpactBlockParticle extends TerrainParticle {
                                                  double x, double y, double z,
                                                  double xa, double ya, double za) {
             BlockState state = options.getState();
-            if (state.isAir() || state.is(Blocks.MOVING_PISTON) || !state.shouldSpawnTerrainParticles()) {
+            if (state.isAir() || state.is(Blocks.MOVING_PISTON)) {
                 return null;
             }
             return new ImpactBlockParticle(level, x, y, z, xa, ya, za, state);

@@ -1,0 +1,34 @@
+{
+  "parent": "irons_artifice:fully_loaded",
+  "criteria": {
+    "davy_joness_locker": {
+      "conditions": {
+        "killed": true,
+        "source": "bullet",
+        "submerged": true
+      },
+      "trigger": "irons_artifice:gun_combat"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.irons_artifice.davy_joness_locker.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "irons_artifice:spiral_tip_modifier"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.irons_artifice.davy_joness_locker.title"
+    }
+  },
+  "requirements": [
+    [
+      "davy_joness_locker"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

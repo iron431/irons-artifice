@@ -4,7 +4,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.redspace.irons_artifice.api.GunBones;
@@ -13,12 +13,12 @@ import io.redspace.irons_artifice.client.MuzzleFlashEmitter;
 import io.redspace.irons_artifice.data.HandOccupancy;
 import io.redspace.irons_artifice.item.AttachmentMap;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -39,8 +39,8 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     @Override
-    public void preRender(@NotNull PoseStack poseStack, GunItem animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    public void preRender(@NotNull PoseStack poseStack, GunItem animatable, @NotNull BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
         if (isLeftHandPerspective(this.renderPerspective)) {
             PoseStack.Pose last = poseStack.last();
             last.pose().scale(-1f, 1f, 1f);
@@ -48,14 +48,28 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     @Override
-    public void renderRecursively(@NotNull PoseStack poseStack, GunItem animatable, @NotNull GeoBone bone, @NotNull RenderType renderType, @NotNull MultiBufferSource bufferSource, @NotNull VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    public void renderRecursively(@NotNull PoseStack poseStack, GunItem animatable, @NotNull GeoBone bone, @NotNull RenderType renderType, @NotNull MultiBufferSource bufferSource, @NotNull VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        if (!isReRender && renderType != null) {
+            buffer = liveGunBuffer(bufferSource, renderType);
+        }
+        super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
         if (isReRender) {
             return;
         }
         handleAttachmentRendering(poseStack, bone, bufferSource, partialTick, packedLight);
         handleMuzzleFlashEmission(poseStack, bone);
         handleFirstPersonHandRendering(poseStack, bone, bufferSource, partialTick, packedLight);
+    }
+
+    /**
+     * Attachments and first-person hands draw with their own render types, and on a {@link MultiBufferSource.BufferSource}
+     * that ends the gun's batch, so the buffer the parent bone passes on is dead by the next bone. GeckoLib fetches the
+     * gun's buffer once per render, so every bone fetches it again here, the same way {@code renderByItem} built it.
+     */
+    protected VertexConsumer liveGunBuffer(@NotNull MultiBufferSource bufferSource, @NotNull RenderType renderType) {
+        ItemStack stack = this.currentItemStack;
+        boolean gui = this.renderPerspective == ItemDisplayContext.GUI;
+        return ItemRenderer.getFoilBufferDirect(bufferSource, renderType, gui, stack != null && stack.hasFoil());
     }
 
     protected void handleAttachmentRendering(@NotNull PoseStack poseStack, @NotNull GeoBone bone, @NotNull MultiBufferSource bufferSource, float partialTick, int packedLight) {
@@ -106,7 +120,7 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (leftArm && currentOccupancy(player) != HandOccupancy.BOTH) {
             return;
         }
-        ResourceLocation skinTexture = player.getSkin().texture();
+        ResourceLocation skinTexture = player.getSkinTextureLocation();
         final RenderType renderType = getRenderType(this.animatable, skinTexture, bufferSource, partialTick);
         ModelPart modelPart = leftArm ? renderer.getModel().leftArm : renderer.getModel().rightArm;
         atBonePivot(poseStack, bone, pose -> renderFirstPersonHand(bufferSource, renderType, modelPart, pose, packedLight));
@@ -133,15 +147,15 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
      */
     protected void atBonePivot(@NotNull PoseStack poseStack, @NotNull GeoBone bone, @NotNull Consumer<PoseStack> action) {
         poseStack.pushPose();
-        RenderUtil.prepMatrixForBone(poseStack, bone);
-        RenderUtil.translateToPivotPoint(poseStack, bone);
+        RenderUtils.prepMatrixForBone(poseStack, bone);
+        RenderUtils.translateToPivotPoint(poseStack, bone);
         action.accept(poseStack);
         poseStack.popPose();
     }
 
     protected AttachmentMap currentAttachments() {
         ItemStack stack = this.currentItemStack;
-        return stack == null ? AttachmentMap.EMPTY : stack.getOrDefault(DataComponentRegistry.ATTACHMENT, AttachmentMap.EMPTY);
+        return stack == null ? AttachmentMap.EMPTY : AttachmentMap.of(stack);
     }
 
     protected @Nullable HandOccupancy currentOccupancy(@NotNull LivingEntity owner) {
