@@ -67,11 +67,9 @@ public final class MuzzleFlashEmitter {
     }
 
     private static Vec3 worldPosFromBone(PoseStack poseStack, float extraForwardOffset) {
-        // The shader draws a vertex at projection * modelView * pose, and hand and entity passes both draw under the
-        // camera's projection, so modelView * pose maps bone space into camera space however the renderer split the
-        // camera transform between the two. Camera space looks down -Z with +Y up and -X to the left; the camera
-        // publishes where those axes point in the world, which is a plainer description than camera.rotation(),
-        // whose quaternion maps +Z, not -Z, onto the look direction.
+        // modelView * pose maps bone space into camera space (-Z look, +Y up, -X left) however the renderer split the
+        // camera transform between the two. The camera's basis vectors take that to the world; camera.rotation()
+        // cannot, its quaternion maps +Z onto the look direction.
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         Matrix4f boneToCamera = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(poseStack.last().pose());
         Vector3f forward = boneToCamera.transformDirection(new Vector3f(0f, 0f, -1f));

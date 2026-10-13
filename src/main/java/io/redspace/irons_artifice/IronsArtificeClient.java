@@ -141,8 +141,8 @@ public class IronsArtificeClient {
     }
 
     /**
-     * Called from the {@link GunItem} constructor, before its profile is assigned and before it has a registry key,
-     * so both are read on first use rather than here.
+     * Runs inside the {@link GunItem} constructor, before the profile and registry key exist, so both are read on
+     * first use.
      */
     public static IClientItemExtensions gunExtension(GunItem gun) {
         Supplier<GunInHandRenderer> renderer = Suppliers.memoize(() -> {

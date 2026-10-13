@@ -7,10 +7,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 
 /**
- * The barrier shell the 1.21 game test framework puts around every test structure
- * ({@code StructureUtils.encaseStructure}): walls on the X and Z perimeter and, since no test here asks for
- * sky access, a ceiling. This version's framework leaves arenas open, so a knocked-back mob would otherwise
- * leave the floor and drop out of the next shot's line.
+ * Barrier shell around a test structure: walls on the X and Z perimeter and a ceiling, since no test asks for sky
+ * access. Without it a knocked-back mob leaves the floor and drops out of the next shot's line.
  */
 public final class ArenaEncasement {
     private ArenaEncasement() {

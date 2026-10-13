@@ -104,10 +104,7 @@ public record PlayableSound(Holder<SoundEvent> soundEventHolder, float volume, f
         return BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent);
     }
 
-    /**
-     * Resolves a registered sound (e.g. a {@code RegistryObject}) to its registry holder. Only valid once the sound
-     * event registry has fired, which holds for the gun profiles because items register after sound events.
-     */
+    /** Resolves a registered sound (e.g. a {@code RegistryObject}) to its registry holder; sound events must be registered. */
     public static Holder<SoundEvent> holder(Supplier<SoundEvent> soundEvent) {
         return holder(soundEvent.get());
     }

@@ -496,7 +496,7 @@ public final class TestFixtures {
     }
 
     // ---------------------------------------------------------------------------------------
-    // GameTestHelper surfaces this version lacks. Each keeps its upstream name and message.
+    // Queries GameTestHelper does not offer; names and failure messages follow the vanilla ones.
     // ---------------------------------------------------------------------------------------
 
     static <T> void assertValueEqual(T actual, T expected, String what) {
@@ -506,10 +506,9 @@ public final class TestFixtures {
     }
 
     /**
-     * The test structure's bounds as 1.21's {@code StructureUtils.getStructureBounds} reports them: from the
-     * structure's origin, one block above the structure block, to one past its far corner. This version's
-     * {@code getStructureBounds} runs from the structure block to the far corner itself, a block low and a block
-     * short on every axis.
+     * The test structure's bounds from its origin, one block above the structure block, to one past its far corner.
+     * {@code StructureUtils.getStructureBounds} starts at the structure block and stops at the far corner itself,
+     * a block low and a block short on every axis.
      */
     static AABB arenaBounds(GameTestHelper helper) {
         if (!(helper.getBlockEntity(BlockPos.ZERO) instanceof StructureBlockEntity structureBlock)) {
@@ -523,10 +522,9 @@ public final class TestFixtures {
     }
 
     /**
-     * Empties the arena before a test builds it. 1.21's {@code GameTestInfo.succeed} discards every non-player
-     * entity in the structure bounds when a test passes; this version leaves them, the game test server keeps its
-     * world between runs, and entities saved in it load asynchronously after the framework's
-     * {@code clearSpaceForStructure} has looked, so an earlier run's mobs would still stand in the lanes.
+     * Empties the arena before a test builds it. A passed test leaves its entities behind, the game test server
+     * keeps its world between runs, and saved entities load after {@code clearSpaceForStructure} has looked, so an
+     * earlier run's mobs would still stand in the lanes.
      */
     static void discardArenaEntities(GameTestHelper helper) {
         helper.getLevel()

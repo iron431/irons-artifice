@@ -40,8 +40,8 @@ public class ArmorRenderProviders {
     }
 
     /**
-     * Built from the item constructor, before the item is registered or its renderer installed, so the renderer is
-     * looked up on each render rather than captured here.
+     * Runs inside the item constructor, before the item is registered or its renderer installed, so the renderer is
+     * looked up on each render.
      */
     public static IClientItemExtensions extension(BaseGeoArmorItem item) {
         return new IClientItemExtensions() {
