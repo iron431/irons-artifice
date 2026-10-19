@@ -20,9 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * A modifier patch is a {@link CompoundTag} of stack tag keys. Rebuilding copies its entries onto the gun's tag,
- * drops the keys the previous patch set that the next one no longer does, and keeps the patch itself under
- * {@link #TAG_KEY} so the next rebuild knows what it owns.
+ * A modifier patch is a {@link CompoundTag} of stack tag keys. Rebuilding copies patched entries onto the item's tag, and removes old patched keys.
  */
 public final class ModifierPatchHandler {
     public static final String TAG_KEY = IronsArtifice.id("modifier_patch").toString();
