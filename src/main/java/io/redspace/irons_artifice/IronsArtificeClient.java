@@ -10,6 +10,7 @@ import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
 import io.redspace.irons_artifice.client.gui.ClientBulletContainerItemTooltip;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
+import io.redspace.irons_artifice.client.gun.FirstPersonArmsModel;
 import io.redspace.irons_artifice.client.gun.GunGeoModel;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
@@ -39,6 +40,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import com.google.common.base.Suppliers;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.IllagerModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -111,6 +113,19 @@ public class IronsArtificeClient {
         event.registerEntityRenderer(EntityRegistry.SOUL.get(), SoulfireCoinRenderer::new);
         event.registerEntityRenderer(EntityRegistry.GUNSLINGER.get(), GunslingerRenderer::new);
         event.registerEntityRenderer(EntityRegistry.ILLIFICER.get(), IllificerRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(FirstPersonArmsModel.WIDE_LAYER, () -> FirstPersonArmsModel.createLayer(false));
+        event.registerLayerDefinition(FirstPersonArmsModel.SLIM_LAYER, () -> FirstPersonArmsModel.createLayer(true));
+        event.registerLayerDefinition(IllificerRenderer.LAYER, IllagerModel::createBodyLayer);
+        event.registerLayerDefinition(GunslingerRenderer.LAYER, IllagerModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    public static void bakeFirstPersonArms(EntityRenderersEvent.AddLayers event) {
+        FirstPersonArmsModel.bake(event.getEntityModels());
     }
 
     @SubscribeEvent

@@ -40,6 +40,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -370,6 +371,7 @@ public final class GunplayManager {
             boolean topOff = topLoad != null && missing < capacity;
             ReloadState state = ReloadState.start(gun, gunItem.getGun().reloadTimeTicks(), speed, missing, topOff ? topLoad : null);
             playReloadAnimation(living, gun);
+            living.gameEvent(GameEvent.ENTITY_SHAKE);
         }
         if (living.isUsingItem()) {
             living.stopUsingItem();
