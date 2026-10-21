@@ -19,10 +19,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3f;
@@ -100,25 +101,22 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (player == null) {
             return;
         }
-        if (!(Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player) instanceof PlayerRenderer renderer)) {
+        PlayerSkin skin = player.getSkin();
+        FirstPersonArmsModel arms = FirstPersonArmsModel.forSkin(skin.model());
+        if (arms == null) {
             return;
         }
+        arms.showSleeves(player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         if (leftArm && currentOccupancy(player) != HandOccupancy.BOTH) {
             return;
         }
         ResourceLocation skinTexture = player.getSkin().texture();
         final RenderType renderType = getRenderType(this.animatable, skinTexture, bufferSource, partialTick);
-        ModelPart modelPart = leftArm ? renderer.getModel().leftArm : renderer.getModel().rightArm;
+        ModelPart modelPart = leftArm ? arms.leftArm : arms.rightArm;
         atBonePivot(poseStack, bone, pose -> renderFirstPersonHand(bufferSource, renderType, modelPart, pose, packedLight));
     }
 
     protected void renderFirstPersonHand(@NotNull MultiBufferSource bufferSource, @NotNull RenderType renderType, @NotNull ModelPart modelPart, @NotNull PoseStack poseStack, int packedLight) {
-        modelPart.x = 0;
-        modelPart.y = 0;
-        modelPart.z = 0;
-        modelPart.xRot = 0;
-        modelPart.yRot = 0;
-        modelPart.zRot = 0;
         poseStack.pushPose();
         poseStack.scale(-1, -1, 1);
         // no clue where these numbers come from (manually lined up from block bench)

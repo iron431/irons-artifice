@@ -10,5 +10,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(Mob.class)
 public interface MobAccessor {
     @Accessor("lootTable")
-    void setLootTable(@Nullable ResourceKey<LootTable> lootTable);
+    void irons_artifice$setLootTable(@Nullable ResourceKey<LootTable> lootTable);
 }
