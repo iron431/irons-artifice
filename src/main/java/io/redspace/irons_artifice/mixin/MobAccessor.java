@@ -11,5 +11,5 @@ import java.util.Optional;
 @Mixin(Mob.class)
 public interface MobAccessor {
     @Accessor("lootTable")
-    void setLootTable(Optional<ResourceKey<LootTable>> lootTable);
+    void irons_artifice$setLootTable(Optional<ResourceKey<LootTable>> lootTable);
 }

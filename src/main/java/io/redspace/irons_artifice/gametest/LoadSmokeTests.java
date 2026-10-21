@@ -1,11 +1,14 @@
 package io.redspace.irons_artifice.gametest;
 
+import io.redspace.irons_artifice.data.ShotComponents;
+import io.redspace.irons_artifice.entity.DrownedPirateHelper;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.entity.monster.zombie.Drowned;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -35,6 +38,17 @@ public final class LoadSmokeTests {
                 assertComposes(helper, gun, TestFixtures.gunWith(gun, 1, modifier), modifier + " on " + gun);
             }
         }
+        helper.succeed();
+    }
+
+    static void drownedPirateCustomizesItsShot(GameTestHelper helper) {
+        Drowned pirate = DrownedPirateHelper.createDrownedPirate(helper.getLevel());
+        ItemStack stack = pirate.getMainHandItem();
+        helper.assertTrue(stack.getItem() instanceof GunItem, "drowned pirate spawns holding a gun");
+        GunItem gun = (GunItem) stack.getItem();
+        double bare = GunplayManager.compose(null, gun.getGun(), stack).value(ShotComponents.DAMAGE);
+        double pirates = GunplayManager.compose(pirate, gun.getGun(), stack).value(ShotComponents.DAMAGE);
+        helper.assertTrue(pirates < bare, "drowned pirate's shot carries its damage reduction (" + pirates + " vs " + bare + ")");
         helper.succeed();
     }
 

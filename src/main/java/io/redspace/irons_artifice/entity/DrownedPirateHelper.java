@@ -68,7 +68,7 @@ public class DrownedPirateHelper {
         // drop chances intentionally left unchanged
         drowned.setItemSlot(EquipmentSlot.HEAD, new ItemStack(ItemRegistry.TRICORNE_HAT.get()));
         drowned.setItemSlot(EquipmentSlot.MAINHAND, createLoadout(level));
-        ((MobAccessor) drowned).setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
+        ((MobAccessor) drowned).irons_artifice$setLootTable(Optional.of(EntityLootProvider.DROWNED_PIRATE));
         return drowned;
     }
 

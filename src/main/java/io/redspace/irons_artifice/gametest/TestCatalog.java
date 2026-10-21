@@ -217,6 +217,7 @@ public final class TestCatalog {
             new PlainTest("components_survive_network", BOX_SMALL, 20, PersistenceTests::componentsSurviveNetwork),
             new PlainTest("pending_shot_clears_on_swap", BOX_SMALL, 60, DataAttachmentTests::pendingShotClearsOnSwap),
             new PlainTest("every_gun_composes_with_every_modifier", BOX_SMALL, 60, LoadSmokeTests::everyGunComposesWithEveryModifier),
+            new PlainTest("drowned_pirate_customizes_its_shot", BOX_SMALL, 20, LoadSmokeTests::drownedPirateCustomizesItsShot),
             new PlainTest("fire_refusals", BOX_SMALL, 40, FirePipelineTests::refusals),
             new PlainTest("successful_shot", BOX_SMALL, 40, FirePipelineTests::successfulShot),
             new PlainTest("delay_is_gun_keyed", BOX_SMALL, 40, FirePipelineTests::delayIsGunKeyed),
