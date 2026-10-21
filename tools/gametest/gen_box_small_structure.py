@@ -2,7 +2,7 @@
 """Generates the box_small.nbt GameTest arena structure.
 
 Standalone, standard-library-only generator for
-`src/main/resources/data/irons_artifice/structure/box_small.nbt`.
+`src/main/resources/data/irons_artifice/structures/box_small.nbt`.
 
 The structure file format is a gzip-compressed, unnamed root NBT compound,
 matching the shape of vanilla's `minecraft:empty` structure:
@@ -34,7 +34,7 @@ TAG_LIST = 9
 TAG_COMPOUND = 10
 
 SIZE = (7, 5, 7)
-DATA_VERSION = 4790
+DATA_VERSION = 3465
 
 PALETTE = ["minecraft:air", "minecraft:stone"]
 AIR = 0
@@ -156,7 +156,7 @@ def build_file():
 def main():
     output_path = (
         Path(__file__).resolve().parents[2]
-        / "src/main/resources/data/irons_artifice/structure/box_small.nbt"
+        / "src/main/resources/data/irons_artifice/structures/box_small.nbt"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     data = build_file()

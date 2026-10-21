@@ -5,6 +5,7 @@ import io.redspace.irons_artifice.data.LastHitTarget;
 import io.redspace.irons_artifice.data.RecentShots;
 import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.entity.IExtendedLivingEntity;
+import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.PendingShot;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,6 +26,8 @@ public abstract class LivingEntityMixin implements IExtendedLivingEntity {
     private RecentShots irons_artifice$recentShots = RecentShots.NONE;
     @Unique
     private final ShotCombatTracker irons_artifice$shotCombat = new ShotCombatTracker();
+    @Unique
+    private int irons_artifice$bulletSelection = BulletContainerContents.NO_SELECTION;
 
     @Override
     public FireDelayState irons_artifice$getFireDelay() {
@@ -79,5 +82,15 @@ public abstract class LivingEntityMixin implements IExtendedLivingEntity {
     @Override
     public ShotCombatTracker irons_artifice$getShotCombat() {
         return irons_artifice$shotCombat;
+    }
+
+    @Override
+    public int irons_artifice$getBulletSelection() {
+        return irons_artifice$bulletSelection;
+    }
+
+    @Override
+    public void irons_artifice$setBulletSelection(int index) {
+        irons_artifice$bulletSelection = index;
     }
 }

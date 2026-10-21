@@ -2,7 +2,7 @@
 """Generates the range_two_lane.nbt GameTest arena structure.
 
 Standalone, standard-library-only generator for
-`src/main/resources/data/irons_artifice/structure/range_two_lane.nbt`.
+`src/main/resources/data/irons_artifice/structures/range_two_lane.nbt`.
 
 Imports the NBT `Writer` and helpers from `gen_box_small_structure.py`
 rather than duplicating them.
@@ -98,7 +98,7 @@ def build_file():
 def main():
     output_path = (
         Path(__file__).resolve().parents[2]
-        / "src/main/resources/data/irons_artifice/structure/range_two_lane.nbt"
+        / "src/main/resources/data/irons_artifice/structures/range_two_lane.nbt"
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     data = build_file()

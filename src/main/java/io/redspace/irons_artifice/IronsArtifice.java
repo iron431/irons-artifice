@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -44,8 +44,8 @@ public class IronsArtifice {
                 }
             }).build());
 
-    public IronsArtifice() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public IronsArtifice(FMLJavaModLoadingContext context) {
+        IEventBus modEventBus = context.getModEventBus();
         CriterionRegistry.register();
         ItemRegistry.register(modEventBus);
         EntityRegistry.register(modEventBus);
@@ -59,12 +59,13 @@ public class IronsArtifice {
         modEventBus.addListener(CommonSetup::buildCreativeTabs);
         CREATIVE_MODE_TABS.register(modEventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        ModContainer container = context.getContainer();
+        container.addConfig(new ModConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, container));
+        container.addConfig(new ModConfig(ModConfig.Type.SERVER, ServerConfig.SPEC, container));
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 
 }

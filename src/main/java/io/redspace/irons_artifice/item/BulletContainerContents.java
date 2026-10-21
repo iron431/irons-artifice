@@ -22,24 +22,17 @@ public final class BulletContainerContents {
     private static final int GRID_COLUMNS = 4;
     public static final Codec<BulletContainerContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("capacity").forGetter(BulletContainerContents::capacity),
-            ItemStack.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletContainerContents::stacks),
-            Codec.INT.optionalFieldOf("selected", NO_SELECTION).forGetter(BulletContainerContents::selectedIndex)
+            ItemStack.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(BulletContainerContents::stacks)
     ).apply(instance, BulletContainerContents::new));
 
     public static final String TAG_KEY = IronsArtifice.id("bullet_pouch").toString();
 
     private final int capacity;
     private final List<ItemStack> stacks;
-    private final int selectedIndex;
 
     public BulletContainerContents(int capacity, List<ItemStack> stacks) {
-        this(capacity, stacks, NO_SELECTION);
-    }
-
-    private BulletContainerContents(int capacity, List<ItemStack> stacks, int selectedIndex) {
         this.capacity = capacity;
         this.stacks = List.copyOf(stacks);
-        this.selectedIndex = selectedIndex;
     }
 
     public static BulletContainerContents empty(int capacity) {
@@ -91,14 +84,6 @@ public final class BulletContainerContents {
         return stacks.stream().map(ItemStack::copy);
     }
 
-    public int selectedIndex() {
-        return selectedIndex;
-    }
-
-    public @Nullable ItemStack selectedStack() {
-        return selectedIndex >= 0 && selectedIndex < stacks.size() ? stacks.get(selectedIndex) : null;
-    }
-
     public int numberOfStacksToShow() {
         int visibleCells = size() > GRID_CELLS ? GRID_CELLS - 1 : GRID_CELLS;
         int onPartialRow = size() % GRID_COLUMNS;
@@ -142,7 +127,6 @@ public final class BulletContainerContents {
     public static final class Mutable {
         private final int capacity;
         private final List<ItemStack> stacks = new ArrayList<>();
-        private int selectedIndex;
 
         public Mutable(BulletContainerContents contents) {
             capacity = contents.capacity;
@@ -151,7 +135,6 @@ public final class BulletContainerContents {
                     stacks.add(stored.copy());
                 }
             }
-            selectedIndex = stacks.size() == contents.stacks.size() ? contents.selectedIndex : NO_SELECTION;
         }
 
         public int count() {
@@ -197,17 +180,15 @@ public final class BulletContainerContents {
             }
             stacks.addAll(0, promoted);
             source.shrink(toMove);
-            selectedIndex = NO_SELECTION;
             return toMove;
         }
 
-        public ItemStack removeOne() {
+        /** Takes the selected stack, or the newest one when nothing is selected. */
+        public ItemStack removeOne(int selectedIndex) {
             if (stacks.isEmpty()) {
                 return ItemStack.EMPTY;
             }
-            int index = inRange(selectedIndex) ? selectedIndex : 0;
-            selectedIndex = NO_SELECTION;
-            return stacks.remove(index);
+            return stacks.remove(inRange(selectedIndex) ? selectedIndex : 0);
         }
 
         public void putBack(ItemStack stack) {
@@ -227,14 +208,7 @@ public final class BulletContainerContents {
                     stacks.remove(0);
                 }
             }
-            if (removed > 0) {
-                selectedIndex = NO_SELECTION;
-            }
             return removed;
-        }
-
-        public void toggleSelected(int index) {
-            selectedIndex = index != selectedIndex && inRange(index) ? index : NO_SELECTION;
         }
 
         private boolean inRange(int index) {
@@ -246,7 +220,7 @@ public final class BulletContainerContents {
             for (ItemStack stack : stacks) {
                 copies.add(stack.copy());
             }
-            return new BulletContainerContents(capacity, copies, selectedIndex);
+            return new BulletContainerContents(capacity, copies);
         }
     }
 }

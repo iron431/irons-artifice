@@ -37,10 +37,7 @@ public final class PersistenceTests {
         ReloadState originalReload = ReloadState.get(original);
         ReloadState restoredReload = ReloadState.get(restored);
         helper.assertTrue(restoredReload != null, "reload state present after " + stage);
-        // ReloadState.equals() omits progress.
         TestFixtures.assertValueEqual(restoredReload, originalReload, "reload state content after " + stage);
-        TestFixtures.assertValueEqual(restoredReload.progress(), originalReload.progress(),
-                "reload state progress after " + stage);
 
         CompoundTag originalPatch = original.getTagElement(ModifierPatchHandler.TAG_KEY);
         CompoundTag restoredPatch = restored.getTagElement(ModifierPatchHandler.TAG_KEY);

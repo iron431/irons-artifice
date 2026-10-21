@@ -50,10 +50,6 @@ public class BulletContainerItem extends Item {
         return contents(pouch).numberOfStacksToShow();
     }
 
-    public static int selectedIndex(ItemStack pouch) {
-        return contents(pouch).selectedIndex();
-    }
-
     private static void write(ItemStack pouch, BulletContainerContents.Mutable mutable) {
         BulletContainerContents.set(pouch, mutable.toImmutable());
     }
@@ -81,12 +77,6 @@ public class BulletContainerItem extends Item {
         return removed;
     }
 
-    public static void toggleSelected(ItemStack pouch, int index) {
-        BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
-        contents.toggleSelected(index);
-        write(pouch, contents);
-    }
-
     @Override
     public boolean overrideStackedOnOther(ItemStack pouch, Slot slot, ClickAction action, Player player) {
         if (pouch.getCount() != 1) {
@@ -105,10 +95,11 @@ public class BulletContainerItem extends Item {
             return true;
         }
         if (action == ClickAction.SECONDARY && other.isEmpty()) {
-            ItemStack removed = contents.removeOne();
+            ItemStack removed = contents.removeOne(BulletContainerSelection.get(player));
             if (removed.isEmpty()) {
                 return false;
             }
+            BulletContainerSelection.clear(player);
             ItemStack remainder = slot.safeInsert(removed);
             if (remainder.isEmpty()) {
                 playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
@@ -136,16 +127,17 @@ public class BulletContainerItem extends Item {
             return true;
         }
         if (action == ClickAction.SECONDARY && carried.isEmpty() && slot.allowModification(player)) {
-            ItemStack removed = contents.removeOne();
+            ItemStack removed = contents.removeOne(BulletContainerSelection.get(player));
             if (removed.isEmpty()) {
                 return false;
             }
+            BulletContainerSelection.clear(player);
             write(pouch, contents);
             carriedAccess.set(removed);
             playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
             return true;
         }
-        toggleSelected(pouch, BulletContainerContents.NO_SELECTION);
+        BulletContainerSelection.clear(player);
         return false;
     }
 
@@ -156,10 +148,11 @@ public class BulletContainerItem extends Item {
             return InteractionResultHolder.pass(pouch);
         }
         BulletContainerContents.Mutable contents = new BulletContainerContents.Mutable(contents(pouch));
-        ItemStack removed = contents.removeOne();
+        ItemStack removed = contents.removeOne(BulletContainerSelection.get(player));
         if (removed.isEmpty()) {
             return InteractionResultHolder.pass(pouch);
         }
+        BulletContainerSelection.clear(player);
         write(pouch, contents);
         if (!level.isClientSide()) {
             player.getInventory().placeItemBackInInventory(removed);

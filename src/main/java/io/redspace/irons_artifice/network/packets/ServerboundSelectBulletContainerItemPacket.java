@@ -2,6 +2,7 @@ package io.redspace.irons_artifice.network.packets;
 
 import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.BulletContainerItem;
+import io.redspace.irons_artifice.item.BulletContainerSelection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -40,6 +41,6 @@ public record ServerboundSelectBulletContainerItemPacket(int slotIndex, int sele
         if (!clearing && !inRange) {
             return;
         }
-        BulletContainerItem.toggleSelected(stack, payload.selectedIndex);
+        BulletContainerSelection.set(player, payload.selectedIndex);
     }
 }

@@ -33,4 +33,8 @@ public interface IExtendedLivingEntity {
     void irons_artifice$setRecentShots(RecentShots shots);
 
     ShotCombatTracker irons_artifice$getShotCombat();
+
+    int irons_artifice$getBulletSelection();
+
+    void irons_artifice$setBulletSelection(int index);
 }

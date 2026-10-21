@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.client.gui;
 
 import io.redspace.irons_artifice.item.BulletContainerContents;
+import io.redspace.irons_artifice.item.BulletContainerSelection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -17,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class ClientBulletContainerItemTooltip implements ClientTooltipComponent {
-    private static final ResourceLocation BUNDLE_TEXTURE = new ResourceLocation("textures/gui/container/bundle.png");
+    private static final ResourceLocation BUNDLE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/bundle.png");
     private static final int BUNDLE_TEXTURE_SIZE = 128;
     private static final int SLOT_WIDTH = 18;
     private static final int SLOT_HEIGHT = 20;
@@ -80,7 +81,7 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
         blitSlot(graphics, drawX, drawY);
         graphics.renderItem(stack, drawX + ITEM_INSET, drawY + ITEM_INSET, index);
         graphics.renderItemDecorations(font, stack, drawX + ITEM_INSET, drawY + ITEM_INSET);
-        if (index == contents.selectedIndex()) {
+        if (index == selectedIndex()) {
             AbstractContainerScreen.renderSlotHighlight(graphics, drawX + ITEM_INSET, drawY + ITEM_INSET, 0);
         }
     }
@@ -90,10 +91,11 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
     }
 
     private void renderSelectedName(Font font, GuiGraphics graphics, int x, int y, int w) {
-        ItemStack selected = contents.selectedStack();
-        if (selected == null) {
+        int selectedIndex = selectedIndex();
+        if (selectedIndex < 0 || selectedIndex >= contents.size()) {
             return;
         }
+        ItemStack selected = contents.stacks().get(selectedIndex);
         Component name = styledHoverName(selected);
         int textWidth = font.width(name.getVisualOrderText());
         int center = x + w / 2 - 12;
@@ -112,6 +114,12 @@ public class ClientBulletContainerItemTooltip implements ClientTooltipComponent 
             name.withStyle(ChatFormatting.ITALIC);
         }
         return name;
+    }
+
+    private static int selectedIndex() {
+        return Minecraft.getInstance().player == null
+                ? BulletContainerContents.NO_SELECTION
+                : BulletContainerSelection.get(Minecraft.getInstance().player);
     }
 
     private List<ItemStack> shownStacks() {

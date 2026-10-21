@@ -155,8 +155,8 @@ public class Utils {
      * Pushes packed light toward full bright by {@code intensity}.
      */
     public static int brightenLightTexture(int packed, float intensity) {
-        int block = Mth.clamp((int) Mth.lerp(intensity, LightTexture.block(packed), 240), 0, 15);
-        int sky = Mth.clamp((int) Mth.lerp(intensity, LightTexture.sky(packed), 240), 0, 15);
+        int block = Mth.clamp((int) Mth.lerp(intensity, LightTexture.block(packed), 15), 0, 15);
+        int sky = Mth.clamp((int) Mth.lerp(intensity, LightTexture.sky(packed), 15), 0, 15);
         return LightTexture.pack(block, sky);
     }
 }

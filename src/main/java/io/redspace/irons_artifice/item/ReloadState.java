@@ -19,28 +19,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public record ReloadState(double progress, double duration, double speed, int roundsToLoad, double skipAt,
                           double skipTo) {
-    @Override
-    public boolean equals(Object o) {
-        // progress ticks every tick, so two states of the same reload compare equal without it
-        if (this == o) return true;
-        if (!(o instanceof ReloadState that)) return false;
-        return Double.compare(this.duration, that.duration) == 0
-                && Double.compare(this.speed, that.speed) == 0
-                && this.roundsToLoad == that.roundsToLoad
-                && Double.compare(this.skipAt, that.skipAt) == 0
-                && Double.compare(this.skipTo, that.skipTo) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Double.hashCode(duration);
-        result = 31 * result + Double.hashCode(speed);
-        result = 31 * result + roundsToLoad;
-        result = 31 * result + Double.hashCode(skipAt);
-        result = 31 * result + Double.hashCode(skipTo);
-        return result;
-    }
-
     public static final ReloadState EMPTY = new ReloadState(0, 0, 1, 0, 0, 0);
 
     public static final Codec<ReloadState> CODEC = RecordCodecBuilder.create(builder -> builder.group(

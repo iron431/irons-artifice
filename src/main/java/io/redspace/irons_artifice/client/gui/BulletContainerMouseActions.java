@@ -3,6 +3,7 @@ package io.redspace.irons_artifice.client.gui;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.BulletContainerContents;
 import io.redspace.irons_artifice.item.BulletContainerItem;
+import io.redspace.irons_artifice.item.BulletContainerSelection;
 import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.network.packets.ServerboundSelectBulletContainerItemPacket;
 import net.minecraft.client.KeyMapping;
@@ -111,7 +112,7 @@ public final class BulletContainerMouseActions {
         }
         int steps = accumulateScroll(scrollX, scrollY);
         if (steps != 0) {
-            int current = BulletContainerItem.selectedIndex(pouch);
+            int current = BulletContainerSelection.get(Minecraft.getInstance().player);
             int next = nextScrollWheelSelection(steps, current, shown);
             if (current != next) {
                 select(pouch, slotIndex, next);
@@ -154,10 +155,11 @@ public final class BulletContainerMouseActions {
     }
 
     private static void select(ItemStack pouch, int slotIndex, int index) {
-        if (Minecraft.getInstance().getConnection() == null || index >= BulletContainerItem.numberOfStacksToShow(pouch)) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getConnection() == null || minecraft.player == null || index >= BulletContainerItem.numberOfStacksToShow(pouch)) {
             return;
         }
-        BulletContainerItem.toggleSelected(pouch, index);
+        BulletContainerSelection.set(minecraft.player, index);
         PayloadRegistry.sendToServer(new ServerboundSelectBulletContainerItemPacket(slotIndex, index));
     }
 }
