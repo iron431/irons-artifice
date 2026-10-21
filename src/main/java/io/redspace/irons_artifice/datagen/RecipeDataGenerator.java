@@ -484,7 +484,7 @@ public class RecipeDataGenerator extends RecipeProvider {
     }
 
     private static TagKey<Item> forgeTag(String path) {
-        return TagKey.create(Registries.ITEM, new ResourceLocation("forge", path));
+        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", path));
     }
 
     private static ResourceLocation recipeId(String name) {

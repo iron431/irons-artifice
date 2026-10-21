@@ -10,9 +10,9 @@ public class SimpleItemGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
     final ResourceLocation animationResource;
 
     public SimpleItemGeoModel(String modid, String modelResource, String textureResource, String animationResource) {
-        this.modelResource = new ResourceLocation(modid, "geo/item/" + modelResource + ".geo.json");
-        this.animationResource = new ResourceLocation(modid, "animations/item/" + animationResource + ".animation.json");
-        this.textureResource = new ResourceLocation(modid, "textures/item/" + textureResource + ".png");
+        this.modelResource = ResourceLocation.fromNamespaceAndPath(modid, "geo/item/" + modelResource + ".geo.json");
+        this.animationResource = ResourceLocation.fromNamespaceAndPath(modid, "animations/item/" + animationResource + ".animation.json");
+        this.textureResource = ResourceLocation.fromNamespaceAndPath(modid, "textures/item/" + textureResource + ".png");
     }
 
     @Override

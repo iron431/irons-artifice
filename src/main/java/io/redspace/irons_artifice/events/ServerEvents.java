@@ -170,9 +170,9 @@ public class ServerEvents {
         }
 //        boolean isCursed = level.getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE).get(lootTableKey).map(table -> table.is(IronsArtificeTags.CURSED_BY_PIRATES)).orElse(false);
         // fixme: appears loot table dont have tagging
-        boolean isCursed = lootTable.equals(new ResourceLocation("chests/buried_treasure")) ||
-                lootTable.equals(new ResourceLocation("chests/shipwreck_treasure")) ||
-                lootTable.equals(new ResourceLocation("chests/underwater_ruin_big"));
+        boolean isCursed = lootTable.equals(ResourceLocation.withDefaultNamespace("chests/buried_treasure")) ||
+                lootTable.equals(ResourceLocation.withDefaultNamespace("chests/shipwreck_treasure")) ||
+                lootTable.equals(ResourceLocation.withDefaultNamespace("chests/underwater_ruin_big"));
         if (!isCursed) {
             return;
         }

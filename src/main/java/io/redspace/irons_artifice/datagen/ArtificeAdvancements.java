@@ -36,7 +36,7 @@ public class ArtificeAdvancements implements AdvancementSubProvider {
                         ItemRegistry.BLACKPOWDER.get(),
                         title("root"),
                         description("blackpowder_heart"),
-                        new ResourceLocation("textures/block/stripped_dark_oak_log.png"),
+                        ResourceLocation.withDefaultNamespace("textures/block/stripped_dark_oak_log.png"),
                         FrameType.TASK,
                         true,
                         false,

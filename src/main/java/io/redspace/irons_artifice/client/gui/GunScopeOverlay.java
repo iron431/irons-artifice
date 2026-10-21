@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 public final class GunScopeOverlay {
-    private static final ResourceLocation SCOPE_TEXTURE = new ResourceLocation("textures/misc/spyglass_scope.png");
+    private static final ResourceLocation SCOPE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/spyglass_scope.png");
     public static final float FOV_MODIFIER = 0.125F;
 
     private static float scopeScale = 0.5F;
