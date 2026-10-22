@@ -10,5 +10,5 @@ import java.util.UUID;
 @Mixin(ItemEntity.class)
 public interface ItemEntityAccessor {
     @Accessor("target")
-    @Nullable UUID getTarget();
+    @Nullable UUID irons_artifice$getTarget();
 }

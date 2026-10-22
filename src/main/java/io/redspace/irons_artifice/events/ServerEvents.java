@@ -92,7 +92,7 @@ public class ServerEvents {
         ItemEntity itemEntity = event.getItem();
         ItemStack bullets = itemEntity.getItem();
         Player player = event.getEntity();
-        UUID target = ((ItemEntityAccessor) itemEntity).getTarget();
+        UUID target = ((ItemEntityAccessor) itemEntity).irons_artifice$getTarget();
         boolean claimable = target == null || target.equals(player.getUUID());
         if (itemEntity.hasPickUpDelay() || !claimable || !BulletContainerContents.accepts(bullets)) {
             return;
@@ -164,7 +164,7 @@ public class ServerEvents {
         if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof RandomizableContainerBlockEntity randomizableContainerBlockEntity)) {
             return;
         }
-        ResourceLocation lootTable = ((RandomizableContainerBlockEntityAccessor) randomizableContainerBlockEntity).getLootTable();
+        ResourceLocation lootTable = ((RandomizableContainerBlockEntityAccessor) randomizableContainerBlockEntity).irons_artifice$getLootTable();
         if (lootTable == null) {
             return;
         }
