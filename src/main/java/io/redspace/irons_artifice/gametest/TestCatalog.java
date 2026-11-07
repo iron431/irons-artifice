@@ -235,6 +235,13 @@ public final class TestCatalog {
             new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest),
             new PlainTest("value_matches_vanilla_attribute_math", BOX_SMALL, 20, AttributeTests::valueMatchesVanillaAttributeMath),
             new PlainTest("shooter_attributes_apply_before_compose_listeners", BOX_SMALL, 20, AttributeTests::shooterAttributesApplyBeforeComposeListeners)
+            new PlainTest("gun_config_replaces_base_value", BOX_SMALL, 20, GunConfigTests::replacesBaseValue),
+            new PlainTest("gun_config_applies_before_modifiers", BOX_SMALL, 20, GunConfigTests::appliesBeforeModifiers),
+            new PlainTest("gun_config_disabled_skips_overrides", BOX_SMALL, 20, GunConfigTests::disabledSkipsOverrides),
+            new PlainTest("gun_config_only_touches_named_item", BOX_SMALL, 20, GunConfigTests::onlyTouchesNamedItem),
+            new PlainTest("gun_config_sets_boolean_component", BOX_SMALL, 20, GunConfigTests::setsBooleanComponent),
+            new PlainTest("gun_config_skips_component_absent_from_map", BOX_SMALL, 20, GunConfigTests::skipsComponentAbsentFromMap),
+            new PlainTest("gun_config_skips_mismatched_value_type", BOX_SMALL, 20, GunConfigTests::skipsMismatchedValueType)
     );
 
     private TestCatalog() {
