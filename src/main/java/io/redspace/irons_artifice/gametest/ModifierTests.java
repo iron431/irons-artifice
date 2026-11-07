@@ -5,6 +5,7 @@ import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.entity.SoulfireCoin;
 import io.redspace.irons_artifice.gametest.TestCatalog.LaneOptions;
 import io.redspace.irons_artifice.gametest.TestCatalog.ModifierTest;
 import io.redspace.irons_artifice.gametest.TestFixtures.AimedLane;
@@ -17,6 +18,7 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.modifier.modifiers.LeechModifier;
+import io.redspace.irons_artifice.modifier.modifiers.SoulfireCoinModifier;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainShotOnHit;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import io.redspace.irons_artifice.registry.IronsArtificeEntities;
@@ -25,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -35,12 +38,14 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import static io.redspace.irons_artifice.gametest.TestCatalog.bespoke;
 import static io.redspace.irons_artifice.gametest.TestCatalog.compose;
@@ -293,7 +298,9 @@ public final class ModifierTests {
             bespoke(IronsArtificeItems.MECHANICAL_ACCELERATOR_MODIFIER, "mechanical_accelerator_ramps_damage", TestCatalog.BOX_SMALL, 40,
                     ModifierTests::mechanicalAcceleratorRampsDamage),
             bespoke(IronsArtificeItems.ENCHANTED_BULLET_MODIFIER, "enchanted_bullet_spares_ammo", TestCatalog.BOX_SMALL, 20,
-                    ModifierTests::enchantedBulletSparesAmmo)
+                    ModifierTests::enchantedBulletSparesAmmo),
+            bespoke(IronsArtificeItems.SOULFIRE_COIN, "soulfire_coin_launches_coin_on_hit", TestCatalog.RANGE_TWO_LANE,
+                    LaneOptions.DEFAULT.maxTicks(), ModifierTests::soulfireCoinLaunchesCoinOnHit)
     );
 
     private enum Side { AWAY_FROM_CENTRE, TOWARD_CENTRE }
@@ -348,13 +355,16 @@ public final class ModifierTests {
         final Set<UUID> variant = new HashSet<>();
 
         void sample(GameTestHelper helper) {
-            double controlX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.CONTROL_LANE))).x;
-            double variantX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.VARIANT_LANE))).x;
             for (Bullet bullet : helper.getEntities(IronsArtificeEntities.BULLET.get())) {
-                double x = bullet.getX();
-                (Math.abs(x - controlX) <= Math.abs(x - variantX) ? control : variant).add(bullet.getUUID());
+                (nearerControlLane(helper, bullet) ? control : variant).add(bullet.getUUID());
             }
         }
+    }
+
+    private static boolean nearerControlLane(GameTestHelper helper, Entity entity) {
+        double controlX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.CONTROL_LANE))).x;
+        double variantX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.VARIANT_LANE))).x;
+        return Math.abs(entity.getX() - controlX) <= Math.abs(entity.getX() - variantX);
     }
 
     // ---- seeking ----
@@ -614,5 +624,35 @@ public final class ModifierTests {
         expectation.check(helper, () -> helper.assertTrue(variantConsumed < controlConsumed,
                 "enchanted bullet spared at least one round in " + AMMO_SHOTS + " shots (consumed " + variantConsumed + ")"));
         helper.succeed();
+    }
+
+    // ---- soulfire coin ----
+
+    /** Enough copies that their SOUL_CHANCE sums to at least one, so the roll always grants a coin. */
+    private static final int SOULFIRE_COPIES = (int) Math.ceil(1.0 / SoulfireCoinModifier.SOUL_CHANCE);
+
+    private static void soulfireCoinLaunchesCoinOnHit(GameTestHelper helper, Item[] variantModifiers,
+                                                      TestCatalog.Expectation expectation) {
+        Item[] stacked = Stream.of(variantModifiers)
+                .flatMap(modifier -> Collections.nCopies(SOULFIRE_COPIES, modifier).stream())
+                .toArray(Item[]::new);
+        LaneOptions options = LaneOptions.DEFAULT;
+        TestFixtures.fireLanes(helper, options.gun().get(), options.targetDistance(), options.settleTicks(),
+                        options.targetType(), stacked)
+                .expecting(expectation)
+                .thenCompare(lanes -> {
+                    int controlCoins = 0;
+                    int variantCoins = 0;
+                    for (SoulfireCoin coin : helper.getEntities(IronsArtificeEntities.SOUL.get())) {
+                        if (nearerControlLane(helper, coin)) {
+                            controlCoins++;
+                        } else {
+                            variantCoins++;
+                        }
+                    }
+                    helper.assertValueEqual(controlCoins, 0, "soulfire coins launched by the unmodified shot");
+                    helper.assertTrue(variantCoins > 0,
+                            "soulfire coin launched a coin from the target its shot hit");
+                });
     }
 }
