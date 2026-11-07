@@ -21,6 +21,7 @@ public class BooleanGunAttribute extends BooleanAttribute implements IGunAttribu
         setSyncable(true);
     }
 
+    @Override
     public ComponentType<Boolean> component() {
         return component;
     }

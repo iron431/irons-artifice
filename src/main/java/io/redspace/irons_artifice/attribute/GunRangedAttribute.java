@@ -26,6 +26,7 @@ public class GunRangedAttribute extends RangedAttribute implements IGunAttribute
         setSyncable(true);
     }
 
+    @Override
     public ComponentType<Value> component() {
         return component;
     }

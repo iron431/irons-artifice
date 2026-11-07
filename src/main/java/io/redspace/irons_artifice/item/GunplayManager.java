@@ -7,6 +7,7 @@ import io.redspace.irons_artifice.api.GunAboutToShootEvent;
 import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.advancement.ShotRecord;
+import io.redspace.irons_artifice.attribute.GunAttributeHandler;
 import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.data.MuzzleFlashType;
@@ -298,6 +299,7 @@ public final class GunplayManager {
         }
         ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
         if (living != null) {
+            GunAttributeHandler.applyShooterAttributes(living, profile);
             if (living instanceof Player player && GunItem.isScoping(player)) {
                 profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL));
             }
