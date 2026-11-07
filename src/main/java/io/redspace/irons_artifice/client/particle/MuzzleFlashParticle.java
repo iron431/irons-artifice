@@ -32,7 +32,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
 
     public MuzzleFlashParticle(ClientLevel level, double x, double y, double z,
                                double xa, double ya, double za, SpriteSet sprites,
-                               float tintR, float tintG, float tintB) {
+                               float tintR, float tintG, float tintB, float scale) {
         super(level, x, y, z, xa, ya, za, sprites.first());
         this.sprites = sprites;
         this.tinted = !(tintR < 0f || tintG < 0 || tintB < 0);
@@ -40,7 +40,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         this.xd = xa;
         this.yd = ya;
         this.zd = za;
-        this.quadSize = 1;
+        this.quadSize = scale;
         this.rCol = tinted ? tintR : 1f;
         this.gCol = tinted ? tintG : 1f;
         this.bCol = tinted ? tintB : 1f;
@@ -152,7 +152,7 @@ public class MuzzleFlashParticle extends SingleQuadParticle {
         public @Nullable Particle createParticle(MuzzleFlashParticleOption options, ClientLevel level,
                                                  double x, double y, double z,
                                                  double xa, double ya, double za, RandomSource random) {
-            return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b());
+            return new MuzzleFlashParticle(level, x, y, z, xa, ya, za, this.sprite, options.r(), options.g(), options.b(), options.scale());
         }
     }
 }

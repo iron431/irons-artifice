@@ -14,8 +14,9 @@ public class MuzzleFlashParticleOption implements ParticleOptions {
         return RecordCodecBuilder.mapCodec(builder -> builder.group(
                 Codec.FLOAT.fieldOf("r").forGetter(MuzzleFlashParticleOption::r),
                 Codec.FLOAT.fieldOf("g").forGetter(MuzzleFlashParticleOption::g),
-                Codec.FLOAT.fieldOf("b").forGetter(MuzzleFlashParticleOption::b)
-        ).apply(builder, (r, g, b) -> new MuzzleFlashParticleOption(type, r, g, b)));
+                Codec.FLOAT.fieldOf("b").forGetter(MuzzleFlashParticleOption::b),
+                Codec.FLOAT.optionalFieldOf("scale", 1f).forGetter(MuzzleFlashParticleOption::scale)
+        ).apply(builder, (r, g, b, scale) -> new MuzzleFlashParticleOption(type, r, g, b, scale)));
     }
 
     public static StreamCodec<? super RegistryFriendlyByteBuf, MuzzleFlashParticleOption> streamCodec(
@@ -25,7 +26,8 @@ public class MuzzleFlashParticleOption implements ParticleOptions {
                 ByteBufCodecs.FLOAT, MuzzleFlashParticleOption::r,
                 ByteBufCodecs.FLOAT, MuzzleFlashParticleOption::g,
                 ByteBufCodecs.FLOAT, MuzzleFlashParticleOption::b,
-                (r, g, b) -> new MuzzleFlashParticleOption(type, r, g, b)
+                ByteBufCodecs.FLOAT, MuzzleFlashParticleOption::scale,
+                (r, g, b, scale) -> new MuzzleFlashParticleOption(type, r, g, b, scale)
         );
     }
 
@@ -33,12 +35,18 @@ public class MuzzleFlashParticleOption implements ParticleOptions {
     private final float r;
     private final float g;
     private final float b;
+    private final float scale;
 
     public MuzzleFlashParticleOption(ParticleType<MuzzleFlashParticleOption> type, float r, float g, float b) {
+        this(type, r, g, b, 1f);
+    }
+
+    public MuzzleFlashParticleOption(ParticleType<MuzzleFlashParticleOption> type, float r, float g, float b, float scale) {
         this.type = type;
         this.r = r;
         this.g = g;
         this.b = b;
+        this.scale = scale;
     }
 
     public float r() {
@@ -51,6 +59,10 @@ public class MuzzleFlashParticleOption implements ParticleOptions {
 
     public float b() {
         return b;
+    }
+
+    public float scale() {
+        return scale;
     }
 
     public boolean isTinted() {

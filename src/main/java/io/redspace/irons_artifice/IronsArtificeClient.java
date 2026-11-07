@@ -5,11 +5,14 @@ import io.redspace.irons_artifice.client.ClientHelper;
 import io.redspace.irons_artifice.client.Keybinds;
 import io.redspace.irons_artifice.client.entity.ChainEntityRenderer;
 import io.redspace.irons_artifice.client.entity.GunslingerRenderer;
+import io.redspace.irons_artifice.client.entity.SoulfireCoinRenderer;
 import io.redspace.irons_artifice.client.entity.illificer.IllificerRenderer;
+import io.redspace.irons_artifice.client.gui.ClientBulletContainerItemTooltip;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderState;
 import io.redspace.irons_artifice.client.gui.GunPreviewRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentGeoRenderer;
 import io.redspace.irons_artifice.client.gun.AttachmentRenderableRegistry;
+import io.redspace.irons_artifice.client.gun.FirstPersonArmsModel;
 import io.redspace.irons_artifice.client.gun.GunInHandRenderer;
 import io.redspace.irons_artifice.client.gun.SimpleItemGeoModel;
 import io.redspace.irons_artifice.client.gui.AmmoCountHudOverlay;
@@ -25,6 +28,7 @@ import io.redspace.irons_artifice.client.particle.SplashParticle;
 import io.redspace.irons_artifice.client.gun.GunArmPoses;
 import io.redspace.irons_artifice.client.particle.TintedExplosionParticle;
 import io.redspace.irons_artifice.gun.ArmPoseKind;
+import io.redspace.irons_artifice.item.BulletContainerTooltip;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunModifierScreen;
 import io.redspace.irons_artifice.modifier.modifiers.BayonetAttachmentModifier;
@@ -37,6 +41,7 @@ import com.geckolib.renderer.GeoItemRenderer;
 import com.google.common.base.Suppliers;
 import io.redspace.ironslib.kinetic_weapon.client.KineticAnimations;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.monster.illager.IllagerModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -56,6 +61,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -137,8 +143,22 @@ public class IronsArtificeClient {
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(IronsArtificeEntities.BULLET.get(), NoopRenderer::new);
         event.registerEntityRenderer(IronsArtificeEntities.CHAIN.get(), ChainEntityRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.SOUL.get(), SoulfireCoinRenderer::new);
         event.registerEntityRenderer(IronsArtificeEntities.GUNSLINGER.get(), GunslingerRenderer::new);
         event.registerEntityRenderer(IronsArtificeEntities.ILLIFICER.get(), IllificerRenderer::new);
+    }
+
+    @SubscribeEvent
+    static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(FirstPersonArmsModel.WIDE_LAYER, () -> FirstPersonArmsModel.createLayer(false));
+        event.registerLayerDefinition(FirstPersonArmsModel.SLIM_LAYER, () -> FirstPersonArmsModel.createLayer(true));
+        event.registerLayerDefinition(IllificerRenderer.LAYER, IllagerModel::createBodyLayer);
+        event.registerLayerDefinition(GunslingerRenderer.LAYER, IllagerModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    static void bakeFirstPersonArms(EntityRenderersEvent.AddLayers event) {
+        FirstPersonArmsModel.bake(event.getEntityModels());
     }
 
     @SubscribeEvent
@@ -161,6 +181,11 @@ public class IronsArtificeClient {
         event.registerSpriteSet(IronsArtificeParticles.EXPLOSION_96.get(), TintedExplosionParticle.Provider::new);
 
         event.registerSpecial(IronsArtificeParticles.SPLASH.get(), new SplashParticle.Provider());
+    }
+
+    @SubscribeEvent
+    public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(BulletContainerTooltip.class, tooltip -> new ClientBulletContainerItemTooltip(tooltip.contents()));
     }
 
     @SubscribeEvent

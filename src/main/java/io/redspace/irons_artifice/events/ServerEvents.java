@@ -6,6 +6,8 @@ import io.redspace.irons_artifice.config.ServerConfig;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.DrownedPirateHelper;
+import io.redspace.irons_artifice.item.BulletContainerContents;
+import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
@@ -18,23 +20,30 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.UUID;
 
 @EventBusSubscriber
 public class ServerEvents {
@@ -89,6 +98,34 @@ public class ServerEvents {
                 areaEffectCloud.getOwner() == event.getEntity() &&
                 areaEffectCloud.getPersistentData().getBooleanOr("irons_artifice:venom_cloud", false)) {
             event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBulletPickup(ItemEntityPickupEvent.Pre event) {
+        if (event.canPickup().isFalse()) {
+            return;
+        }
+        ItemEntity itemEntity = event.getItemEntity();
+        ItemStack bullets = itemEntity.getItem();
+        Player player = event.getPlayer();
+        UUID target = itemEntity.getTarget();
+        boolean claimable = target == null || target.equals(player.getUUID());
+        if (itemEntity.hasPickUpDelay() || !claimable || !BulletContainerContents.accepts(bullets)) {
+            return;
+        }
+        ItemStack original = bullets.copy();
+        int moved = BulletContainerItem.storeInPouches(player.getInventory(), bullets);
+        if (moved <= 0) {
+            return;
+        }
+        player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), moved);
+        if (bullets.isEmpty()) {
+            event.setCanPickup(TriState.FALSE);
+            EventHooks.fireItemPickupPost(itemEntity, player, original);
+            player.take(itemEntity, moved);
+            itemEntity.discard();
+            player.onItemPickup(itemEntity);
         }
     }
 

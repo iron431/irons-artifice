@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.IronsArtifice;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -11,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class DamageSources {
     public static final ResourceKey<DamageType> BULLET_DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("bullet"));
+    public static final ResourceKey<DamageType> SOUL_DAMAGE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, IronsArtifice.id("soul"));
 
     public static RandomizableDamageSource bullet(Level level, Entity bullet, @Nullable Entity owner) {
         return bullet(level.registryAccess(), bullet, owner);
@@ -30,5 +32,9 @@ public final class DamageSources {
                 "death.attack.irons_artifice.bullet.stopped_cold",
                 "death.attack.irons_artifice.bullet.bullet"
         );
+    }
+
+    public static DamageSource soul(Level level, Entity directEntity, @Nullable Entity owner) {
+        return new DamageSource(level.registryAccess().getOrThrow(SOUL_DAMAGE_TYPE), directEntity, owner);
     }
 }

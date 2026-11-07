@@ -1,5 +1,6 @@
 package io.redspace.irons_artifice.registry;
 
+import io.redspace.irons_artifice.item.BulletContainerItem;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.modifier.ModifierItem;
 import net.minecraft.world.item.Item;
@@ -113,6 +114,9 @@ public final class ItemRegistry {
     public static final DeferredItem<ModifierItem> GUN_OIL = IronsArtificeItems.GUN_OIL;
 
     @Deprecated
+    public static final DeferredItem<ModifierItem> SOULFIRE_COIN = IronsArtificeItems.SOULFIRE_COIN;
+
+    @Deprecated
     public static final DeferredItem<ModifierItem> BUFFER_SPRING = IronsArtificeItems.BUFFER_SPRING;
 
     @Deprecated
@@ -132,6 +136,9 @@ public final class ItemRegistry {
 
     @Deprecated
     public static final DeferredItem<Item> BULLET = IronsArtificeItems.BULLET;
+
+    @Deprecated
+    public static final DeferredItem<BulletContainerItem> BULLET_BOX = IronsArtificeItems.BULLET_BOX;
 
     @Deprecated
     public static final DeferredItem<Item> BLACKPOWDER = IronsArtificeItems.BLACKPOWDER;

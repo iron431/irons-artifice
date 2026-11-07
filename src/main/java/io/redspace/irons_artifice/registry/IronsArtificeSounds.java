@@ -28,6 +28,7 @@ public final class IronsArtificeSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> INSTANT_RELOAD = registerSoundEvent("item.cowboy_hat.instant_reload");
     public static final DeferredHolder<SoundEvent, SoundEvent> INFINITY_BULLET = registerSoundEvent("modifier.enchanted_bullet.proc");
     public static final DeferredHolder<SoundEvent, SoundEvent> PIRATE_AMBUSH = registerSoundEvent("entity.drowned_pirate.ambush");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SOULFIRE_COIN_HIT = registerSoundEvent("modifier.soulfire_coin.hit");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> FLINTLOCK_SHOOT = registerSoundEvent("item.flintlock.shoot");
     public static final DeferredHolder<SoundEvent, SoundEvent> FLINTLOCK_EQUIP = registerSoundEvent("item.flintlock.equip");
@@ -62,6 +63,9 @@ public final class IronsArtificeSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_EJECT_MAG = registerSoundEvent("item.clockwork_rifle.reload.eject_mag");
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_SHOOT = registerSoundEvent("item.clockwork_rifle.shoot");
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_EQUIP = registerSoundEvent("item.clockwork_rifle.equip");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> BULLET_BOX_INSERT = registerSoundEvent("item.bullet_box.insert");
+    public static final DeferredHolder<SoundEvent, SoundEvent> BULLET_BOX_EXTRACT = registerSoundEvent("item.bullet_box.extract");
 
     private static DeferredHolder<SoundEvent, SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(IronsArtifice.id(name)));

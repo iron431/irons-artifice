@@ -4,6 +4,7 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.ChainEntity;
 import io.redspace.irons_artifice.entity.Gunslinger;
 import io.redspace.irons_artifice.entity.Illificer;
+import io.redspace.irons_artifice.entity.SoulfireCoin;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -24,6 +25,9 @@ public final class EntityRegistry {
 
     @Deprecated
     public static final DeferredHolder<EntityType<?>, EntityType<ChainEntity>> CHAIN = IronsArtificeEntities.CHAIN;
+
+    @Deprecated
+    public static final DeferredHolder<EntityType<?>, EntityType<SoulfireCoin>> SOUL = IronsArtificeEntities.SOUL;
 
     @Deprecated
     public static final DeferredHolder<EntityType<?>, EntityType<Gunslinger>> GUNSLINGER = IronsArtificeEntities.GUNSLINGER;

@@ -52,6 +52,9 @@ public final class SoundRegistry {
     public static final DeferredHolder<SoundEvent, SoundEvent> PIRATE_AMBUSH = IronsArtificeSounds.PIRATE_AMBUSH;
 
     @Deprecated
+    public static final DeferredHolder<SoundEvent, SoundEvent> SOULFIRE_COIN_HIT = IronsArtificeSounds.SOULFIRE_COIN_HIT;
+
+    @Deprecated
     public static final DeferredHolder<SoundEvent, SoundEvent> FLINTLOCK_SHOOT = IronsArtificeSounds.FLINTLOCK_SHOOT;
 
     @Deprecated
@@ -131,4 +134,10 @@ public final class SoundRegistry {
 
     @Deprecated
     public static final DeferredHolder<SoundEvent, SoundEvent> CLOCKWORK_RIFLE_EQUIP = IronsArtificeSounds.CLOCKWORK_RIFLE_EQUIP;
+
+    @Deprecated
+    public static final DeferredHolder<SoundEvent, SoundEvent> BULLET_BOX_INSERT = IronsArtificeSounds.BULLET_BOX_INSERT;
+
+    @Deprecated
+    public static final DeferredHolder<SoundEvent, SoundEvent> BULLET_BOX_EXTRACT = IronsArtificeSounds.BULLET_BOX_EXTRACT;
 }

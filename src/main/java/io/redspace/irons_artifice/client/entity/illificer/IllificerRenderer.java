@@ -7,7 +7,7 @@ import io.redspace.irons_artifice.gun.ArmPoseKind;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunItem;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IllagerRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
@@ -28,10 +28,11 @@ public class IllificerRenderer extends IllagerRenderer<Illificer, IllificerRende
         HumanoidModel.ArmPose humanoidPose;
     }
 
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(IronsArtifice.id("illificer"), "main");
     private static final Identifier TEXTURE = IronsArtifice.id("textures/entity/illificer.png");
 
     public IllificerRenderer(EntityRendererProvider.Context context) {
-        super(context, new IllificerModel(context.bakeLayer(ModelLayers.EVOKER)), 0.5F);
+        super(context, new IllificerModel(context.bakeLayer(LAYER)), 0.5F);
         this.addLayer(new ItemInHandLayer<>(this));
     }
 

@@ -75,8 +75,9 @@ public final class GunArmPoses {
             supportArm.yRot = (holdingInRightArm ? 0.8F : -0.8F) + head.yRot;
             supportArm.xRot = -1.5F + head.xRot;
             supportArm.z -= 3;
-            float f = -Math.min(head.yRot, QUARTER_PI) / QUARTER_PI;
-            if (head.yRot > 0) {
+            float headYaw = Mth.wrapDegrees(head.yRot * Mth.RAD_TO_DEG) * Mth.DEG_TO_RAD;
+            float f = -Mth.clamp(headYaw, -QUARTER_PI, QUARTER_PI) / QUARTER_PI;
+            if (headYaw > 0) {
                 supportArm.x += f * 4;
                 supportArm.z += f * 2;
                 shootingArm.z -= f * 2;

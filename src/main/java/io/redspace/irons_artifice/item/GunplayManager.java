@@ -21,6 +21,7 @@ import io.redspace.irons_artifice.gun.GunProfile;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.menu.GunContainer;
 import io.redspace.irons_artifice.modifier.ModifierItem;
+import io.redspace.irons_artifice.modifier.OnShotEffect;
 import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
@@ -226,6 +228,9 @@ public final class GunplayManager {
         int projectileCount = Math.max(1, (int) Math.round(profile.value(ShotComponents.PROJECTILE_COUNT)));
         float speed = (float) profile.value(ShotComponents.BULLET_SPEED);
         float spread = getSpreadForEntity(profile, shooter);
+        for (OnShotEffect effect : profile.peek(ShotComponents.ON_SHOT).all()) {
+            effect.onShot(level, shooter, profile);
+        }
         for (int i = 0; i < projectileCount; i++) {
             Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
             bullet.setOwner(shooter);
@@ -365,6 +370,7 @@ public final class GunplayManager {
             boolean topOff = topLoad != null && missing < capacity;
             ReloadState state = ReloadState.start(gun, gunItem.getGun().reloadTimeTicks(), speed, missing, topOff ? topLoad : null);
             playReloadAnimation(living, gun);
+            living.gameEvent(GameEvent.ENTITY_ACTION);
         }
         if (living.isUsingItem()) {
             living.stopUsingItem();
@@ -379,6 +385,8 @@ public final class GunplayManager {
             ItemStack stack = inventory.getItem(i);
             if (stack.is(IronsArtificeTags.AMMO)) {
                 total += stack.getCount();
+            } else if (stack.getItem() instanceof BulletContainerItem) {
+                total += BulletContainerItem.count(stack);
             }
         }
         return total;
@@ -393,6 +401,12 @@ public final class GunplayManager {
                 int take = Math.min(remaining, stack.getCount());
                 stack.shrink(take);
                 remaining -= take;
+            }
+        }
+        for (int i = 0; i < inventory.getContainerSize() && remaining > 0; i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack.getItem() instanceof BulletContainerItem) {
+                remaining -= BulletContainerItem.drain(stack, remaining);
             }
         }
     }

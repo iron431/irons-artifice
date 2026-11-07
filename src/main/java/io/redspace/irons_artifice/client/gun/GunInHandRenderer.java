@@ -24,14 +24,13 @@ import io.redspace.irons_artifice.item.animation_adjuster.AnimationAdjuster;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.joml.Matrix3f;
 import org.jspecify.annotations.NonNull;
@@ -101,25 +100,23 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
         if (player == null) {
             return;
         }
-        if (!(Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player) instanceof AvatarRenderer renderer)) {
+        PlayerSkin skin = player.getSkin();
+        FirstPersonArmsModel arms = FirstPersonArmsModel.forSkin(skin.model());
+        if (arms == null) {
             return;
         }
-        Identifier skinTexture = player.getSkin().body().texturePath();
-        final RenderType renderType = getRenderType(renderState, skinTexture);
+        arms.showSleeves(player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE), player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
+        final RenderType renderType = getRenderType(renderState, skin.body().texturePath());
         renderPassInfo.model().getBone(GunBones.RIGHT_ARM).ifPresent(bone ->
-                renderPassInfo.addPerBoneRender(bone, (renderPassInfo1, bone1, renderTasks1) -> {
-                            var modelPart = ((PlayerModel) renderer.getModel()).rightArm;
-                            renderFirstPersonHand(renderTasks, renderType, modelPart, renderPassInfo.poseStack().last(), renderPassInfo);
-                        }
+                renderPassInfo.addPerBoneRender(bone, (renderPassInfo1, bone1, renderTasks1) ->
+                        renderFirstPersonHand(renderTasks, renderType, arms.rightArm, renderPassInfo.poseStack().last(), renderPassInfo)
                 )
         );
         HandOccupancy occupancy = renderPassInfo.getOrDefaultGeckolibData(GunItem.HAND_OCCUPANCY_TICKET, HandOccupancy.BOTH);
         if (occupancy == HandOccupancy.BOTH) {
             renderPassInfo.model().getBone(GunBones.LEFT_ARM).ifPresent(bone ->
-                    renderPassInfo.addPerBoneRender(bone, (renderPassInfo1, bone1, renderTasks1) -> {
-                                var modelPart = ((PlayerModel) renderer.getModel()).leftArm;
-                                renderFirstPersonHand(renderTasks, renderType, modelPart, renderPassInfo.poseStack().last(), renderPassInfo);
-                            }
+                    renderPassInfo.addPerBoneRender(bone, (renderPassInfo1, bone1, renderTasks1) ->
+                            renderFirstPersonHand(renderTasks, renderType, arms.leftArm, renderPassInfo.poseStack().last(), renderPassInfo)
                     )
             );
         }
@@ -242,12 +239,6 @@ public class GunInHandRenderer extends GeoItemRenderer<GunItem> {
     }
 
     protected void renderFirstPersonHand(SubmitNodeCollector renderTasks, RenderType renderType, ModelPart modelPart, PoseStack.Pose pose, RenderPassInfo<GeoRenderState> renderPassInfo) {
-        modelPart.x = 0;
-        modelPart.y = 0;
-        modelPart.z = 0;
-        modelPart.xRot = 0;
-        modelPart.yRot = 0;
-        modelPart.zRot = 0;
         final PoseStack poseStack = new PoseStack();
         poseStack.last().set(pose);
         poseStack.scale(-1, -1, 1);
