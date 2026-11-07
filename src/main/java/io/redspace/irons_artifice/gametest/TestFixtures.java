@@ -195,6 +195,10 @@ public final class TestFixtures {
         return (float) composedProfile(helper, shooter).value(ShotComponents.SPREAD);
     }
 
+    public static void assertClose(GameTestHelper helper, double actual, double expected, String valueName) {
+        helper.assertTrue(Math.abs(actual - expected) < 1e-9, "expected " + valueName + " " + expected + " but was " + actual);
+    }
+
     /** A geometry test's clearances derive from its cone; a retune has to be re-derived, not absorbed. */
     public static void assertConeIs(GameTestHelper helper, String lane, float actualDegrees, float designDegrees) {
         helper.assertTrue(actualDegrees == designDegrees,
