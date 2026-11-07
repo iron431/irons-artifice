@@ -59,8 +59,7 @@ public class IronsArtifice {
         CREATIVE_MODE_TABS.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
-    }
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);    }
 
     public static Identifier id(String path) {
         return Identifier.fromNamespaceAndPath(MODID, path);

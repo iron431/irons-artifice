@@ -232,7 +232,14 @@ public final class TestCatalog {
             new PlainTest("reload_blocks_firing", BOX_SMALL, 40, ReloadTests::reloadBlocksFiring),
             new PlainTest("reload_top_load_applies_skip", BOX_SMALL, 20, ReloadTests::reloadTopLoadAppliesSkip),
             new PlainTest("harness_isolates_lanes", RANGE_TWO_LANE, 200, LaneHarnessTests::harnessIsolatesLanes),
-            new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest)
+            new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest),
+            new PlainTest("gun_config_replaces_base_value", BOX_SMALL, 20, GunConfigTests::replacesBaseValue),
+            new PlainTest("gun_config_applies_before_modifiers", BOX_SMALL, 20, GunConfigTests::appliesBeforeModifiers),
+            new PlainTest("gun_config_disabled_skips_overrides", BOX_SMALL, 20, GunConfigTests::disabledSkipsOverrides),
+            new PlainTest("gun_config_only_touches_named_item", BOX_SMALL, 20, GunConfigTests::onlyTouchesNamedItem),
+            new PlainTest("gun_config_sets_boolean_component", BOX_SMALL, 20, GunConfigTests::setsBooleanComponent),
+            new PlainTest("gun_config_skips_component_absent_from_map", BOX_SMALL, 20, GunConfigTests::skipsComponentAbsentFromMap),
+            new PlainTest("gun_config_skips_mismatched_value_type", BOX_SMALL, 20, GunConfigTests::skipsMismatchedValueType)
     );
 
     private TestCatalog() {

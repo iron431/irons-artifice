@@ -1,5 +1,8 @@
 package io.redspace.irons_artifice.data;
 
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +51,18 @@ public class ShotComponentMap {
      */
     public void modifyValue(ComponentType<Value> type, ValueModifier modifier) {
         getOrCreate(type).addModifier(modifier);
+    }
+
+    /**
+     * Component types are not registered, so lookup by name scans the stored types.
+     */
+    public @Nullable ComponentType<?> findType(Identifier name) {
+        for (ComponentType<?> type : components.keySet()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public boolean has(ComponentType<?> type) {

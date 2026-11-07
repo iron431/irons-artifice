@@ -8,6 +8,7 @@ import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.advancement.ShotRecord;
 import io.redspace.irons_artifice.client.ClientHelper;
+import io.redspace.irons_artifice.config.GunConfig;
 import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.data.MuzzleFlashType;
 import io.redspace.irons_artifice.data.RecoilState;
@@ -295,6 +296,7 @@ public final class GunplayManager {
     public static ShotProfile compose(@Nullable LivingEntity living, GunProfile gunProfile, ItemStack gunStack) {
         GunContainer modifiers = new GunContainer(gunStack);
         ShotComponentMap components = gunProfile.baseProfile();
+        GunConfig.handleConfigModifications(gunStack.getItem(), components);
         for (int slot = 0; slot < modifiers.getContainerSize(); slot++) {
             ItemStack stack = modifiers.getItem(slot);
             if (stack.getItem() instanceof ModifierItem modifierItem) {
