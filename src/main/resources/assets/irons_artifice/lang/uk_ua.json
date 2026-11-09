@@ -93,7 +93,7 @@
   "attribute.irons_artifice.damage": "шкоди кулі",
   "attribute.irons_artifice.projectile_count": "кулькости куль",
   "attribute.irons_artifice.spread": "розкиду куль",
-  "attribute.irons_artifice.in_air_penalty": "штрафу в повітрі зброї",
+  "attribute.irons_artifice.in_air_penalty": "штрафу зброї в повітрі",
   "attribute.irons_artifice.fire_rate": "частоти стрільби",
   "attribute.irons_artifice.reload_speed_multiplier": "швидкости перезаряджання",
   "attribute.irons_artifice.ammo_consume_chance": "шансу втрати кулі",
