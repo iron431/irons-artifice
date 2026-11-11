@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public final class SpiralTipModifier implements GunModifier {
     @Override
     public void apply(ShotComponentMap components) {
-        components.modifyValue(ShotComponents.UNDERWATER_DRAG, new ValueModifier(1, ValueModifier.Operation.ADD, ValueModifier.Type.BENEFICIAL));
+        components.modifyValue(ShotComponents.UNDERWATER_DRAG, new ValueModifier(1, ValueModifier.Operation.ADD));
     }
 
     @Override

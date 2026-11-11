@@ -4,7 +4,7 @@ import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 public final class FixtureSelfTests {
 
     static void fixtureBuildsALoadedShooter(GameTestHelper helper) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1,
-                ItemRegistry.LEAD_CORE.get());
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1,
+                IronsArtificeItems.LEAD_CORE.get());
         ServerPlayer shooter = TestFixtures.shooter(helper, new BlockPos(1, 2, 1), gun);
 
         ItemStack held = shooter.getMainHandItem();
@@ -23,7 +23,7 @@ public final class FixtureSelfTests {
 
         ShotProfile withModifier = GunplayManager.compose(shooter, ((GunItem) held.getItem()).getGun(), held);
         ShotProfile without = GunplayManager.compose(shooter, ((GunItem) held.getItem()).getGun(),
-                TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1));
+                TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1));
 
         helper.assertTrue(
                 withModifier.value(ShotComponents.KNOCKBACK) > without.value(ShotComponents.KNOCKBACK),

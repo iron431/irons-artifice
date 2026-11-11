@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.datagen;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
@@ -25,10 +25,10 @@ public class ItemModelDataGenerator extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        for (var item : ItemRegistry.ITEMS.getEntries()) {
+        for (var item : IronsArtificeItems.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
                 ResourceLocation displayParent = GECKOLIB_GUN_DISPLAY;
-                if (item == ItemRegistry.BLACKPOWDER_REVOLVER || item == ItemRegistry.SIX_SHOOTER) {
+                if (item == IronsArtificeItems.BLACKPOWDER_REVOLVER || item == IronsArtificeItems.SIX_SHOOTER) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
                 gunModel(item.getId(), displayParent);
@@ -61,7 +61,7 @@ public class ItemModelDataGenerator extends ItemModelProvider {
     }
 
     private static List<DeferredItem<GunItem>> geckolibGuns() {
-        return ItemRegistry.ITEMS.getEntries().stream()
+        return IronsArtificeItems.ITEMS.getEntries().stream()
                 .filter(holder -> holder.get() instanceof GunItem)
                 .map(h -> (DeferredItem<GunItem>) h)
                 .toList();

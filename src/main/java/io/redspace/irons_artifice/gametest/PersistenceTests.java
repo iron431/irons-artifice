@@ -7,7 +7,7 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -23,7 +23,7 @@ import java.util.Map;
 public final class PersistenceTests {
 
     private static ItemStack loadedStack() {
-        ItemStack stack = new ItemStack(ItemRegistry.MUSKET.get());
+        ItemStack stack = new ItemStack(IronsArtificeItems.MUSKET.get());
         GunItem.setMagazine(stack, new MagazineContents(3));
         ReloadState.set(stack, new ReloadState(4.0, 20.0, 1.5, 2, 0.0, 0.0));
         stack.set(DataComponentRegistry.MODIFIER_PATCH.get(), DataComponentPatch.builder()

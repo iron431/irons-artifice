@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public final class BreachModifier extends ValueStackModifier {
     public BreachModifier() {
         super(Map.of(
-                ShotComponents.BLOCK_DAMAGE_MULTIPLIER, new ValueModifier(0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL)
+                ShotComponents.BLOCK_DAMAGE_MULTIPLIER, new ValueModifier(0.5, ValueModifier.Operation.MULTIPLY_TOTAL)
         ));
     }
 

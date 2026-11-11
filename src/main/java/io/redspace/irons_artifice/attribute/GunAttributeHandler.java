@@ -1,0 +1,31 @@
+package io.redspace.irons_artifice.attribute;
+
+import io.redspace.irons_artifice.gun.ShotProfile;
+import io.redspace.ironslib.util.MemoizedSupplier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+
+import java.util.List;
+
+public final class GunAttributeHandler {
+
+    private static final MemoizedSupplier<List<Holder<Attribute>>> GUN_ATTRIBUTES =
+            new MemoizedSupplier<>(() -> BuiltInRegistries.ATTRIBUTE.holders()
+                    .filter(holder -> holder.value() instanceof IGunAttribute)
+                    .<Holder<Attribute>>map(holder -> holder)
+                    .toList());
+
+    public static void applyShooterAttributes(LivingEntity shooter, ShotProfile profile) {
+        AttributeMap attributes = shooter.getAttributes();
+        for (Holder<Attribute> holder : GUN_ATTRIBUTES.get()) {
+            AttributeInstance instance = attributes.getInstance(holder);
+            if (instance != null) {
+                ((IGunAttribute) holder.value()).applyTo(instance, profile);
+            }
+        }
+    }
+}

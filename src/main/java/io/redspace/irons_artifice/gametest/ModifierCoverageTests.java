@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.gametest;
 
 import io.redspace.irons_artifice.gametest.TestCatalog.ModifierTest;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.Item;
@@ -23,7 +23,7 @@ public final class ModifierCoverageTests {
 
         List<String> registered = new ArrayList<>();
         List<String> uncovered = new ArrayList<>();
-        for (var entry : ItemRegistry.ITEMS.getEntries()) {
+        for (var entry : IronsArtificeItems.ITEMS.getEntries()) {
             Item item = entry.get();
             if (!(item instanceof ModifierItem)) {
                 continue;

@@ -6,7 +6,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.item.Item;
@@ -20,7 +20,7 @@ public final class LoadSmokeTests {
     static void everyGunComposesWithEveryModifier(GameTestHelper helper) {
         List<GunItem> guns = new ArrayList<>();
         List<Item> modifiers = new ArrayList<>();
-        for (var entry : ItemRegistry.ITEMS.getEntries()) {
+        for (var entry : IronsArtificeItems.ITEMS.getEntries()) {
             Item item = entry.get();
             if (item instanceof GunItem gun) {
                 guns.add(gun);

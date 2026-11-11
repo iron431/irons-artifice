@@ -4,7 +4,7 @@ import io.redspace.irons_artifice.api.ComposeShotEvent;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.gun.ShotProfile;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -44,7 +44,7 @@ public class TricorneItem extends BaseGeoArmorItem {
 
     @SubscribeEvent
     public static void attributeTooltip(AddAttributeTooltipsEvent event) {
-        if (event.getStack().is(ItemRegistry.TRICORNE_HAT)) {
+        if (event.getStack().is(IronsArtificeItems.TRICORNE_HAT)) {
             event.addTooltipLines(
                     Component.literal(" ").append(Component.translatable("item.irons_artifice.tricorne.ability", (int) (DAMAGE_BUFF_PERCENT * 100)))
                             .withStyle(ChatFormatting.GOLD));
@@ -53,13 +53,13 @@ public class TricorneItem extends BaseGeoArmorItem {
 
     @SubscribeEvent
     public static void handleTricorneAbility(ComposeShotEvent event) {
-        if (!event.getEntity().getItemBySlot(EquipmentSlot.HEAD).is(ItemRegistry.TRICORNE_HAT)) {
+        if (!event.getEntity().getItemBySlot(EquipmentSlot.HEAD).is(IronsArtificeItems.TRICORNE_HAT)) {
             return;
         }
         ShotProfile shotProfile = event.getShotProfile();
         if (shotProfile.magazineContents().count() != shotProfile.gun().magazineCapacity()) {
             return;
         }
-        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(DAMAGE_BUFF_PERCENT, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        shotProfile.modifyValue(ShotComponents.DAMAGE, new ValueModifier(DAMAGE_BUFF_PERCENT, ValueModifier.Operation.MULTIPLY_TOTAL));
     }
 }

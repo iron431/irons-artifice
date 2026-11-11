@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.item;
 
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -97,7 +97,7 @@ public class BulletContainerItem extends Item {
             boolean inserted = contents.insert(taken) > 0;
             write(pouch, contents);
             if (inserted) {
-                playSound(player, SoundRegistry.BULLET_BOX_INSERT.get());
+                playSound(player, IronsArtificeSounds.BULLET_BOX_INSERT.get());
             }
             return true;
         }
@@ -108,7 +108,7 @@ public class BulletContainerItem extends Item {
             }
             ItemStack remainder = slot.safeInsert(removed);
             if (remainder.isEmpty()) {
-                playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
+                playSound(player, IronsArtificeSounds.BULLET_BOX_EXTRACT.get());
             } else {
                 contents.putBack(remainder);
             }
@@ -128,7 +128,7 @@ public class BulletContainerItem extends Item {
             boolean inserted = slot.allowModification(player) && contents.insert(carried) > 0;
             write(pouch, contents);
             if (inserted) {
-                playSound(player, SoundRegistry.BULLET_BOX_INSERT.get());
+                playSound(player, IronsArtificeSounds.BULLET_BOX_INSERT.get());
             }
             return true;
         }
@@ -139,7 +139,7 @@ public class BulletContainerItem extends Item {
             }
             write(pouch, contents);
             carriedAccess.set(removed);
-            playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
+            playSound(player, IronsArtificeSounds.BULLET_BOX_EXTRACT.get());
             return true;
         }
         toggleSelected(pouch, BulletContainerContents.NO_SELECTION);
@@ -161,7 +161,7 @@ public class BulletContainerItem extends Item {
         if (!level.isClientSide()) {
             player.getInventory().placeItemBackInInventory(removed);
         }
-        playSound(player, SoundRegistry.BULLET_BOX_EXTRACT.get());
+        playSound(player, IronsArtificeSounds.BULLET_BOX_EXTRACT.get());
         return InteractionResultHolder.sidedSuccess(pouch, level.isClientSide());
     }
 

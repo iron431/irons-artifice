@@ -4,8 +4,8 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.item.FireDelayState;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.PendingShot;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ShotQueueTests {
 
     private static LivingEntity armedShooter(GameTestHelper helper, int rounds) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), rounds);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), rounds);
         return TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
     }
 
@@ -37,9 +37,9 @@ public final class ShotQueueTests {
         GunplayManager.flushPendingShot(shooter);
 
         helper.assertTrue(PendingShot.get(shooter).isEmpty(), "flushing cleared the pending shot");
-        helper.assertEntitiesPresent(EntityRegistry.BULLET.get(), 1);
+        helper.assertEntitiesPresent(IronsArtificeEntities.BULLET.get(), 1);
 
-        Bullet bullet = helper.findOneEntity(EntityRegistry.BULLET.get());
+        Bullet bullet = helper.findOneEntity(IronsArtificeEntities.BULLET.get());
         Vec3 velocity = bullet.getDeltaMovement();
         helper.assertTrue(velocity.z > 0 && velocity.z > Math.abs(velocity.x),
                 "bullet velocity is dominated by the queued +Z direction, not the shooter's -X facing");
@@ -71,7 +71,7 @@ public final class ShotQueueTests {
         GunplayManager.flushPendingShot(shooter);
 
         helper.assertTrue(PendingShot.get(shooter).isEmpty(), "flushing cleared the expired shot");
-        helper.assertEntityNotPresent(EntityRegistry.BULLET.get());
+        helper.assertEntityNotPresent(IronsArtificeEntities.BULLET.get());
 
         helper.succeed();
     }

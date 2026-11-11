@@ -7,7 +7,7 @@ import io.redspace.irons_artifice.gun.ShotProfile;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.modifier.ModifierItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -90,7 +90,7 @@ public final class TestCatalog {
     public record LaneOptions(Supplier<? extends Item> gun, EntityType<? extends Mob> targetType,
                               int targetDistance, int settleTicks, boolean controlMisses, int maxTicks) {
         public static final LaneOptions DEFAULT =
-                new LaneOptions(ItemRegistry.MUSKET, EntityType.ZOMBIE, 8, 20, false, 200);
+                new LaneOptions(IronsArtificeItems.MUSKET, EntityType.ZOMBIE, 8, 20, false, 200);
 
         public LaneOptions withGun(Supplier<? extends Item> gun) {
             return new LaneOptions(gun, targetType, targetDistance, settleTicks, controlMisses, maxTicks);
@@ -164,9 +164,9 @@ public final class TestCatalog {
     public static ModifierTest compose(DeferredItem<ModifierItem> modifier, String name, ComposeClaim claim) {
         return new ModifierTest(modifier, name, BOX_SMALL, 20, (helper, variantModifiers, expectation) -> {
             Composed control = composed(helper, new BlockPos(1, 2, 1),
-                    TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0));
+                    TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0));
             Composed variant = composed(helper, new BlockPos(4, 2, 4),
-                    TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0, variantModifiers));
+                    TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0, variantModifiers));
             expectation.check(helper, () -> claim.check(helper, control, variant));
             helper.succeed();
         });
@@ -231,7 +231,17 @@ public final class TestCatalog {
             new PlainTest("reload_blocks_firing", BOX_SMALL, 40, ReloadTests::reloadBlocksFiring),
             new PlainTest("reload_top_load_applies_skip", BOX_SMALL, 20, ReloadTests::reloadTopLoadAppliesSkip),
             new PlainTest("harness_isolates_lanes", RANGE_TWO_LANE, 200, LaneHarnessTests::harnessIsolatesLanes),
-            new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest)
+            new PlainTest("soulfire_coin_empowers_bullet", RANGE_TWO_LANE, 200, SoulfireCoinTests::empowersBullet),
+            new PlainTest("every_modifier_has_a_test", BOX_SMALL, 20, ModifierCoverageTests::everyModifierHasATest),
+            new PlainTest("value_matches_vanilla_attribute_math", BOX_SMALL, 20, AttributeTests::valueMatchesVanillaAttributeMath),
+            new PlainTest("shooter_attributes_apply_before_compose_listeners", BOX_SMALL, 20, AttributeTests::shooterAttributesApplyBeforeComposeListeners),
+            new PlainTest("gun_config_replaces_base_value", BOX_SMALL, 20, GunConfigTests::replacesBaseValue),
+            new PlainTest("gun_config_applies_before_modifiers", BOX_SMALL, 20, GunConfigTests::appliesBeforeModifiers),
+            new PlainTest("gun_config_disabled_skips_overrides", BOX_SMALL, 20, GunConfigTests::disabledSkipsOverrides),
+            new PlainTest("gun_config_only_touches_named_item", BOX_SMALL, 20, GunConfigTests::onlyTouchesNamedItem),
+            new PlainTest("gun_config_sets_boolean_component", BOX_SMALL, 20, GunConfigTests::setsBooleanComponent),
+            new PlainTest("gun_config_skips_component_absent_from_map", BOX_SMALL, 20, GunConfigTests::skipsComponentAbsentFromMap),
+            new PlainTest("gun_config_skips_mismatched_value_type", BOX_SMALL, 20, GunConfigTests::skipsMismatchedValueType)
     );
 
     private TestCatalog() {

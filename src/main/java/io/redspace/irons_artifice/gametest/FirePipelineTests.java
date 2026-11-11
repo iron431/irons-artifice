@@ -6,8 +6,8 @@ import io.redspace.irons_artifice.item.FireOutcome;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +23,7 @@ public final class FirePipelineTests {
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.NO_GUN, "empty hand is refused as NO_GUN");
 
-        ItemStack empty = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
+        ItemStack empty = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, empty);
         TestFixtures.resetShotState(shooter);
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
@@ -31,7 +31,7 @@ public final class FirePipelineTests {
         helper.assertValueEqual(GunItem.getMagazine(shooter.getMainHandItem()).count(), 0,
                 "refused shot left the magazine untouched");
 
-        ItemStack loaded = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
+        ItemStack loaded = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, loaded);
         TestFixtures.resetShotState(shooter);
         FireDelayState.start(shooter, shooter.getMainHandItem(), 10, 1.0F);
@@ -47,7 +47,7 @@ public final class FirePipelineTests {
     }
 
     static void successfulShot(GameTestHelper helper) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 2);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 2);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
 
         ItemStack held = shooter.getMainHandItem();
@@ -62,7 +62,7 @@ public final class FirePipelineTests {
                 "one round consumed");
         helper.assertValueEqual(FireDelayState.get(shooter).duration(), expectedDelayTicks,
                 "the started fire delay's duration matches profile.fireDelayTicks()");
-        helper.assertEntitiesPresent(EntityRegistry.BULLET.get(), 1);
+        helper.assertEntitiesPresent(IronsArtificeEntities.BULLET.get(), 1);
 
         helper.succeed();
     }
@@ -70,13 +70,13 @@ public final class FirePipelineTests {
     static void delayIsGunKeyed(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
 
-        ItemStack musket = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
+        ItemStack musket = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), musket);
 
         // A stack that was never rendered has no GeckoLib id and its delay is keyed UNKEYED, which
         // blocks every gun; assign real ids first so per-gun keying is observable.
         long musketId = GeoItem.getOrAssignId(shooter.getMainHandItem(), level);
-        ItemStack pistol = TestFixtures.gunWith(ItemRegistry.FLINTLOCK_PISTOL.get(), 1);
+        ItemStack pistol = TestFixtures.gunWith(IronsArtificeItems.FLINTLOCK_PISTOL.get(), 1);
         long pistolId = GeoItem.getOrAssignId(pistol, level);
         helper.assertTrue(musketId != pistolId, "the musket and pistol stacks have distinct GeckoLib ids");
 
@@ -88,13 +88,13 @@ public final class FirePipelineTests {
                 "delay does not block a different gun");
 
         TestFixtures.resetShotState(shooter);
-        ItemStack neverRendered = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
+        ItemStack neverRendered = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1);
         shooter.setItemSlot(EquipmentSlot.MAINHAND, neverRendered);
         helper.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "a never-rendered gun fires");
         helper.assertValueEqual(FireDelayState.get(shooter).gunId(), FireDelayState.UNKEYED,
                 "a never-rendered stack's cycle is keyed UNKEYED");
-        ItemStack otherGun = TestFixtures.gunWith(ItemRegistry.FLINTLOCK_PISTOL.get(), 1);
+        ItemStack otherGun = TestFixtures.gunWith(IronsArtificeItems.FLINTLOCK_PISTOL.get(), 1);
         helper.assertTrue(FireDelayState.isActive(shooter, otherGun),
                 "an UNKEYED delay blocks every gun");
 

@@ -31,9 +31,9 @@ import io.redspace.irons_artifice.item.BulletContainerTooltip;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.menu.GunModifierScreen;
 import io.redspace.irons_artifice.modifier.modifiers.BayonetAttachmentModifier;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import io.redspace.irons_artifice.registry.MenuRegistry;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
 import io.redspace.irons_artifice.utils.MinecraftInstanceHelper;
 import io.redspace.ironslib.kinetic_weapon.client.KineticAnimations;
 import net.minecraft.client.Minecraft;
@@ -137,11 +137,11 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityRegistry.BULLET.get(), NoopRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.CHAIN.get(), ChainEntityRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.SOUL.get(), SoulfireCoinRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.GUNSLINGER.get(), GunslingerRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.ILLIFICER.get(), IllificerRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.BULLET.get(), NoopRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.CHAIN.get(), ChainEntityRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.SOUL.get(), SoulfireCoinRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.GUNSLINGER.get(), GunslingerRenderer::new);
+        event.registerEntityRenderer(IronsArtificeEntities.ILLIFICER.get(), IllificerRenderer::new);
     }
 
     @SubscribeEvent
@@ -165,18 +165,19 @@ public class IronsArtificeClient {
 
     @SubscribeEvent
     static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-        event.registerSpecial(ParticleRegistry.BLOCK_IMPACT.get(), new ImpactBlockParticle.Provider());
-        event.registerSpriteSet(ParticleRegistry.BLOCK_DUST.get(), BlockDustParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.BULLET_TRAIL.get(), BulletTrailParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.BULLET_IMPACT.get(), BulletImpactParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.MUZZLE_FLASH_LARGE.get(), MuzzleFlashParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.MUZZLE_FLASH_TRIANGLE.get(), MuzzleFlashParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.MUZZLE_FLASH_SMALL_STAR.get(), MuzzleFlashParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.FAIRY_DUST.get(), FairyDustParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.LIGHTNING_TRAIL.get(), LightningTrailEmitterParticle.Provider::new);
-        event.registerSpriteSet(ParticleRegistry.EXPLOSION_96.get(), TintedExplosionParticle.Provider::new);
+        event.registerSpecial(IronsArtificeParticles.BLOCK_IMPACT.get(), new ImpactBlockParticle.Provider());
+        event.registerSpriteSet(IronsArtificeParticles.BLOCK_DUST.get(), BlockDustParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.BULLET_TRAIL.get(), BulletTrailParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.BULLET_IMPACT.get(), BulletImpactParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_LARGE.get(), MuzzleFlashParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_TRIANGLE.get(), MuzzleFlashParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_SMALL_STAR.get(), MuzzleFlashParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_SMALL_CROSS.get(), MuzzleFlashParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.FAIRY_DUST.get(), FairyDustParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.LIGHTNING_TRAIL.get(), LightningTrailEmitterParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.EXPLOSION_96.get(), TintedExplosionParticle.Provider::new);
 
-        event.registerSpecial(ParticleRegistry.SPLASH.get(), new SplashParticle.Provider());
+        event.registerSpecial(IronsArtificeParticles.SPLASH.get(), new SplashParticle.Provider());
     }
 
     @SubscribeEvent

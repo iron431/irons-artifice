@@ -9,8 +9,8 @@ import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.data.ValueModifier;
 import io.redspace.irons_artifice.modifier.PostHitEffects;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulFirePostHit;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +55,7 @@ public class SoulfireCoin extends Entity {
     }
 
     public static SoulfireCoin launchSoul(ServerLevel level, LivingEntity target, Vec3 incoming) {
-        SoulfireCoin soulfireCoin = new SoulfireCoin(EntityRegistry.SOUL.get(), level);
+        SoulfireCoin soulfireCoin = new SoulfireCoin(IronsArtificeEntities.SOUL.get(), level);
         soulfireCoin.target = target;
         soulfireCoin.setPos(target.getEyePosition());
         RandomSource random = level.getRandom();
@@ -113,8 +113,8 @@ public class SoulfireCoin extends Entity {
         empower(bullet);
         RandomSource random = bullet.getRandom();
         Vec3 location = event.getRayTraceResult().getLocation();
-        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.BULLET_IMPACT_RICOCHET, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
-        bullet.level().playSound(null, location.x, location.y, location.z, SoundRegistry.SOULFIRE_COIN_HIT, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
+        bullet.level().playSound(null, location.x, location.y, location.z, IronsArtificeSounds.BULLET_IMPACT_RICOCHET, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
+        bullet.level().playSound(null, location.x, location.y, location.z, IronsArtificeSounds.SOULFIRE_COIN_HIT, SoundSource.NEUTRAL, 2f, 0.9f + random.nextFloat() * 0.2f);
     }
 
     private static void empower(Bullet bullet) {

@@ -8,11 +8,12 @@ import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
 import io.redspace.irons_artifice.registry.DataAttachmentRegistry;
 import io.redspace.irons_artifice.registry.DataComponentRegistry;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeAttributes;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import io.redspace.irons_artifice.registry.MenuRegistry;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -36,22 +37,23 @@ public class IronsArtifice {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.irons_artifice"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
-            .icon(() -> ItemRegistry.FLINTLOCK_PISTOL.get().getDefaultInstance())
+            .icon(() -> IronsArtificeItems.FLINTLOCK_PISTOL.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                for (var i : ItemRegistry.ITEMS.getEntries()) {
+                for (var i : IronsArtificeItems.ITEMS.getEntries()) {
                     output.accept(i.get());
                 }
             }).build());
 
     public IronsArtifice(IEventBus modEventBus, ModContainer modContainer) {
+        IronsArtificeAttributes.register(modEventBus);
         CriterionRegistry.register(modEventBus);
-        ItemRegistry.register(modEventBus);
+        IronsArtificeItems.register(modEventBus);
         DataComponentRegistry.register(modEventBus);
-        EntityRegistry.register(modEventBus);
+        IronsArtificeEntities.register(modEventBus);
         MenuRegistry.register(modEventBus);
         DataAttachmentRegistry.register(modEventBus);
-        ParticleRegistry.register(modEventBus);
-        SoundRegistry.register(modEventBus);
+        IronsArtificeParticles.register(modEventBus);
+        IronsArtificeSounds.register(modEventBus);
         modEventBus.addListener(GameTestReport::onRegisterGameTests);
         modEventBus.addListener(PayloadRegistry::register);
         modEventBus.addListener(CommonSetup::entityAttributes);
@@ -59,8 +61,7 @@ public class IronsArtifice {
         CREATIVE_MODE_TABS.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
-    }
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);    }
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);

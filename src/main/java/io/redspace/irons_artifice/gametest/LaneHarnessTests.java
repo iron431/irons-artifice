@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.gametest;
 
 import io.redspace.irons_artifice.gametest.TestFixtures.LaneResult;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainLightningOnHit;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 /**
@@ -16,7 +16,7 @@ public final class LaneHarnessTests {
     private static final float DAMAGE_MATCH_TOLERANCE = 0.05F;
 
     static void harnessIsolatesLanes(GameTestHelper helper) {
-        TestFixtures.fireLanes(helper, ItemRegistry.MUSKET.get(), TARGET_DISTANCE, SETTLE_TICKS)
+        TestFixtures.fireLanes(helper, IronsArtificeItems.MUSKET.get(), TARGET_DISTANCE, SETTLE_TICKS)
                 .thenCompare(lanes -> {
                     LaneResult control = lanes.control();
                     LaneResult variant = lanes.variant();

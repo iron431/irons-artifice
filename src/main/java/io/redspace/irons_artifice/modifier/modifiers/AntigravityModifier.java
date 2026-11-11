@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public final class AntigravityModifier implements GunModifier {
     @Override
     public void apply(ShotComponentMap components) {
-        components.modifyValue(ShotComponents.GRAVITY, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.BENEFICIAL));
+        components.modifyValue(ShotComponents.GRAVITY, new ValueModifier(-1, ValueModifier.Operation.MULTIPLY_TOTAL));
     }
 
     @Override
