@@ -42,14 +42,15 @@ public final class GunConfigTests {
     static void disabledSkipsOverrides(GameTestHelper helper) {
         double expected = Guns.MUSKET.baseProfile().getOrDefault(ShotComponents.DAMAGE).compute();
         boolean wasEnabled = ServerConfig.GUN_OVERRIDES_ENABLED.get();
+        List<? extends UnmodifiableConfig> original = ServerConfig.GUN_OVERRIDES.get();
         ServerConfig.GUN_OVERRIDES_ENABLED.set(false);
         try {
-            withGunConfig(List.of(entry(ItemRegistry.MUSKET.get(), "irons_artifice:damage", 24)), () -> {
-                double damage = composedDamage(ItemRegistry.MUSKET.get(), new ItemStack(ItemRegistry.MUSKET.get()));
-                assertClose(helper, expected, damage, "musket damage while overrides are disabled");
-            });
+            ServerConfig.GUN_OVERRIDES.set(List.of(entry(ItemRegistry.MUSKET.get(), "irons_artifice:damage", 24)));
+            double damage = composedDamage(ItemRegistry.MUSKET.get(), new ItemStack(ItemRegistry.MUSKET.get()));
+            assertClose(helper, expected, damage, "musket damage while overrides are disabled");
         } finally {
             ServerConfig.GUN_OVERRIDES_ENABLED.set(wasEnabled);
+            ServerConfig.GUN_OVERRIDES.set(original);
         }
         helper.succeed();
     }
@@ -106,11 +107,14 @@ public final class GunConfigTests {
 
     private static void withGunConfig(List<UnmodifiableConfig> entries, Runnable body) {
         List<? extends UnmodifiableConfig> original = ServerConfig.GUN_OVERRIDES.get();
+        boolean enabled = ServerConfig.GUN_OVERRIDES_ENABLED.get();
         ServerConfig.GUN_OVERRIDES.set(entries);
+        ServerConfig.GUN_OVERRIDES_ENABLED.set(true);
         try {
             body.run();
         } finally {
             ServerConfig.GUN_OVERRIDES.set(original);
+            ServerConfig.GUN_OVERRIDES_ENABLED.set(enabled);
         }
     }
 
