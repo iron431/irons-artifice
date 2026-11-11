@@ -1,5 +1,29 @@
 ### Additions
 - Added gun attributes. Armor, items, potion effects and enchantments, from datapacks or other mods, can now modify gun stats such as damage, fire rate, spread, reload speed and recoil. They also work with the `/attribute` command
+  - `irons_artifice:damage`
+  - `irons_artifice:projectile_count`
+  - `irons_artifice:spread`
+  - `irons_artifice:in_air_penalty`
+  - `irons_artifice:rate_rate`
+  - `irons_artifice:reload_speed_multiplier`
+  - `irons_artifice:ammo_consume_chance`
+  - `irons_artifice:accelerating`
+  - `irons_artifice:bullet_speed`
+  - `irons_artifice:gravity`
+  - `irons_artifice:knockback`
+  - `irons_artifice:bullet_drag`
+  - `irons_artifice:underwater_drag`
+  - `irons_artifice:block_damage_multiplier`
+  - `irons_artifice:piercing`
+  - `irons_artifice:ricochet`
+  - `irons_artifice:seeking`
+  - `irons_artifice:leech`
+  - `irons_artifice:camera_recoil_multiplier`
+  - `irons_artifice:character_blowback`
+  - `irons_artifice:force_auto_fire`
+  - `irons_artifice:breaks_blocks`
+- Added gun config to serverconfig. Affects shot parameters. Currently, cannot change gun parameters (magazine size, modifier count).
+- Added new small muzzle flash particle
 
 ### Changes
 
