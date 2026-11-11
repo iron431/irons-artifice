@@ -4,7 +4,9 @@ import io.redspace.irons_artifice.advancement.GunCombatTrigger;
 import io.redspace.irons_artifice.advancement.GunModifiedTrigger;
 import io.redspace.irons_artifice.advancement.ShotGunTrigger;
 import net.minecraft.advancements.CriteriaTriggers;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class CriterionRegistry {
     public static final ShotGunTrigger SHOT_GUN = new ShotGunTrigger();
     public static final GunCombatTrigger GUN_COMBAT = new GunCombatTrigger();

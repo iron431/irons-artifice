@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.gametest;
 
 import io.redspace.irons_artifice.item.PendingShot;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.EntityType;
@@ -15,7 +15,7 @@ public final class DataAttachmentTests {
     /** A mob rather than a mock player: the clearing logic lives on LivingEntity, and a mock player's equipment-change event does not fire. */
     static void pendingShotClearsOnSwap(GameTestHelper helper) {
         LivingEntity entity = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(1, 3, 1));
-        entity.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ItemRegistry.MUSKET.get()));
+        entity.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(IronsArtificeItems.MUSKET.get()));
 
         helper.startSequence()
                 .thenIdle(2)
@@ -24,7 +24,7 @@ public final class DataAttachmentTests {
                 .thenExecute(() -> helper.assertFalse(PendingShot.get(entity).isEmpty(),
                         "pending shot was stored before the swap"))
                 .thenExecute(() -> entity.setItemSlot(EquipmentSlot.MAINHAND,
-                        new ItemStack(ItemRegistry.FLINTLOCK_PISTOL.get())))
+                        new ItemStack(IronsArtificeItems.FLINTLOCK_PISTOL.get())))
                 .thenIdle(2)
                 .thenExecute(() -> helper.assertTrue(PendingShot.get(entity).isEmpty(),
                         "pending shot cleared when the mainhand changed"))

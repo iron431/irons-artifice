@@ -9,9 +9,16 @@ public final class ComponentType<T> {
 
     final Supplier<T> defaultValue;
 
+    final Sentiment sentiment;
+
     public ComponentType(ResourceLocation name, Supplier<T> defaultValue) {
+        this(name, defaultValue, Sentiment.NEUTRAL);
+    }
+
+    public ComponentType(ResourceLocation name, Supplier<T> defaultValue, Sentiment sentiment) {
         this.name = name;
         this.defaultValue = defaultValue;
+        this.sentiment = sentiment;
     }
 
     public T provideDefaultValue() {
@@ -22,8 +29,22 @@ public final class ComponentType<T> {
         return name;
     }
 
+    public Sentiment sentiment() {
+        return sentiment;
+    }
+
     @Override
     public String toString() {
         return String.format("ComponentType[%s]", name);
+    }
+
+    /**
+     * Whether a higher value is better for the shooter
+     */
+    public enum Sentiment {
+        POSITIVE,
+        NEUTRAL,
+        NEGATIVE,
+        ;
     }
 }

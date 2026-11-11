@@ -2,21 +2,21 @@ package io.redspace.irons_artifice.events;
 
 import io.redspace.irons_artifice.entity.Gunslinger;
 import io.redspace.irons_artifice.entity.Illificer;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 
 public final class CommonSetup {
     public static void entityAttributes(EntityAttributeCreationEvent event) {
-        event.put(EntityRegistry.GUNSLINGER.get(), Gunslinger.createAttributes().build());
-        event.put(EntityRegistry.ILLIFICER.get(), Illificer.createAttributes().build());
+        event.put(IronsArtificeEntities.GUNSLINGER.get(), Gunslinger.createAttributes().build());
+        event.put(IronsArtificeEntities.ILLIFICER.get(), Illificer.createAttributes().build());
     }
 
     public static void buildCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
-            event.accept(ItemRegistry.ILLIFICER_SPAWN_EGG.get());
+            event.accept(IronsArtificeItems.ILLIFICER_SPAWN_EGG.get());
         }
     }
 }

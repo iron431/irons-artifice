@@ -4,7 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -96,7 +96,7 @@ public class ColorTransitionParticleOption implements ParticleOptions {
     }
 
     public static ColorTransitionParticleOption bulletTrail(int fromColor, int toColor){
-        return new ColorTransitionParticleOption(ParticleRegistry.BULLET_TRAIL.get(), fromColor, toColor,
+        return new ColorTransitionParticleOption(IronsArtificeParticles.BULLET_TRAIL.get(), fromColor, toColor,
                 1f, 0f, 1f, 1f, 0.5f, 0f, 0
         );
     }

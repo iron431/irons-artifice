@@ -12,7 +12,7 @@ import io.redspace.irons_artifice.item.MagazineContents;
 import io.redspace.irons_artifice.item.PendingShot;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.menu.GunContainer;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -226,6 +226,10 @@ public final class TestFixtures {
 
     public static float composedSpread(GameTestHelper helper, LivingEntity shooter) {
         return (float) composedProfile(helper, shooter).value(ShotComponents.SPREAD);
+    }
+
+    public static void assertClose(GameTestHelper helper, double actual, double expected, String valueName) {
+        helper.assertTrue(Math.abs(actual - expected) < 1e-9, "expected " + valueName + " " + expected + " but was " + actual);
     }
 
     /** A geometry test's clearances derive from its cone; a retune has to be re-derived, not absorbed. */
@@ -492,7 +496,7 @@ public final class TestFixtures {
     }
 
     private static int countBullets(GameTestHelper helper) {
-        return getEntities(helper, EntityRegistry.BULLET.get()).size();
+        return getEntities(helper, IronsArtificeEntities.BULLET.get()).size();
     }
 
     // ---------------------------------------------------------------------------------------
@@ -573,7 +577,7 @@ public final class TestFixtures {
                     fireAimed(helper, "variant", variant, designConeDegrees);
                     Bullet controlBullet = null;
                     Bullet variantBullet = null;
-                    for (Bullet bullet : getEntities(helper, EntityRegistry.BULLET.get())) {
+                    for (Bullet bullet : getEntities(helper, IronsArtificeEntities.BULLET.get())) {
                         if (bullet.getOwner() == control.shooter()) {
                             controlBullet = bullet;
                         } else if (bullet.getOwner() == variant.shooter()) {

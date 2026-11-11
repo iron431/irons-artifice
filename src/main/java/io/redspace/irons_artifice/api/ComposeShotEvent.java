@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 
 /**
  * Common event fired after a {@code ShotProfile} is composed via {@link io.redspace.irons_artifice.item.GunplayManager#compose(LivingEntity, GunProfile, ItemStack)}. Can mutate parameters.
+ * The shooter's gun attributes are already applied to the profile.
  */
 public class ComposeShotEvent extends LivingEvent {
     private final ShotProfile shotProfile;

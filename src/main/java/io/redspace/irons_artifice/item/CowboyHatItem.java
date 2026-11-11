@@ -3,8 +3,8 @@ package io.redspace.irons_artifice.item;
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.advancement.GunCriteria;
 import io.redspace.irons_artifice.damage.DamageSources;
-import io.redspace.irons_artifice.registry.ItemRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,7 +57,7 @@ public class CowboyHatItem extends BaseGeoArmorItem {
         }
         ItemStack hat = livingAttacker.getItemBySlot(EquipmentSlot.HEAD);
         ItemStack gun = livingAttacker.getItemBySlot(EquipmentSlot.MAINHAND);
-        if (!hat.is(ItemRegistry.COWBOY_HAT.get()) ||
+        if (!hat.is(IronsArtificeItems.COWBOY_HAT.get()) ||
                 !(gun.getItem() instanceof GunItem gunItem) ||
                 !MagazineContents.has(gun) ||
                 (livingAttacker instanceof Player player && player.getCooldowns().isOnCooldown(hat.getItem()))) {
@@ -73,7 +73,7 @@ public class CowboyHatItem extends BaseGeoArmorItem {
     private static void performInstantReload(LivingEntity livingAttacker, GunItem gunItem, MagazineContents contents, ItemStack gunstack, ItemStack stack) {
         int missing = contents.missing(gunItem.magazineCapacity());
         MagazineContents.set(gunstack, contents.with(gunItem.magazineCapacity()));
-        livingAttacker.level().playSound(null, livingAttacker.getX(), livingAttacker.getY(), livingAttacker.getZ(), SoundRegistry.INSTANT_RELOAD.get(), SoundSource.NEUTRAL, 1, 1);
+        livingAttacker.level().playSound(null, livingAttacker.getX(), livingAttacker.getY(), livingAttacker.getZ(), IronsArtificeSounds.INSTANT_RELOAD.get(), SoundSource.NEUTRAL, 1, 1);
         if (GunItem.isReloading(gunstack)) {
             ReloadState.remove(gunstack);
             GunplayManager.cancelGunAnimation(livingAttacker, gunstack);

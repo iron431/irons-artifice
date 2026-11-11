@@ -2,7 +2,7 @@ package io.redspace.irons_artifice.datagen;
 
 import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.item.GunItem;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
@@ -22,10 +22,10 @@ public class ItemModelDataGenerator extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        for (var item : ItemRegistry.ITEMS.getEntries()) {
+        for (var item : IronsArtificeItems.ITEMS.getEntries()) {
             if (item.get() instanceof GunItem) {
                 ResourceLocation displayParent = GECKOLIB_GUN_DISPLAY;
-                if (item.getId().equals(ItemRegistry.BLACKPOWDER_REVOLVER.getId()) || item.getId().equals(ItemRegistry.SIX_SHOOTER.getId())) {
+                if (item.getId().equals(IronsArtificeItems.BLACKPOWDER_REVOLVER.getId()) || item.getId().equals(IronsArtificeItems.SIX_SHOOTER.getId())) {
                     displayParent = REVOLVER_GUN_DISPLAY;
                 }
                 gunModel(item.getId(), displayParent);

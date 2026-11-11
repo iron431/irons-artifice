@@ -3,7 +3,7 @@ package io.redspace.irons_artifice.client.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.redspace.irons_artifice.entity.SoulfireCoin;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -47,7 +47,7 @@ public class SoulfireCoinRenderer extends EntityRenderer<SoulfireCoin> {
 
     @Override
     public void render(SoulfireCoin entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        ItemStack stack = new ItemStack(ItemRegistry.SOULFIRE_COIN.get());
+        ItemStack stack = new ItemStack(IronsArtificeItems.SOULFIRE_COIN.get());
         BakedModel model = itemRenderer.getModel(stack, entity.level(), null, 0);
         AABB box = groundBoundingBox(model, random);
         Vec3 centre = box.getCenter();

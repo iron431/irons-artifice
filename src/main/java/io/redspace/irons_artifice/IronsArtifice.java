@@ -6,12 +6,13 @@ import io.redspace.irons_artifice.events.CommonSetup;
 import io.redspace.irons_artifice.gametest.GameTestReport;
 import io.redspace.irons_artifice.network.PayloadRegistry;
 import io.redspace.irons_artifice.registry.CriterionRegistry;
-import io.redspace.irons_artifice.registry.EntityRegistry;
 import io.redspace.irons_artifice.registry.ExtendedRaiderTypes;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeAttributes;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
+import io.redspace.irons_artifice.registry.IronsArtificeSounds;
 import io.redspace.irons_artifice.registry.MenuRegistry;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
-import io.redspace.irons_artifice.registry.SoundRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -37,21 +38,22 @@ public class IronsArtifice {
     public static final RegistryObject<CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.irons_artifice"))
             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
-            .icon(() -> ItemRegistry.FLINTLOCK_PISTOL.get().getDefaultInstance())
+            .icon(() -> IronsArtificeItems.FLINTLOCK_PISTOL.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                for (var i : ItemRegistry.ITEMS.getEntries()) {
+                for (var i : IronsArtificeItems.ITEMS.getEntries()) {
                     output.accept(i.get());
                 }
             }).build());
 
     public IronsArtifice(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
+        IronsArtificeAttributes.register(modEventBus);
         CriterionRegistry.register();
-        ItemRegistry.register(modEventBus);
-        EntityRegistry.register(modEventBus);
+        IronsArtificeItems.register(modEventBus);
+        IronsArtificeEntities.register(modEventBus);
         MenuRegistry.register(modEventBus);
-        ParticleRegistry.register(modEventBus);
-        SoundRegistry.register(modEventBus);
+        IronsArtificeParticles.register(modEventBus);
+        IronsArtificeSounds.register(modEventBus);
         modEventBus.addListener(GameTestReport::onRegisterGameTests);
         PayloadRegistry.register();
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(ExtendedRaiderTypes::register));

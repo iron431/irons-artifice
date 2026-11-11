@@ -5,7 +5,7 @@ import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
 import io.redspace.irons_artifice.item.ReloadState;
 import io.redspace.irons_artifice.item.TopLoadConfig;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 public final class ReloadTests {
 
     static void reloadProgressesToCompletion(GameTestHelper helper) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
         ItemStack held = shooter.getMainHandItem();
         GunItem gunItem = (GunItem) held.getItem();
@@ -40,7 +40,7 @@ public final class ReloadTests {
     }
 
     static void reloadBlocksFiring(GameTestHelper helper) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
         ItemStack held = shooter.getMainHandItem();
 
@@ -59,7 +59,7 @@ public final class ReloadTests {
     }
 
     static void reloadTopLoadAppliesSkip(GameTestHelper helper) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0);
 
         // At one round, TopLoadConfig.resumeFrom(1) is exactly loopEnd.
         TopLoadConfig topLoad = new TopLoadConfig(0.2, 0.8, 0.6);

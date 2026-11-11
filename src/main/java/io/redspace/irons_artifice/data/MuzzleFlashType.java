@@ -1,7 +1,7 @@
 package io.redspace.irons_artifice.data;
 
 import io.redspace.irons_artifice.client.particle.MuzzleFlashParticleOption;
-import io.redspace.irons_artifice.registry.ParticleRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeParticles;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import org.joml.Vector3f;
@@ -10,13 +10,15 @@ public enum MuzzleFlashType {
     LARGE,
     TRIANGLE,
     SMALL_STAR,
+    SMALL_CROSS,
     ;
 
     public ParticleType<MuzzleFlashParticleOption> particleType() {
         return switch (this) {
-            case LARGE -> ParticleRegistry.MUZZLE_FLASH_LARGE.get();
-            case TRIANGLE -> ParticleRegistry.MUZZLE_FLASH_TRIANGLE.get();
-            case SMALL_STAR -> ParticleRegistry.MUZZLE_FLASH_SMALL_STAR.get();
+            case LARGE -> IronsArtificeParticles.MUZZLE_FLASH_LARGE.get();
+            case TRIANGLE -> IronsArtificeParticles.MUZZLE_FLASH_TRIANGLE.get();
+            case SMALL_STAR -> IronsArtificeParticles.MUZZLE_FLASH_SMALL_STAR.get();
+            case SMALL_CROSS -> IronsArtificeParticles.MUZZLE_FLASH_SMALL_CROSS.get();
         };
     }
 

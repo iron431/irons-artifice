@@ -5,8 +5,8 @@ import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.item.FireOutcome;
 import io.redspace.irons_artifice.item.GunItem;
 import io.redspace.irons_artifice.item.GunplayManager;
-import io.redspace.irons_artifice.registry.EntityRegistry;
-import io.redspace.irons_artifice.registry.ItemRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 public final class RecoilTests {
 
     private static LivingEntity armedShooter(GameTestHelper helper, int rounds) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), rounds);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), rounds);
         return TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
     }
 
@@ -92,7 +92,7 @@ public final class RecoilTests {
 
         TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, expectedDirection),
                 FireOutcome.FIRED, "control shot fired");
-        Bullet controlBullet = TestFixtures.findOneEntity(helper, EntityRegistry.BULLET.get());
+        Bullet controlBullet = TestFixtures.findOneEntity(helper, IronsArtificeEntities.BULLET.get());
         Vec3 controlVelocity = controlBullet.getDeltaMovement().normalize();
         controlBullet.discard();
         TestFixtures.resetShotState(shooter);
@@ -100,7 +100,7 @@ public final class RecoilTests {
         RecoilState.set(shooter, new RecoilState(pitchOffset, yawOffset, now));
         TestFixtures.assertValueEqual(GunplayManager.tryFire(shooter, TestFixtures.FORWARD),
                 FireOutcome.FIRED, "offset shot fired");
-        Vec3 offsetVelocity = TestFixtures.findOneEntity(helper, EntityRegistry.BULLET.get()).getDeltaMovement().normalize();
+        Vec3 offsetVelocity = TestFixtures.findOneEntity(helper, IronsArtificeEntities.BULLET.get()).getDeltaMovement().normalize();
 
         helper.assertTrue(controlVelocity.subtract(TestFixtures.FORWARD).length() > 0.3,
                 "the rotated control aim differs from straight ahead");

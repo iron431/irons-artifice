@@ -1,64 +1,37 @@
 package io.redspace.irons_artifice.registry;
 
-import io.redspace.irons_artifice.IronsArtifice;
 import io.redspace.irons_artifice.entity.Bullet;
 import io.redspace.irons_artifice.entity.ChainEntity;
 import io.redspace.irons_artifice.entity.Gunslinger;
 import io.redspace.irons_artifice.entity.Illificer;
 import io.redspace.irons_artifice.entity.SoulfireCoin;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
+/**
+ * @deprecated Use {@link IronsArtificeEntities}.
+ */
+@Deprecated
 public final class EntityRegistry {
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
-            DeferredRegister.create(Registries.ENTITY_TYPE, IronsArtifice.MODID);
-
-    public static final RegistryObject<EntityType<Bullet>> BULLET = ENTITY_TYPES.register(
-            "bullet",
-            () -> EntityType.Builder.<Bullet>of(Bullet::new, MobCategory.MISC)
-                    .sized(0.25f, 0.25f)
-                    .build("bullet")
-    );
-
-    public static final RegistryObject<EntityType<ChainEntity>> CHAIN = ENTITY_TYPES.register(
-            "chain",
-            () -> EntityType.Builder.<ChainEntity>of(ChainEntity::new, MobCategory.MISC)
-                    .sized(0.5f, 0.5f)
-                    .clientTrackingRange(64)
-                    .updateInterval(1)
-                    .build("chain")
-    );
-
-    public static final RegistryObject<EntityType<SoulfireCoin>> SOUL = ENTITY_TYPES.register(
-            "soul",
-            () -> EntityType.Builder.<SoulfireCoin>of(SoulfireCoin::new, MobCategory.MISC)
-                    .sized(0.5f, 0.5f)
-                    .clientTrackingRange(64)
-                    .updateInterval(1)
-                    .build("soul")
-    );
-
-    public static final RegistryObject<EntityType<Gunslinger>> GUNSLINGER = ENTITY_TYPES.register(
-            "gunslinger",
-            () -> EntityType.Builder.of(Gunslinger::new, MobCategory.MONSTER)
-                    .sized(0.6f, 1.95f)
-                    .clientTrackingRange(64)
-                    .build("gunslinger")
-    );
-
-    public static final RegistryObject<EntityType<Illificer>> ILLIFICER = ENTITY_TYPES.register(
-            "illificer",
-            () -> EntityType.Builder.of(Illificer::new, MobCategory.MONSTER)
-                    .sized(0.6f, 1.95f)
-                    .clientTrackingRange(64)
-                    .build("illificer")
-    );
-
-    public static void register(IEventBus modEventBus) {
-        ENTITY_TYPES.register(modEventBus);
+    private EntityRegistry() {
     }
+
+    @Deprecated
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = IronsArtificeEntities.ENTITY_TYPES;
+
+    @Deprecated
+    public static final RegistryObject<EntityType<Bullet>> BULLET = IronsArtificeEntities.BULLET;
+
+    @Deprecated
+    public static final RegistryObject<EntityType<ChainEntity>> CHAIN = IronsArtificeEntities.CHAIN;
+
+    @Deprecated
+    public static final RegistryObject<EntityType<SoulfireCoin>> SOUL = IronsArtificeEntities.SOUL;
+
+    @Deprecated
+    public static final RegistryObject<EntityType<Gunslinger>> GUNSLINGER = IronsArtificeEntities.GUNSLINGER;
+
+    @Deprecated
+    public static final RegistryObject<EntityType<Illificer>> ILLIFICER = IronsArtificeEntities.ILLIFICER;
 }

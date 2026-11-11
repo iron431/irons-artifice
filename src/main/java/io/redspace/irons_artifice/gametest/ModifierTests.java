@@ -5,6 +5,7 @@ import io.redspace.irons_artifice.data.RecoilState;
 import io.redspace.irons_artifice.data.ReloadResult;
 import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
+import io.redspace.irons_artifice.entity.SoulfireCoin;
 import io.redspace.irons_artifice.gametest.TestCatalog.LaneOptions;
 import io.redspace.irons_artifice.gametest.TestCatalog.ModifierTest;
 import io.redspace.irons_artifice.gametest.TestFixtures.AimedLane;
@@ -22,11 +23,13 @@ import io.redspace.irons_artifice.modifier.on_hit_handlers.ChainShotOnHit;
 import io.redspace.irons_artifice.modifier.on_hit_handlers.SoulCoinSpawnOnHit;
 import io.redspace.irons_artifice.modifier.on_shot_handlers.RollSoulCoinChanceOnShot;
 import io.redspace.ironslib.kinetic_weapon.KineticWeapon;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
+import io.redspace.irons_artifice.registry.IronsArtificeItems;
 import io.redspace.irons_artifice.registry.ItemRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -37,12 +40,14 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import static io.redspace.irons_artifice.gametest.TestCatalog.bespoke;
 import static io.redspace.irons_artifice.gametest.TestCatalog.compose;
@@ -78,39 +83,39 @@ public final class ModifierTests {
 
     static final List<ModifierTest> ENTRIES = List.of(
             // ---- two lanes ----
-            lanes(ItemRegistry.LEAD_CORE, "lead_core_knocks_back_further", (helper, lanes) -> {
+            lanes(IronsArtificeItems.LEAD_CORE, "lead_core_knocks_back_further", (helper, lanes) -> {
                 double control = lanes.control().targetDisplacement().length();
                 double variant = lanes.variant().targetDisplacement().length();
                 helper.assertTrue(variant > control * (1 + KNOCKBACK_MARGIN),
                         "lead core knocked the target further than the unmodified shot (control " + control
                                 + ", variant " + variant + ")");
             }),
-            lanes(ItemRegistry.OVERCHARGED_POWDER, "overcharged_powder_hits_harder", (helper, lanes) ->
+            lanes(IronsArtificeItems.OVERCHARGED_POWDER, "overcharged_powder_hits_harder", (helper, lanes) ->
                     helper.assertTrue(lanes.variant().damageTaken() > lanes.control().damageTaken(),
                             "overcharged powder dealt more damage than the unmodified shot (control "
                                     + lanes.control().damageTaken() + ", variant " + lanes.variant().damageTaken() + ")")),
             // A musket's one-tick delay rounds to one tick with or without the modifier.
-            lanes(ItemRegistry.HAIR_TRIGGER, "hair_trigger_shortens_delay",
-                    LaneOptions.DEFAULT.withGun(ItemRegistry.ARQUEBUS).withSettleTicks(HAIR_TRIGGER_SETTLE_TICKS),
+            lanes(IronsArtificeItems.HAIR_TRIGGER, "hair_trigger_shortens_delay",
+                    LaneOptions.DEFAULT.withGun(IronsArtificeItems.ARQUEBUS).withSettleTicks(HAIR_TRIGGER_SETTLE_TICKS),
                     (helper, lanes) -> helper.assertTrue(
                             FireDelayState.get(lanes.variant().shooter()).duration()
                                     < FireDelayState.get(lanes.control().shooter()).duration(),
                             "hair trigger started a shorter fire delay than the unmodified gun")),
-            lanes(ItemRegistry.GAS_VENT, "gas_vent_reduces_recoil", (helper, lanes) -> {
+            lanes(IronsArtificeItems.GAS_VENT, "gas_vent_reduces_recoil", (helper, lanes) -> {
                 long now = helper.getLevel().getGameTime();
                 float control = RecoilState.current(lanes.control().shooter(), now).pitch();
                 float variant = RecoilState.current(lanes.variant().shooter(), now).pitch();
                 helper.assertTrue(control > 0.0F, "the unmodified shooter still carries recoil to compare against");
                 helper.assertTrue(variant < control, "gas vent left less recoil than the unmodified shot");
             }),
-            lanes(ItemRegistry.HOOK_SHOT_MODIFIER, "hook_shot_pulls_target_back", (helper, lanes) -> {
+            lanes(IronsArtificeItems.HOOK_SHOT_MODIFIER, "hook_shot_pulls_target_back", (helper, lanes) -> {
                 double control = lanes.control().targetDisplacement().z;
                 double variant = lanes.variant().targetDisplacement().z;
                 helper.assertTrue(control > 0.0, "the unmodified shot knocked its target downrange (" + control + ")");
                 helper.assertTrue(variant < 0.0,
                         "hook shot dragged its target back toward the shooter (it moved " + variant + ")");
             }),
-            lanes(ItemRegistry.BLOODLETTING_TIP_MODIFIER, "bloodletting_tip_trades_health_for_damage", (helper, lanes) -> {
+            lanes(IronsArtificeItems.BLOODLETTING_TIP_MODIFIER, "bloodletting_tip_trades_health_for_damage", (helper, lanes) -> {
                 LivingEntity control = lanes.control().shooter();
                 LivingEntity variant = lanes.variant().shooter();
                 assertValueEqual(control.getHealth(), control.getMaxHealth(),
@@ -121,11 +126,11 @@ public final class ModifierTests {
                         "bloodletting tip dealt more damage than the unmodified shot");
             }),
             // Pellets landing on one target in one tick share invulnerability frames, so damage undercounts them.
-            lanes(ItemRegistry.SCATTERSHOT, "scattershot_fires_more_projectiles", (helper, lanes) ->
+            lanes(IronsArtificeItems.SCATTERSHOT, "scattershot_fires_more_projectiles", (helper, lanes) ->
                     helper.assertTrue(lanes.variant().bulletsSpawned() > lanes.control().bulletsSpawned(),
                             "scattershot spawned more projectiles than the unmodified shot (control "
                                     + lanes.control().bulletsSpawned() + ", variant " + lanes.variant().bulletsSpawned() + ")")),
-            lanes(ItemRegistry.STEEL_CORE, "steel_core_pierces_second_target",
+            lanes(IronsArtificeItems.STEEL_CORE, "steel_core_pierces_second_target",
                     LaneOptions.DEFAULT,
                     helper -> new PerLane<>(
                             watch(toughTarget(helper, TestFixtures.targetPos(TestFixtures.CONTROL_LANE,
@@ -141,7 +146,7 @@ public final class ModifierTests {
                         helper.assertTrue(rear.variant().damage() > 0.0F,
                                 "steel core's shot carried through to the target " + REAR_TARGET_GAP + " blocks behind");
                     }),
-            lanes(ItemRegistry.BLACKPOWDER_CHARGE, "blackpowder_charge_damages_bystander",
+            lanes(IronsArtificeItems.BLACKPOWDER_CHARGE, "blackpowder_charge_damages_bystander",
                     LaneOptions.DEFAULT,
                     helper -> bystanders(helper, BYSTANDER_OFFSET, Side.AWAY_FROM_CENTRE),
                     (helper, bystanders, lanes) -> {
@@ -150,7 +155,7 @@ public final class ModifierTests {
                         helper.assertTrue(bystanders.variant().damage() > 0.0F,
                                 "blackpowder charge damaged the bystander within its blast radius");
                     }),
-            lanes(ItemRegistry.CHAIN_LIGHTNING, "chain_lightning_damages_bystander",
+            lanes(IronsArtificeItems.CHAIN_LIGHTNING, "chain_lightning_damages_bystander",
                     LaneOptions.DEFAULT,
                     helper -> bystanders(helper, BYSTANDER_OFFSET, Side.AWAY_FROM_CENTRE),
                     (helper, bystanders, lanes) -> {
@@ -160,7 +165,7 @@ public final class ModifierTests {
                                 "chain lightning damaged the only bystander in range");
                     }),
             // Two blocks keeps a pulled bystander from colliding with the target and rebounding.
-            lanes(ItemRegistry.SINGULARITY_CHARGE_MODIFIER, "singularity_charge_pulls_bystander",
+            lanes(IronsArtificeItems.SINGULARITY_CHARGE_MODIFIER, "singularity_charge_pulls_bystander",
                     LaneOptions.DEFAULT,
                     helper -> bystanders(helper, SINGULARITY_BYSTANDER_OFFSET, Side.TOWARD_CENTRE),
                     (helper, bystanders, lanes) -> {
@@ -172,7 +177,7 @@ public final class ModifierTests {
                                 "singularity charge pulled the bystander toward the impact (projected " + variant + ")");
                     }),
             // Dirt has 0.5 hardness, so one breaching shot breaks it and nothing else can.
-            lanes(ItemRegistry.BREACHING_SHELL, "breaching_shell_breaks_blocks",
+            lanes(IronsArtificeItems.BREACHING_SHELL, "breaching_shell_breaks_blocks",
                     LaneOptions.DEFAULT.expectingControlMiss(),
                     helper -> {
                         fillCrossSection(helper, WALL_Z, WALL_Z, Blocks.DIRT);
@@ -184,12 +189,12 @@ public final class ModifierTests {
                         helper.assertTrue(!wallColumnIntact(helper, TestFixtures.VARIANT_LANE),
                                 "breaching shell broke through the variant lane's wall");
                     }),
-            lanes(ItemRegistry.INCENDIARY_TIP_MODIFIER, "incendiary_tip_ignites", (helper, lanes) -> {
+            lanes(IronsArtificeItems.INCENDIARY_TIP_MODIFIER, "incendiary_tip_ignites", (helper, lanes) -> {
                 helper.assertFalse(lanes.control().target().isOnFire(), "the unmodified shot left the target unlit");
                 helper.assertTrue(lanes.variant().target().isOnFire(), "incendiary tip set the target alight");
             }),
             // Undead are immune to poison, so this fires at a pig.
-            lanes(ItemRegistry.VENOM_CAPSULE, "venom_capsule_poisons",
+            lanes(IronsArtificeItems.VENOM_CAPSULE, "venom_capsule_poisons",
                     LaneOptions.DEFAULT.withTargetType(EntityType.PIG),
                     (helper, lanes) -> {
                         helper.assertFalse(lanes.control().target().hasEffect(MobEffects.POISON),
@@ -198,7 +203,7 @@ public final class ModifierTests {
                                 "venom capsule poisoned the target it hit");
                     }),
             // Shrapnel spawns on impact, after bulletsSpawned() is sampled, so a sampler counts it.
-            lanes(ItemRegistry.FROZEN_JACKET, "frozen_jacket_freezes",
+            lanes(IronsArtificeItems.FROZEN_JACKET, "frozen_jacket_freezes",
                     LaneOptions.DEFAULT,
                     helper -> {
                         BulletTally tally = new BulletTally();
@@ -216,8 +221,8 @@ public final class ModifierTests {
                                         + tally.variant.size() + ", control " + tally.control.size() + ")");
                     }),
             // A ghast's 4-block hitbox lets an arquebus be aimed from 30 blocks without spraying past it.
-            lanes(ItemRegistry.SPIRAL_TIP_MODIFIER, "spiral_tip_extends_underwater_range",
-                    LaneOptions.DEFAULT.withGun(ItemRegistry.ARQUEBUS).withTargetType(EntityType.GHAST)
+            lanes(IronsArtificeItems.SPIRAL_TIP_MODIFIER, "spiral_tip_extends_underwater_range",
+                    LaneOptions.DEFAULT.withGun(IronsArtificeItems.ARQUEBUS).withTargetType(EntityType.GHAST)
                             .withTargetDistance(SPIRAL_TARGET_DISTANCE).withSettleTicks(SPIRAL_SETTLE_TICKS)
                             .expectingControlMiss().withMaxTicks(40),
                     helper -> {
@@ -228,12 +233,12 @@ public final class ModifierTests {
                     (helper, unused, lanes) -> {
                     }),
             // ---- compose ----
-            compose(ItemRegistry.MECHANICAL_REPEATER, "mechanical_repeater_forces_auto", (helper, control, variant) -> {
+            compose(IronsArtificeItems.MECHANICAL_REPEATER, "mechanical_repeater_forces_auto", (helper, control, variant) -> {
                 helper.assertTrue(control.profile().fireMode() != FireMode.AUTO, "the unmodified musket is not automatic");
                 assertValueEqual(variant.profile().fireMode(), FireMode.AUTO,
                         "mechanical repeater composed the profile into auto fire");
             }),
-            compose(ItemRegistry.SCOPE_ATTACHMENT_MODIFIER, "scope_attachment_applies_patch", (helper, control, variant) -> {
+            compose(IronsArtificeItems.SCOPE_ATTACHMENT_MODIFIER, "scope_attachment_applies_patch", (helper, control, variant) -> {
                 helper.assertFalse(GunItem.hasGunSpyglass(control.stack()),
                         "a plain gun carries no spyglass marker");
                 helper.assertTrue(GunItem.hasGunSpyglass(variant.stack()),
@@ -241,12 +246,12 @@ public final class ModifierTests {
                 helper.assertTrue(variant.profile().value(ShotComponents.SPREAD) < control.profile().value(ShotComponents.SPREAD),
                         "the scope narrowed composed spread");
             }),
-            compose(ItemRegistry.BAYONET_ATTACHMENT_MODIFIER, "bayonet_attachment_applies_patch", (helper, control, variant) -> {
+            compose(IronsArtificeItems.BAYONET_ATTACHMENT_MODIFIER, "bayonet_attachment_applies_patch", (helper, control, variant) -> {
                 helper.assertFalse(KineticWeapon.has(control.stack()), "a plain gun has no kinetic-weapon component");
                 helper.assertTrue(KineticWeapon.has(variant.stack()),
                         "the bayonet's patch put the kinetic-weapon component on the stack");
             }),
-            compose(ItemRegistry.SUPRESSOR_ATTACHMENT_MODIFIER, "suppressor_quietens_and_attaches", (helper, control, variant) -> {
+            compose(IronsArtificeItems.SUPRESSOR_ATTACHMENT_MODIFIER, "suppressor_quietens_and_attaches", (helper, control, variant) -> {
                 float plain = control.profile().peek(ShotComponents.GUNSHOT_SOUND).getBaseSound().end();
                 float suppressed = variant.profile().peek(ShotComponents.GUNSHOT_SOUND).getBaseSound().end();
                 helper.assertTrue(suppressed < plain,
@@ -255,7 +260,7 @@ public final class ModifierTests {
                 helper.assertTrue(hasMuzzleAttachment(variant.stack()), "the suppressor occupies the muzzle slot");
             }),
             // ReloadState.start takes speed as an argument; only attemptStartReload composes the multiplier.
-            compose(ItemRegistry.GUN_OIL, "gun_oil_speeds_reload", (helper, control, variant) -> {
+            compose(IronsArtificeItems.GUN_OIL, "gun_oil_speeds_reload", (helper, control, variant) -> {
                 assertValueEqual(GunplayManager.attemptStartReload(control.shooter(), control.stack()), ReloadResult.STARTING_RELOAD,
                         "the unmodified reload started");
                 assertValueEqual(GunplayManager.attemptStartReload(variant.shooter(), variant.stack()), ReloadResult.STARTING_RELOAD,
@@ -278,7 +283,7 @@ public final class ModifierTests {
             }),
             // ---- fire in place ----
             // The blunderbuss composes a non-zero CHARACTER_BLOWBACK; the musket composes zero.
-            fireInPlace(ItemRegistry.BUFFER_SPRING, "buffer_spring_reduces_blowback", ItemRegistry.BLUNDERBUSS,
+            fireInPlace(IronsArtificeItems.BUFFER_SPRING, "buffer_spring_reduces_blowback", IronsArtificeItems.BLUNDERBUSS,
                     (helper, control, variant) -> {
                         double plain = control.push().length();
                         double sprung = variant.push().length();
@@ -286,7 +291,7 @@ public final class ModifierTests {
                         helper.assertTrue(sprung < DISPLACEMENT_ROUNDING_ROOM,
                                 "buffer spring zeroed the shooter's push (" + sprung + " against " + plain + ")");
                     }),
-            fireInPlace(ItemRegistry.WIND_CHAMBER, "wind_chamber_increases_blowback", ItemRegistry.BLUNDERBUSS,
+            fireInPlace(IronsArtificeItems.WIND_CHAMBER, "wind_chamber_increases_blowback", IronsArtificeItems.BLUNDERBUSS,
                     (helper, control, variant) -> {
                         double plain = control.push().length();
                         double vented = variant.push().length();
@@ -295,18 +300,20 @@ public final class ModifierTests {
                                 "wind chamber increased the shooter's push (" + vented + " against " + plain + ")");
                     }),
             // ---- bespoke ----
-            bespoke(ItemRegistry.SEEKING_POWDER, "seeking_bends_toward_off_axis_target", TestCatalog.RANGE_TWO_LANE, 200,
+            bespoke(IronsArtificeItems.SEEKING_POWDER, "seeking_bends_toward_off_axis_target", TestCatalog.RANGE_TWO_LANE, 200,
                     ModifierTests::seekingBendsTowardOffAxisTarget),
-            bespoke(ItemRegistry.ANTIGRAVITY_MODIFIER, "antigravity_cancels_bullet_drop", TestCatalog.RANGE_TWO_LANE, 200,
+            bespoke(IronsArtificeItems.ANTIGRAVITY_MODIFIER, "antigravity_cancels_bullet_drop", TestCatalog.RANGE_TWO_LANE, 200,
                     ModifierTests::antigravityCancelsBulletDrop),
-            bespoke(ItemRegistry.TRICK_BULLET_MODIFIER, "trick_bullet_ricochets", TestCatalog.RANGE_TWO_LANE, 200,
+            bespoke(IronsArtificeItems.TRICK_BULLET_MODIFIER, "trick_bullet_ricochets", TestCatalog.RANGE_TWO_LANE, 200,
                     ModifierTests::trickBulletRicochets),
-            bespoke(ItemRegistry.CHAIN_SHOT, "chain_shot_links_targets", TestCatalog.RANGE_TWO_LANE, 20,
+            bespoke(IronsArtificeItems.CHAIN_SHOT, "chain_shot_links_targets", TestCatalog.RANGE_TWO_LANE, 20,
                     ModifierTests::chainShotLinksTargets),
-            bespoke(ItemRegistry.MECHANICAL_ACCELERATOR_MODIFIER, "mechanical_accelerator_ramps_damage", TestCatalog.BOX_SMALL, 40,
+            bespoke(IronsArtificeItems.MECHANICAL_ACCELERATOR_MODIFIER, "mechanical_accelerator_ramps_damage", TestCatalog.BOX_SMALL, 40,
                     ModifierTests::mechanicalAcceleratorRampsDamage),
-            bespoke(ItemRegistry.ENCHANTED_BULLET_MODIFIER, "enchanted_bullet_spares_ammo", TestCatalog.BOX_SMALL, 20,
-                    ModifierTests::enchantedBulletSparesAmmo)
+            bespoke(IronsArtificeItems.ENCHANTED_BULLET_MODIFIER, "enchanted_bullet_spares_ammo", TestCatalog.BOX_SMALL, 20,
+                    ModifierTests::enchantedBulletSparesAmmo),
+            bespoke(IronsArtificeItems.SOULFIRE_COIN, "soulfire_coin_launches_coin_on_hit", TestCatalog.RANGE_TWO_LANE,
+                    LaneOptions.DEFAULT.maxTicks(), ModifierTests::soulfireCoinLaunchesCoinOnHit)
     );
 
     private enum Side { AWAY_FROM_CENTRE, TOWARD_CENTRE }
@@ -366,13 +373,16 @@ public final class ModifierTests {
         final Set<UUID> variant = new HashSet<>();
 
         void sample(GameTestHelper helper) {
-            double controlX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.CONTROL_LANE))).x;
-            double variantX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.VARIANT_LANE))).x;
-            for (Bullet bullet : TestFixtures.getEntities(helper, EntityRegistry.BULLET.get())) {
-                double x = bullet.getX();
-                (Math.abs(x - controlX) <= Math.abs(x - variantX) ? control : variant).add(bullet.getUUID());
+            for (Bullet bullet : TestFixtures.getEntities(helper, IronsArtificeEntities.BULLET.get())) {
+                (nearerControlLane(helper, bullet) ? control : variant).add(bullet.getUUID());
             }
         }
+    }
+
+    private static boolean nearerControlLane(GameTestHelper helper, Entity entity) {
+        double controlX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.CONTROL_LANE))).x;
+        double variantX = helper.absoluteVec(Vec3.atCenterOf(TestFixtures.laneOrigin(TestFixtures.VARIANT_LANE))).x;
+        return Math.abs(entity.getX() - controlX) <= Math.abs(entity.getX() - variantX);
     }
 
     // ---- seeking ----
@@ -420,7 +430,7 @@ public final class ModifierTests {
 
     private static AimedLane forwardLane(GameTestHelper helper, int lane, Item... modifiers) {
         LivingEntity shooter = TestFixtures.firingShooter(helper, TestFixtures.laneOrigin(lane),
-                TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1, modifiers));
+                TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1, modifiers));
         TestFixtures.shieldFromDaylight(shooter);
         return new AimedLane(shooter, TestFixtures.FORWARD);
     }
@@ -519,7 +529,7 @@ public final class ModifierTests {
 
     private static AimedLane mirrorLane(GameTestHelper helper, int lane, LivingEntity target, Item... modifiers) {
         LivingEntity shooter = TestFixtures.firingShooter(helper, TestFixtures.laneOrigin(lane),
-                TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 1, modifiers));
+                TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 1, modifiers));
         TestFixtures.shieldFromDaylight(shooter);
         double wallFace = helper.absolutePos(new BlockPos(0, 0, TRICKSHOT_WALL_Z)).getZ();
         Vec3 centre = target.getBoundingBox().getCenter();
@@ -535,7 +545,7 @@ public final class ModifierTests {
     /** Chain shot links a hit to the shooter's previous hit, so it needs the installed handler called more than once. */
     private static void chainShotLinksTargets(GameTestHelper helper, Item[] variantModifiers,
                                               TestCatalog.Expectation expectation) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 0, variantModifiers);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 0, variantModifiers);
         ShotProfile profile = GunplayManager.compose(null, ((GunItem) gun.getItem()).getGun(), gun);
         Optional<ChainShotOnHit> installed = profile.peek(ShotComponents.POST_HIT_EFFECTS).all().stream()
                 .filter(ChainShotOnHit.class::isInstance)
@@ -543,7 +553,7 @@ public final class ModifierTests {
                 .findFirst();
 
         LivingEntity owner = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), ItemStack.EMPTY);
-        Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), helper.getLevel());
+        Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), helper.getLevel());
         bullet.setOwner(owner);
         LivingEntity first = toughTarget(helper, new BlockPos(1, 2, 2));
         LivingEntity second = toughTarget(helper, new BlockPos(1, 2, 2 + CHAIN_IN_RANGE_OFFSET));
@@ -564,7 +574,7 @@ public final class ModifierTests {
     }
 
     private static int countChainEntities(GameTestHelper helper) {
-        return TestFixtures.getEntities(helper, EntityRegistry.CHAIN.get()).size();
+        return TestFixtures.getEntities(helper, IronsArtificeEntities.CHAIN.get()).size();
     }
 
     // ---- mechanical accelerator ----
@@ -576,7 +586,7 @@ public final class ModifierTests {
 
     private static void mechanicalAcceleratorRampsDamage(GameTestHelper helper, Item[] variantModifiers,
                                                          TestCatalog.Expectation expectation) {
-        ItemStack gun = TestFixtures.gunWith(ItemRegistry.MUSKET.get(), 2, variantModifiers);
+        ItemStack gun = TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), 2, variantModifiers);
         LivingEntity shooter = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1), gun);
         LivingEntity target = toughTarget(helper, new BlockPos(1, 2, 1 + ACCEL_TARGET_DISTANCE));
         TestFixtures.shieldFromDaylight(shooter);
@@ -615,9 +625,9 @@ public final class ModifierTests {
     private static void enchantedBulletSparesAmmo(GameTestHelper helper, Item[] variantModifiers,
                                                   TestCatalog.Expectation expectation) {
         LivingEntity control = TestFixtures.firingShooter(helper, new BlockPos(1, 2, 1),
-                TestFixtures.gunWith(ItemRegistry.MUSKET.get(), AMMO_SHOTS));
+                TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), AMMO_SHOTS));
         LivingEntity variant = TestFixtures.firingShooter(helper, new BlockPos(4, 2, 4),
-                TestFixtures.gunWith(ItemRegistry.MUSKET.get(), AMMO_SHOTS, variantModifiers));
+                TestFixtures.gunWith(IronsArtificeItems.MUSKET.get(), AMMO_SHOTS, variantModifiers));
 
         for (int i = 0; i < AMMO_SHOTS; i++) {
             TestFixtures.assertFired(helper, "control", GunplayManager.tryFire(control, TestFixtures.FORWARD));
@@ -632,5 +642,35 @@ public final class ModifierTests {
         expectation.check(helper, () -> helper.assertTrue(variantConsumed < controlConsumed,
                 "enchanted bullet spared at least one round in " + AMMO_SHOTS + " shots (consumed " + variantConsumed + ")"));
         helper.succeed();
+    }
+
+    // ---- soulfire coin ----
+
+    /** Enough copies that their SOUL_CHANCE sums to at least one, so the roll always grants a coin. */
+    private static final int SOULFIRE_COPIES = (int) Math.ceil(1.0 / SoulfireCoinModifier.SOUL_CHANCE);
+
+    private static void soulfireCoinLaunchesCoinOnHit(GameTestHelper helper, Item[] variantModifiers,
+                                                      TestCatalog.Expectation expectation) {
+        Item[] stacked = Stream.of(variantModifiers)
+                .flatMap(modifier -> Collections.nCopies(SOULFIRE_COPIES, modifier).stream())
+                .toArray(Item[]::new);
+        LaneOptions options = LaneOptions.DEFAULT;
+        TestFixtures.fireLanes(helper, options.gun().get(), options.targetDistance(), options.settleTicks(),
+                        options.targetType(), stacked)
+                .expecting(expectation)
+                .thenCompare(lanes -> {
+                    int controlCoins = 0;
+                    int variantCoins = 0;
+                    for (SoulfireCoin coin : TestFixtures.getEntities(helper, IronsArtificeEntities.SOUL.get())) {
+                        if (nearerControlLane(helper, coin)) {
+                            controlCoins++;
+                        } else {
+                            variantCoins++;
+                        }
+                    }
+                    assertValueEqual(controlCoins, 0, "soulfire coins launched by the unmodified shot");
+                    helper.assertTrue(variantCoins > 0,
+                            "soulfire coin launched a coin from the target its shot hit");
+                });
     }
 }

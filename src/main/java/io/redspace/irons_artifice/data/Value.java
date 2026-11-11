@@ -30,10 +30,14 @@ public record Value(double base, Multimap<ValueModifier.Operation, ValueModifier
     }
 
     public double compute() {
-        double sum = base + modifiersByOperation.get(ValueModifier.Operation.ADD).stream().mapToDouble(ValueModifier::amount).sum();
-        for (ValueModifier modifier : modifiersByOperation.get(ValueModifier.Operation.MULTIPLY_TOTAL)) {
-            sum *= 1 + modifier.amount();
+        double flat = base + modifiersByOperation.get(ValueModifier.Operation.ADD).stream().mapToDouble(ValueModifier::amount).sum();
+        double result = flat;
+        for (ValueModifier modifier : modifiersByOperation.get(ValueModifier.Operation.MULTIPLY_BASE)) {
+            result += flat * modifier.amount();
         }
-        return sum;
+        for (ValueModifier modifier : modifiersByOperation.get(ValueModifier.Operation.MULTIPLY_TOTAL)) {
+            result *= 1 + modifier.amount();
+        }
+        return result;
     }
 }

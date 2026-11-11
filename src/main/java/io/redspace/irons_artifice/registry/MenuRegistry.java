@@ -8,7 +8,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class MenuRegistry {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, IronsArtifice.MODID);
 

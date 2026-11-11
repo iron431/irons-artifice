@@ -1,11 +1,13 @@
 package io.redspace.irons_artifice.registry;
 
 import net.minecraft.world.entity.raid.Raid;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.Internal
 public final class ExtendedRaiderTypes {
     public static final Raid.RaiderType ILLIFICER = Raid.RaiderType.create(
             "IRONS_ARTIFICE_ILLIFICER",
-            EntityRegistry.ILLIFICER.get(),
+            IronsArtificeEntities.ILLIFICER.get(),
             new int[]{0, 0, 0, 1, 0, 1, 2, 3}
     );
 

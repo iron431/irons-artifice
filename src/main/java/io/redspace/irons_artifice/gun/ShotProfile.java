@@ -56,7 +56,7 @@ public record ShotProfile(ItemStack itemStack, GunProfile gun, MagazineContents 
     }
 
     public int fireDelayTicks() {
-        return (int) Math.round(value(ShotComponents.FIRE_DELAY) / Math.max(1e-6, value(ShotComponents.FIRE_RATE)));
+        return Math.max(1, (int) Math.round(value(ShotComponents.FIRE_DELAY) / Math.max(1e-6, value(ShotComponents.FIRE_RATE))));
     }
 
     public FireMode fireMode() {

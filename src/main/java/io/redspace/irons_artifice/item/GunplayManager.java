@@ -7,7 +7,9 @@ import io.redspace.irons_artifice.api.GunAboutToShootEvent;
 import io.redspace.irons_artifice.api.GunAnimations;
 import io.redspace.irons_artifice.api.GunShootEvent;
 import io.redspace.irons_artifice.advancement.ShotRecord;
+import io.redspace.irons_artifice.attribute.GunAttributeHandler;
 import io.redspace.irons_artifice.client.ClientHelper;
+import io.redspace.irons_artifice.config.GunConfig;
 import io.redspace.irons_artifice.data.MuzzleFlashSettings;
 import io.redspace.irons_artifice.data.MuzzleFlashType;
 import io.redspace.irons_artifice.data.RecoilState;
@@ -26,7 +28,7 @@ import io.redspace.irons_artifice.network.packets.ClientboundCancelGunAnimationP
 import io.redspace.irons_artifice.network.packets.ClientboundGunAnimationPacket;
 import io.redspace.irons_artifice.network.packets.ClientboundMuzzleFlashPacket;
 import io.redspace.irons_artifice.network.packets.MuzzleFlashVisuals;
-import io.redspace.irons_artifice.registry.EntityRegistry;
+import io.redspace.irons_artifice.registry.IronsArtificeEntities;
 import io.redspace.irons_artifice.utils.IronsArtificeTags;
 import io.redspace.irons_artifice.utils.Utils;
 import net.minecraft.core.particles.ParticleOptions;
@@ -234,7 +236,7 @@ public final class GunplayManager {
             effect.onShot(level, shooter, profile);
         }
         for (int i = 0; i < projectileCount; i++) {
-            Bullet bullet = new Bullet(EntityRegistry.BULLET.get(), level);
+            Bullet bullet = new Bullet(IronsArtificeEntities.BULLET.get(), level);
             bullet.setOwner(shooter);
             bullet.applyProfile(profile.copy());
             bullet.setShotRecord(ShotRecord.of(fireId, fullMagazine));
@@ -298,6 +300,7 @@ public final class GunplayManager {
     public static ShotProfile compose(@Nullable LivingEntity living, GunProfile gunProfile, ItemStack gunStack) {
         GunContainer modifiers = new GunContainer(gunStack);
         ShotComponentMap components = gunProfile.baseProfile();
+        GunConfig.handleConfigModifications(gunStack.getItem(), components);
         for (int slot = 0; slot < modifiers.getContainerSize(); slot++) {
             ItemStack stack = modifiers.getItem(slot);
             if (stack.getItem() instanceof ModifierItem modifierItem) {
@@ -306,8 +309,9 @@ public final class GunplayManager {
         }
         ShotProfile profile = new ShotProfile(gunStack, gunProfile, MagazineContents.get(gunStack), components);
         if (living != null) {
+            GunAttributeHandler.applyShooterAttributes(living, profile);
             if (living instanceof Player player && GunItem.isScoping(player)) {
-                profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL, ValueModifier.Type.HARMFUL));
+                profile.modifyValue(ShotComponents.CAMERA_RECOIL_MULTIPLIER, new ValueModifier(-0.5, ValueModifier.Operation.MULTIPLY_TOTAL));
             }
             MinecraftForge.EVENT_BUS.post(new ComposeShotEvent(living, profile));
         }
