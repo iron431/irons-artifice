@@ -134,10 +134,10 @@ public class MuzzleFlashParticle extends TextureSheetParticle {
         float v1 = mirrorVertical ? whiteMaskSprite.getV0() : whiteMaskSprite.getV1();
         float size = getQuadSize(partialTickTime);
         int light = getLightColor(partialTickTime);
-        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, -1.0F, size, u1, v1, light);
-        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, 1.0F, size, u1, v0, light);
-        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, 1.0F, size, u0, v0, light);
-        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, -1.0F, size, u0, v1, light);
+        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, -1.0F, size, u1, v1, light);
+        renderMaskVertex(buffer, rotation, x, y, z, -1.0F, 1.0F, size, u1, v0, light);
+        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, 1.0F, size, u0, v0, light);
+        renderMaskVertex(buffer, rotation, x, y, z, 1.0F, -1.0F, size, u0, v1, light);
     }
 
     private void renderMaskVertex(VertexConsumer buffer, Quaternionf rotation,
