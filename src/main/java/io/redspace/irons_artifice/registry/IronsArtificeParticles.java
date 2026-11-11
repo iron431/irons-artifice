@@ -60,6 +60,8 @@ public final class IronsArtificeParticles {
             PARTICLE_TYPES.register("muzzle_flash_triangle", () -> new MuzzleFlashParticleType(false));
     public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_SMALL_STAR =
             PARTICLE_TYPES.register("muzzle_flash_small_star", () -> new MuzzleFlashParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> MUZZLE_FLASH_SMALL_CROSS =
+            PARTICLE_TYPES.register("muzzle_flash_small_cross", () -> new MuzzleFlashParticleType(false));
 
     public static final DeferredHolder<ParticleType<?>, ParticleType<MuzzleFlashParticleOption>> EXPLOSION_96 =
             PARTICLE_TYPES.register("explosion", () -> new MuzzleFlashParticleType(false));

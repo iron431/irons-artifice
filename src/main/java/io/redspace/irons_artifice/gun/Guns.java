@@ -146,7 +146,6 @@ public final class Guns {
                                     GunShotSoundSettings.standardShot(IronsArtificeSounds.CLOCKWORK_RIFLE_SHOOT, 1f),
                                     GunShotSoundSettings.standardEcho(IronsArtificeSounds.BULLET_ECHO_GENERIC, 1f),
                                     PlayableSound.holder(SoundEvents.DISPENSER_FAIL))
-                            .muzzleFlash(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR)
                             .build())
             .reloadCues(ReloadCueStack.of(
                     new ReloadCue(0.38f, PlayableSound.of(IronsArtificeSounds.CLOCKWORK_RIFLE_EJECT_MAG, 1.25f, 0.9f, 1.1f)),

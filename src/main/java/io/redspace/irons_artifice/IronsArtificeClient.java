@@ -176,6 +176,7 @@ public class IronsArtificeClient {
         event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_LARGE.get(), MuzzleFlashParticle.Provider::new);
         event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_TRIANGLE.get(), MuzzleFlashParticle.Provider::new);
         event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_SMALL_STAR.get(), MuzzleFlashParticle.Provider::new);
+        event.registerSpriteSet(IronsArtificeParticles.MUZZLE_FLASH_SMALL_CROSS.get(), MuzzleFlashParticle.Provider::new);
         event.registerSpriteSet(IronsArtificeParticles.FAIRY_DUST.get(), FairyDustParticle.Provider::new);
         event.registerSpriteSet(IronsArtificeParticles.LIGHTNING_TRAIL.get(), LightningTrailEmitterParticle.Provider::new);
         event.registerSpriteSet(IronsArtificeParticles.EXPLOSION_96.get(), TintedExplosionParticle.Provider::new);

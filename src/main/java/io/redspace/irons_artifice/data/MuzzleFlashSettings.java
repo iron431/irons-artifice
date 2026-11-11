@@ -19,7 +19,7 @@ public record MuzzleFlashSettings(
 ) implements Copyable<MuzzleFlashSettings> {
     public static final Vector3f WHITE = new Vector3f(1f, 1f, 1f);
     public static final Vector3f UNTINTED = new Vector3f(-1f, -1f, -1f);
-    public static final Supplier<MuzzleFlashSettings> DEFAULT = () -> of(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR);
+    public static final Supplier<MuzzleFlashSettings> DEFAULT = () -> of(MuzzleFlashType.TRIANGLE, MuzzleFlashType.SMALL_STAR, MuzzleFlashType.SMALL_CROSS);
 
     public static MuzzleFlashSettings of(MuzzleFlashType... types) {
         if (types.length == 0) {

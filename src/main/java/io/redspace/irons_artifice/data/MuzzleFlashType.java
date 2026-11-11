@@ -10,6 +10,7 @@ public enum MuzzleFlashType {
     LARGE,
     TRIANGLE,
     SMALL_STAR,
+    SMALL_CROSS,
     ;
 
     public ParticleType<MuzzleFlashParticleOption> particleType() {
@@ -17,6 +18,7 @@ public enum MuzzleFlashType {
             case LARGE -> IronsArtificeParticles.MUZZLE_FLASH_LARGE.get();
             case TRIANGLE -> IronsArtificeParticles.MUZZLE_FLASH_TRIANGLE.get();
             case SMALL_STAR -> IronsArtificeParticles.MUZZLE_FLASH_SMALL_STAR.get();
+            case SMALL_CROSS -> IronsArtificeParticles.MUZZLE_FLASH_SMALL_CROSS.get();
         };
     }
 
