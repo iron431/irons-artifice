@@ -27,6 +27,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
+import java.util.UUID;
+
 @EventBusSubscriber
 public final class DebugCommands {
 
@@ -52,10 +54,12 @@ public final class DebugCommands {
         ItemStack stack = ItemArgument.getItem(context, "item").createItemStack(1, false);
         Holder<Attribute> attribute = ResourceArgument.getAttribute(context, "attribute");
 
+        // An entity's attribute instance keys modifiers by id across everything it has equipped, so each given stack needs its own ids.
+        String stackKey = UUID.randomUUID().toString();
         ItemAttributeModifiers modifiers = stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
-        modifiers = withDebugModifier(modifiers, attribute, DoubleArgumentType.getDouble(context, "add"), AttributeModifier.Operation.ADD_VALUE);
-        modifiers = withDebugModifier(modifiers, attribute, DoubleArgumentType.getDouble(context, "m_total"), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-        modifiers = withDebugModifier(modifiers, attribute, DoubleArgumentType.getDouble(context, "m_base"), AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        modifiers = withDebugModifier(modifiers, attribute, stackKey, DoubleArgumentType.getDouble(context, "add"), AttributeModifier.Operation.ADD_VALUE);
+        modifiers = withDebugModifier(modifiers, attribute, stackKey, DoubleArgumentType.getDouble(context, "m_total"), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        modifiers = withDebugModifier(modifiers, attribute, stackKey, DoubleArgumentType.getDouble(context, "m_base"), AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
 
         Component name = stack.getDisplayName();
@@ -66,11 +70,11 @@ public final class DebugCommands {
         return 1;
     }
 
-    private static ItemAttributeModifiers withDebugModifier(ItemAttributeModifiers modifiers, Holder<Attribute> attribute, double amount, AttributeModifier.Operation operation) {
+    private static ItemAttributeModifiers withDebugModifier(ItemAttributeModifiers modifiers, Holder<Attribute> attribute, String stackKey, double amount, AttributeModifier.Operation operation) {
         if (amount == 0) {
             return modifiers;
         }
-        AttributeModifier modifier = new AttributeModifier(IronsArtifice.id("debug/" + operation.getSerializedName()), amount, operation);
+        AttributeModifier modifier = new AttributeModifier(IronsArtifice.id("debug/" + stackKey + "/" + operation.getSerializedName()), amount, operation);
         return modifiers.withModifierAdded(attribute, modifier, EquipmentSlotGroup.ANY);
     }
 
