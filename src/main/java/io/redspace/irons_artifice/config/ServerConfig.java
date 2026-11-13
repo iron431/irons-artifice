@@ -27,10 +27,10 @@ public final class ServerConfig {
         BUILDER.pop();
         GUN_OVERRIDES_ENABLED = BUILDER
                 .comment(
-                        "Per-gun stat overrides, applied to the gun's base stats before modifiers.",
-                        "Each [[guns.overrides]] table names one gun by item id, then sets components by id.",
-                        "A number replaces the component's base value; true or false sets a flag.",
-                        "Only components already in the gun's base stats can be changed. Common ones:",
+                        "Gun components overrides (applies to base stats)",
+                        "Each [[guns.overrides]] table names one gun item id, and sets components by id.",
+                        "Component value overrides can be numerical or boolean (true/false)",
+                        "Only components already in the gun's base stats can be changed. Common component ids:",
                         "  \"irons_artifice:damage\", \"irons_artifice:spread\", \"irons_artifice:fire_delay\", \"irons_artifice:projectile_count\", \"irons_artifice:bullet_speed\", \"irons_artifice:knockback\", \"irons_artifice:character_blowback\"",
                         "Example:",
                         "  [[guns.overrides]]",
