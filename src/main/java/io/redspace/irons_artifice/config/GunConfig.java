@@ -17,9 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Applies the per-gun overrides of base shot components from {@link ServerConfig#GUN_OVERRIDES}, keyed by item id, then component id.
- */
 public final class GunConfig {
     private static final String ITEM_KEY = "item";
 
@@ -93,7 +90,7 @@ public final class GunConfig {
     }
 
     /**
-     * @return whether a component of the matching kind was found and set
+     * @return whether component was set
      */
     @SuppressWarnings("unchecked")
     private static boolean apply(ComponentOverride override, ShotComponentMap components) {
@@ -114,7 +111,7 @@ public final class GunConfig {
     }
 
     /**
-     * Provides empty table for all registered gun items (including addons)
+     * Provides empty tables for all registered gun items (including addons)
      */
     static List<? extends UnmodifiableConfig> stubPerGun() {
         return BuiltInRegistries.ITEM.stream()
