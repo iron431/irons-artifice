@@ -1,6 +1,7 @@
 package io.redspace.irons_artifice.gun;
 
 import io.redspace.irons_artifice.IronsArtifice;
+import io.redspace.irons_artifice.data.ShotComponents;
 import io.redspace.irons_artifice.entity.Bullet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -88,6 +89,11 @@ public class BlockDamageManager {
             // with explosive bullets, we want an entity to affect multiple, so use no-op id
             // id is saved and reused, so we good
             id = bullet.getRandom().nextInt(Integer.MAX_VALUE);
+            if (!bullet.getProfile().components().has(ShotComponents.BREAKS_BLOCKS) && blockMaxHealth > 1) {
+                // prevent always-breakables from being one tapped by a non-breaking bullet
+                // mainly a hack to prevent glass from being constantly obliterated. does not affect insta-breakables (pots), which have block health = 0
+                damage = Math.min(damage, blockMaxHealth - 1);
+            }
         }
         float lastProgress = 1 - blockCurrentHealth / blockMaxHealth;
         blockCurrentHealth -= damage;
