@@ -109,7 +109,7 @@
   "attribute.irons_artifice.camera_recoil_multiplier": "Отдача",
   "attribute.irons_artifice.character_blowback": "Откидывание оружия",
   "attribute.irons_artifice.force_auto_fire": "Автоматический огонь",
-  "attribute.irons_artifice.breaks_blocks": "Разрушение блоков пулей
+  "attribute.irons_artifice.breaks_blocks": "Разрушение блоков пулей",
   "irons_artifice.modifier.blackpowder_charge": "Взрыв при попадании",
   "irons_artifice.modifier.chain_lightning": "+%s Цепи молнии при попадании (%s%% урона по каждому)",
   "irons_artifice.component_type.soul_chance_on_hit": "+%s%% Шанс выпустить монетку при попадании",
